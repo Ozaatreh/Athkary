@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "833900910992",
+    "firebase_url": "https://athkary-f5eaf-default-rtdb.firebaseio.com",
+    "project_id": "athkary-f5eaf",
+    "storage_bucket": "athkary-f5eaf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833900910992:android:f5e76bd97fcf47d6fcfb15",
+        "android_client_info": {
+          "package_name": "com.example.athkary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLv_v43ZKKZmI0Iez46UDv8sGCgQenVhA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
