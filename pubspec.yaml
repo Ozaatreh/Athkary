@@ -69,20 +69,20 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/atkary_ramadanv2.png"
+  image_path: "assets/images/athk_v3.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/images/atkary_ramadanv2.png"
+    image_path: "assets/images/athk_v3.png"
     background_color: "#hexcode"
     theme_color: "#hexcode"
   windows:
     generate: true
-    image_path: "assets/images/atkary_ramadanv2.png"
+    image_path: "assets/images/athk_v3.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/images/atkary_ramadanv2.png"
+    image_path: "assets/images/athk_v3.png"
     
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -111,9 +111,11 @@ flutter:
     - assets/pdfs/
     - assets/animations/
     - assets/animation_riv/
-    - assets/animation_riv/athkary_v2.riv
+    # - assets/animation_riv/Logo-4-[remix] (2).json
     - assets/audios/
-    - assets/audios/20250210_220909_1 (1).m4a
+    # - assets/audios/20250210_220909_1 (1).m4a
+    - assets/animations/duaa1746555885.json
+    # - assets/pdfs/quran_hafs_m.pdf
     # - assets/lang/
     # - assets/pdfs/khass1brown.pdf
     # - assets/pdfs/juzutabarak.pdf

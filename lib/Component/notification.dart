@@ -13,7 +13,7 @@ class CustomNotificationState extends State<CustomNotification> {
   void notificationfunc (){
     AwesomeNotifications().initialize(
       // null,
-      'resource://drawable/atkary_ramadanv2',
+      'resource://drawable/athk_v3',
       [
         NotificationChannel(
             channelKey: 'test',

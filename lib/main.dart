@@ -23,7 +23,7 @@ Future<void> main() async {
   await Firebase.initializeApp();
    // Initialize Awesome Notifications
   AwesomeNotifications().initialize(
-    'resource://drawable/atkary_ramadanv2', // Set null to use the default icon for notifications
+    'resource://drawable/athk_v3', // Set null to use the default icon for notifications
     [
       NotificationChannel(
         channelKey: 'tasabeh_channel',
