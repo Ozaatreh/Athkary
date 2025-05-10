@@ -4,16 +4,13 @@ allprojects {
         mavenCentral()
     }
 }
-// dependencies {
-//     classpath 'com.google.gms:google-services:4.3.15' // Ensure compatibility
-// }
 
-rootProject.buildDir = "../build"
+rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
