@@ -86,7 +86,7 @@ final List<String> athkarInfo = [
           style: GoogleFonts.tajawal(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+            color: theme.colorScheme.primary,
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -94,7 +94,7 @@ final List<String> athkarInfo = [
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+            color: theme.colorScheme.primary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -103,7 +103,7 @@ final List<String> athkarInfo = [
             padding: const EdgeInsets.only(right: 16.0),
             child: Icon(
               Icons.wb_sunny_outlined, // Changed to sun icon
-              color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+              color: theme.colorScheme.primary,
             ),
           ),
         ],

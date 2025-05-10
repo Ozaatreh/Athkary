@@ -108,6 +108,7 @@ class AdyahPartsPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
+          const Spacer(),
           IconButton(
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -123,6 +124,7 @@ class AdyahPartsPage extends StatelessWidget {
             fit: BoxFit.contain,
           ),
           const SizedBox(width: 8),
+          const Spacer(),
           Text(
             'أدعية',
             style: GoogleFonts.amiri(

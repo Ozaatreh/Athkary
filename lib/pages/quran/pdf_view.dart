@@ -38,7 +38,7 @@ class _QuranViewerScreenState extends State<QuranViewerScreen> {
   @override
   void initState() {
     super.initState();
-    currentPage = widget.startPage - 1;
+    currentPage = widget.startPage ;
     _pageController.text = widget.startPage.toString();
     loadPdf();
     _loadSettings();
@@ -180,15 +180,21 @@ class _QuranViewerScreenState extends State<QuranViewerScreen> {
               controller: _pageController,
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
-              style: theme.textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 13,
+                color: isNightMode ?  Colors.black : Colors.white ,
+              ),
               decoration: InputDecoration(
+                hintStyle: TextStyle(
+                  color: isNightMode ?   Colors.black : Colors.white ,
+                ),
                 hintText: 'الصفحة',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor:  isNightMode ?  const Color.fromARGB(255, 201, 200, 200) :const Color.fromARGB(255, 118, 118, 118),
+                fillColor:  isNightMode ?  const Color.fromARGB(255, 201, 200, 200) :const Color.fromARGB(255, 157, 157, 157),
                 contentPadding: const EdgeInsets.symmetric(vertical: 4),
               ),
               onSubmitted: goToPage,

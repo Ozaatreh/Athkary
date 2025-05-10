@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:athkary/pages/quran/quran_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,17 +28,24 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
   String? localPath;
   bool isNightMode = false;
   bool isReloading = false;
-  bool isAppBarVisible = true;
-  Timer? _appBarTimer;
-  final TextEditingController _pageController = TextEditingController();
   bool isHorizontalScroll = true;
+  final TextEditingController _pageController = TextEditingController();
+  bool _isFabVisible = true;
+  Timer? _fabTimer;
 
-  @override
+   @override
   void initState() {
     super.initState();
     currentPage = widget.startPage - 1; // Initialize currentPage to the startPage
     loadPdf();
     _loadSettings();
+  }
+  void _startFabTimer() {
+    _fabTimer?.cancel();
+    setState(() => _isFabVisible = true);
+    _fabTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) setState(() => _isFabVisible = false);
+    });
   }
 
   Future<void> _loadSettings() async {
@@ -54,30 +58,19 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
 
   @override
   void dispose() {
-    _appBarTimer?.cancel();
+    _fabTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
-  void onPageChanged(int? page, int? total) async {
-    setState(() {
-      currentPage = page!;
-      _pageController.text = (page + 1).toString();
-    });
-  }
-
   Future<void> loadPdf() async {
-    setState(() {
-      isReloading = true;
-    });
-
+    setState(() => isReloading = true);
     final tempDir = await getTemporaryDirectory();
     final tempFilePath = '${tempDir.path}/Quraan_v0.pdf';
     final file = File(tempFilePath);
 
     if (!await file.exists()) {
-      final assetPath = widget.pdfPath;
-      final bytes = await rootBundle.load(assetPath);
+      final bytes = await rootBundle.load(widget.pdfPath);
       await file.writeAsBytes(bytes.buffer.asUint8List());
     }
 
@@ -85,8 +78,6 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
       localPath = tempFilePath;
       isReloading = false;
     });
-
-    // Restore the current page after the PDF is reloaded
     _pdfViewController.setPage(currentPage);
   }
 
@@ -94,7 +85,7 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isNightMode = !isNightMode;
-      localPath = null; // Force reload the PDFView
+      localPath = null;
     });
     await prefs.setBool('isNightMode', isNightMode);
     loadPdf();
@@ -102,9 +93,7 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
 
   void toggleScrollDirection() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isHorizontalScroll = !isHorizontalScroll;
-    });
+    setState(() => isHorizontalScroll = !isHorizontalScroll);
     await prefs.setBool('isHorizontalScroll', isHorizontalScroll);
   }
 
@@ -112,191 +101,198 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
     final page = int.tryParse(pageNumber);
     if (page != null && page >= 1 && page <= pages) {
       _pdfViewController.setPage(page - 1);
-      setState(() {
-        currentPage = page - 1;
-      });
+      setState(() => currentPage = page - 1);
+      _startFabTimer();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invalid page number. Please enter a number between 1 and $pages.'),
+          content: Text(' (1-$pages) رقم صفحه خاطئ'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
         ),
-      );
+      ),);
     }
   }
 
+Future<void> _saveBookmark() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('savedBookmarkPage', currentPage);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        content: Text('تم حفظ الصفحه ${currentPage + 1}'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+  );
+  _startFabTimer();
+}
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-           Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: ((context) => QuranPartsScreen()),
-                ),
-                );
-          },
-          icon: Icon(
-            color: isNightMode ? Colors.white : Colors.black,
-            Icons.arrow_back_ios_new_sharp,
-            size: 25,
-          ),
-        ),
         backgroundColor: isNightMode ? Colors.black : Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, 
+              color: isNightMode ? Colors.white : Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
-          "Quran",
-          style: TextStyle(color: isNightMode ? Colors.white : Colors.black, fontSize: 17),
+          'القرآن الكريم',
+          style: TextStyle(
+            color: isNightMode ? Colors.white : Colors.black,
+            fontSize: 15,
+            fontFamily: 'Amiri',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
-           // Bookmark Button
- IconButton(
-     icon: Lottie.asset(
-        'assets/animations/wired-lineal-400-bookmark-morph-checked.json', // Dark mode animation
-         width: 30,
-         height: 30,
-         fit: BoxFit.fill,
-         animate: true,
-         // reverse: true,
-         repeat: false,
-           ),
-     onPressed: () async {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('savedBookmarkPage', currentPage); // Save the current page as a bookmark
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          shape:  RoundedRectangleBorder(
-            borderRadius: BorderRadius.only( topLeft: Radius.circular(9),topRight: Radius.circular(9),),
-          ),
-          backgroundColor:const Color.fromARGB(255, 108, 108, 108) ,
-          content: Center(child: Text(' ${currentPage + 1} تم حفظ الصفحة' , style: TextStyle(color: Colors.black),)),
-        ),
-      );
-    },
-  ),
-  // Other buttons...
-          // Scroll Direction Toggle
           IconButton(
             icon: Icon(
-              isHorizontalScroll ? Icons.swipe_vertical_outlined : Icons.swipe_left_outlined,
-              color: isNightMode ?  Colors.white : Colors.black,
+              isHorizontalScroll ? Icons.swipe_vertical : Icons.swipe_left,
+              color: isNightMode ? Colors.white : Colors.black,
             ),
             onPressed: toggleScrollDirection,
           ),
-          // Page Number Input
           Container(
-            width: 50,
-            height: 30,
-            margin: EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              border: Border.all(color: Theme.of(context).colorScheme.inversePrimary),
-              borderRadius: BorderRadius.circular(3),
-            ),
+            width: 60,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
             child: TextField(
-              style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
               controller: _pageController,
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
-              maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Page',
-                contentPadding: EdgeInsets.only(bottom: 10),
+              style: TextStyle(
+                fontSize: 13,
+                color: isNightMode ? Colors.black : Colors.white,
               ),
-              onSubmitted: (value) {
-                goToPage(value);
-              },
+              decoration: InputDecoration(
+                hintStyle: TextStyle(
+                  color: isNightMode ? Colors.black : Colors.white,
+                ),
+                hintText: 'الصفحة',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: isNightMode 
+                    ? const Color.fromARGB(255, 201, 200, 200) 
+                    : const Color.fromARGB(255, 157, 157, 157),
+                contentPadding: const EdgeInsets.symmetric(vertical: 4),
+              ),
+              onSubmitted: goToPage,
             ),
           ),
-          // Night Mode Toggle
           IconButton(
+            color: isNightMode ? Colors.white : Colors.black,
             icon: isNightMode
-                ? Lottie.asset(
-                    'assets/animations/wired-outline-1958-sun-hover-pinch.json',
-                    width: 40,
-                    height: 50,
-                    fit: BoxFit.fill,
-                    animate: true,
-                    reverse: true,
-                    repeat: true,
-                  )
-                : Lottie.asset(
-                    'assets/animations/wired-lineal-1821-night-sky-moon-stars-hover-pinch.json',
-                    width: 40,
-                    height: 50,
-                    fit: BoxFit.fill,
-                    animate: true,
-                    repeat: true,
-                  ),
+                ? const Icon(Icons.light_mode)
+                : const Icon(Icons.dark_mode),
             onPressed: toggleNightMode,
           ),
         ],
       ),
       body: GestureDetector(
-        child: isReloading
-            ? Center(
-                child: Lottie.asset(
-                  'assets/animations/wired-outline-1414-circle-hover-pinch.json',
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.fill,
-                  animate: true,
-                  repeat: true,
-                ),
-              )
-            : localPath != null
-                ? PDFView(
-                    key: ValueKey('pdfview_${isNightMode}_${isHorizontalScroll}_$localPath'),
-                    defaultPage: currentPage,
-                    filePath: localPath,
-                    autoSpacing: true,
-                    // fitPolicy: FitPolicy.HEIGHT,
-                    enableSwipe: true,
-                    pageSnap: true,
-                    swipeHorizontal: isHorizontalScroll,
-                    fitEachPage: true,
-                    nightMode: isNightMode,
-                    onRender: (pages) {
-                      setState(() {
-                        this.pages = pages!;
-                        isReady = true;
-                      });
+        onTap: _startFabTimer,
+        child: Stack(
+          children: [
+            if (isReloading)
+              const Center(child: CircularProgressIndicator())
+            else if (localPath != null)
+              PDFView(
+                key: ValueKey('pdfview_${isNightMode}_${isHorizontalScroll}'),
+                filePath: localPath,
+                defaultPage: currentPage,
+                swipeHorizontal: isHorizontalScroll,
+                nightMode: isNightMode,
+                autoSpacing: true,
+                pageSnap: true,
+                fitEachPage: true,
+                onRender: (pages) => setState(() {
+                  this.pages = pages!;
+                  isReady = true;
+                }),
+                onViewCreated: (controller) {
+                  _pdfViewController = controller;
+                  // _pdfViewController.setPage(currentPage);
+                },
+                onPageChanged: (page, total) async {
+                setState(() {
+                  currentPage = page!;
+                  _pageController.text = (page + 1).toString();
+                });
+                _startFabTimer();
+              },
+                onError: (error) => print(error.toString()),
+              ),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {
+                  _saveBookmark();
+                  _startFabTimer();
+                },
+                child: AnimatedOpacity(
+                  opacity: _isFabVisible ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: FloatingActionButton(
+                    heroTag: 'bookmark_fab',
+                    child: const Icon(Icons.bookmark_add),
+                    onPressed: () {
+                      _saveBookmark();
+                      _startFabTimer();
                     },
-                    onViewCreated: (PDFViewController pdfViewController) {
-                      _pdfViewController = pdfViewController;
-                      _pdfViewController.setPage(currentPage);
-                    },
-                    onPageChanged: onPageChanged,
-                    onError: (error) {
-                      print(error.toString());
-                    },
-                  )
-                : Center(
-                    child: CircularProgressIndicator(),
                   ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(left: 20.0),
+        padding: const EdgeInsets.only(bottom: 72, left: 30),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back, color: isNightMode ? Colors.white : Colors.black),
-              onPressed: () {
-                if (currentPage > 0) {
-                  _pdfViewController.setPage(currentPage - 1);
-                }
-              },
+            AnimatedOpacity(
+              opacity: _isFabVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: FloatingActionButton(
+                heroTag: 'prev_fab',
+                mini: true,
+                child: const Icon(Icons.chevron_left),
+                onPressed: currentPage > 0
+                    ? () {
+                        _pdfViewController.setPage(currentPage - 1);
+                        _startFabTimer();
+                      }
+                    : null,
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward, color: isNightMode ? Colors.white : Colors.black),
-              onPressed: () {
-                if (currentPage < pages - 1) {
-                  _pdfViewController.setPage(currentPage + 1);
-                }
-              },
+            const SizedBox(width: 20),
+            AnimatedOpacity(
+              opacity: _isFabVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: FloatingActionButton(
+                heroTag: 'next_fab',
+                mini: true,
+                child: const Icon(Icons.chevron_right),
+                onPressed: currentPage < pages - 1
+                    ? () {
+                        _pdfViewController.setPage(currentPage + 1);
+                        _startFabTimer();
+                      }
+                    : null,
+              ),
             ),
           ],
         ),
