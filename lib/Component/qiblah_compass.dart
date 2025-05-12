@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:athkary/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,19 +19,19 @@ class _QiblahScreenState extends State<QiblahScreen> with SingleTickerProviderSt
   String _statusMessage = "جارٍ التحقق من صلاحية الموقع...";
   String _directionText = "";
   String _degreeText = "";
+late Stream<QiblahDirection> _qiblahStream;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkLocationPermission();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _animation = Tween(begin: 0.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuart),
-    );
-  }
+@override
+void initState() {
+  super.initState();
+  _checkLocationPermission();
+  _qiblahStream = FlutterQiblah.qiblahStream; // Warm up early
+  _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
+}
+
 
   Future<void> _checkLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -98,7 +99,7 @@ class _QiblahScreenState extends State<QiblahScreen> with SingleTickerProviderSt
                     color: theme.colorScheme.primary,
                     size: 28,
                   ),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(),)),
                 ),
                
               ],
@@ -109,26 +110,26 @@ class _QiblahScreenState extends State<QiblahScreen> with SingleTickerProviderSt
                     stream: FlutterQiblah.qiblahStream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-                                strokeWidth: 3,
-                              ),
-                              const SizedBox(height: 50),
-                              Center(
-                                child: Text(
-                                  "جاري تحديد الاتجاه...",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: theme.colorScheme.primary,
-                                  ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 220),
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                              strokeWidth: 3,
+                            ),
+                            const SizedBox(height: 10),
+                            Center(
+                              child: Text(
+                                "جاري تحديد الاتجاه...",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: theme.colorScheme.primary,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         );
                       }
             
