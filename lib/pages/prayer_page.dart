@@ -38,20 +38,20 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   @override
   void initState() {
     super.initState();
-      Future.delayed(Duration(seconds: 6), () {
-   Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => AthanPopup(
-  prayerName: currentPrayer,
-  prayerTime: prayerTimes[currentPrayer] ?? '',
-  athanSoundPath: athanSound ?? 'audios/athan1.mp3',
-),
-
-  ),
-);
-  }
-  );
+//       Future.delayed(Duration(seconds: 6), () {
+//    Navigator.push(
+//   context,
+//   MaterialPageRoute(
+//     builder: (_) => AthanPopup(
+//   prayerName: currentPrayer,
+//   prayerTime: prayerTimes[currentPrayer] ?? '',
+//   athanSoundPath: athanSound ?? 'audios/athan1.mp3',
+// ),
+  // ),
+// );
+  // }
+  // );
+  
    loadAthanSound().then((path) {
   setState(() {
     athanSound = path ?? selectedAthanSound;

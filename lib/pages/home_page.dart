@@ -1,6 +1,10 @@
 // ignore_for_file: unused_import
 
 
+import 'dart:async';
+
+import 'package:adhan/adhan.dart';
+import 'package:athkary/Component/athan_page.dart';
 import 'package:athkary/Component/drawer.dart';
 import 'package:athkary/Component/notification.dart';
 import 'package:athkary/pages/adyah/adyah_parts.dart';
@@ -16,6 +20,7 @@ import 'package:athkary/theme/light_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 import 'athkar/athkar_alsabah.dart';
@@ -28,11 +33,106 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+ // at top of class
+   Map<String, String> _prayerTimes = {};
+   String _currentPrayer = "";
+   String _currentPrayerTime = "";
+   bool _athanLaunched = false;
+   Timer? _timer;
+   String athanSound = 'audios/athan_islam_sobhi.mp3'; // Default sound path
+
+  @override
+void initState() {
+  super.initState();
+
+  _calculatePrayerTimes();
+  _updateCurrentPrayer();
+
+  // Every second: recalc current prayer & maybe show popup
+  _timer = Timer.periodic(Duration(seconds: 1), (_) {
+    _calculatePrayerTimes();
+    _updateCurrentPrayer();
+    _checkAndLaunchAthan();
+  });
+}
+
+@override
+void dispose() {
+  _timer?.cancel();
+  super.dispose();
+}
+
+void _calculatePrayerTimes() {
+  final params = CalculationMethod.muslim_world_league.getParameters();
+  final coords = Coordinates(31.9539, 35.9106);
+  final today = DateTime.now();
+  final times = PrayerTimes(
+    coords,
+    DateComponents(today.year, today.month, today.day),
+    params,
+  );
+
+  setState(() {
+    _prayerTimes = {
+      "الفجر": DateFormat.jm().format(times.fajr),
+      "الشروق": DateFormat.jm().format(times.sunrise),
+      "الظهر": DateFormat.jm().format(times.dhuhr),
+      "العصر": DateFormat.jm().format(times.asr),
+      "المغرب": DateFormat.jm().format(times.maghrib.add(Duration(minutes: 4))),
+      "العشاء": DateFormat.jm().format(times.isha.add(Duration(minutes: 5))),
+    };
+  });
+}
+
+void _updateCurrentPrayer() {
+  final now = DateTime.now();
+  for (var entry in _prayerTimes.entries.toList().reversed) {
+    final pt = DateFormat.jm().parse(entry.value);
+    final dt = DateTime(now.year, now.month, now.day, pt.hour, pt.minute);
+    if (now.isAfter(dt.subtract(Duration(seconds: 1)))) {
+      setState(() {
+        _currentPrayer = entry.key;
+        _currentPrayerTime = entry.value;
+      });
+      break;
+    }
+  }
+}
+
+void _checkAndLaunchAthan() {
+  if (!_athanLaunched && _currentPrayer.isNotEmpty) {
+    final now = DateTime.now();
+    final pt = DateFormat.jm().parse(_currentPrayerTime);
+    final sched = DateTime(now.year, now.month, now.day, pt.hour, pt.minute);
+
+    if ((now.difference(sched).inSeconds).abs() <= 1) {
+      _athanLaunched = true;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AthanPopup(
+          prayerName: _currentPrayer,
+          prayerTime: _currentPrayerTime,
+          athanSoundPath: athanSound ,
+        ),
+      );
+
+      Future.delayed(Duration(minutes: 2), () {
+        _athanLaunched = false;
+      });
+    }
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final theme = Theme.of(context);
+   
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
