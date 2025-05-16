@@ -22,13 +22,11 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
     super.initState();
     _loadCounts();
     
-    // Initialize animation controller first
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
     
-    // Then initialize the scale animation that depends on the controller
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -36,6 +34,7 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
       ),
     );
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -92,19 +91,21 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
   }
 
   void _showResetConfirmationDialog() {
+    final screenSize = MediaQuery.of(context).size;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(screenSize.width * 0.05),
           ),
           title: Text(
             "Reset Counter",
             style: GoogleFonts.robotoSlab(
               color: Theme.of(context).colorScheme.primary,
-              fontSize: 22,
+              fontSize: screenSize.height * 0.025,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -112,7 +113,7 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
             "Are you sure you want to reset all counts?",
             style: GoogleFonts.robotoSlab(
               color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-              fontSize: 16,
+              fontSize: screenSize.height * 0.018,
             ),
           ),
           actions: [
@@ -122,7 +123,7 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
                 "Cancel",
                 style: GoogleFonts.robotoSlab(
                   color: Theme.of(context).colorScheme.primary,
-                  fontSize: 16,
+                  fontSize: screenSize.height * 0.018,
                 ),
               ),
             ),
@@ -135,7 +136,7 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
                 "Reset",
                 style: GoogleFonts.robotoSlab(
                   color: Colors.red,
-                  fontSize: 16,
+                  fontSize: screenSize.height * 0.018,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -148,6 +149,9 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -158,6 +162,7 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Theme.of(context).colorScheme.primary,
+            size: screenSize.height * 0.025,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -165,142 +170,163 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
           'المسبحة الالكترونية',
           style: GoogleFonts.robotoSlab(
             color: Theme.of(context).colorScheme.primary,
-            fontSize: 22,
+            fontSize: screenSize.height * 0.025,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Current Count Display
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 20),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Current Count Display
+              Container(
+                margin: EdgeInsets.symmetric(vertical: screenSize.height * 0.02),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenSize.width * 0.08,
+                  vertical: screenSize.height * 0.015,
                 ),
-              ),
-              child: Text(
-                '$counter',
-                style: GoogleFonts.electrolize(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(screenSize.width * 0.1),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-            ),
-            
-            const SizedBox(height: 30),
-            
-            // Main Counter Button with Animation
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: GestureDetector(
-                onTap: incrementCounter,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
+                child: Text(
+                  '$counter',
+                  style: GoogleFonts.electrolize(
+                    fontSize: screenSize.height * 0.04,
+                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                        blurRadius: 15,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 5), ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Tap',
-                      style: GoogleFonts.robotoSlab(
-                        color: Theme.of(context).colorScheme.inversePrimary,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ),
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 40),
-            
-            // Control Buttons Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: clear,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.restart_alt_rounded, color: Theme.of(context).colorScheme.inversePrimary, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Reset',
-                          style: GoogleFonts.robotoSlab(
-                            color: Theme.of(context).colorScheme.inversePrimary,
-                            fontSize: 16,
-                          ),
+              
+              SizedBox(height: screenSize.height * 0.03),
+              
+              // Main Counter Button with Animation
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: GestureDetector(
+                  onTap: incrementCounter,
+                  child: Container(
+                    width: isPortrait 
+                        ? screenSize.width * 0.5 
+                        : screenSize.height * 0.5,
+                    height: isPortrait 
+                        ? screenSize.width * 0.5 
+                        : screenSize.height * 0.5,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
+                    child: Center(
+                      child: Text(
+                        'Tap',
+                        style: GoogleFonts.robotoSlab(
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          fontSize: screenSize.height * 0.025,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
-                  
-                  // Total Count Display
-                  GestureDetector(
-                    onTap: _showResetConfirmationDialog,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                ),
+              ),
+              
+              SizedBox(height: screenSize.height * 0.04),
+              
+              // Control Buttons Row
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Save Button
+                    ElevatedButton(
+                      onPressed: clear,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(screenSize.width * 0.03),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.width * 0.05,
+                          vertical: screenSize.height * 0.015,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.calculate,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20,
+                            Icons.restart_alt_rounded, 
+                            color: Theme.of(context).colorScheme.inversePrimary, 
+                            size: screenSize.height * 0.02,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: screenSize.width * 0.02),
                           Text(
-                            'Total: $tasabehcount',
+                            'Reset',
                             style: GoogleFonts.robotoSlab(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.inversePrimary,
+                              fontSize: screenSize.height * 0.018,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    
+                    // Total Count Display
+                    GestureDetector(
+                      onTap: _showResetConfirmationDialog,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.width * 0.05,
+                          vertical: screenSize.height * 0.015,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(screenSize.width * 0.03),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calculate,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: screenSize.height * 0.02,
+                            ),
+                            SizedBox(width: screenSize.width * 0.02),
+                            Text(
+                              'Total: $tasabehcount',
+                              style: GoogleFonts.robotoSlab(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: screenSize.height * 0.018,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: screenSize.height * 0.05),
+            ],
+          ),
         ),
       ),
     );

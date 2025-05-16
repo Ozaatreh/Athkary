@@ -117,10 +117,11 @@ void _checkAndLaunchAthan() {
           athanSoundPath: athanSound ,
         ),
       );
-
+      
       Future.delayed(Duration(minutes: 2), () {
         _athanLaunched = false;
       });
+      
     }
   }
 }

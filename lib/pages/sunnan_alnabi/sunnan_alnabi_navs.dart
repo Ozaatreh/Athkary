@@ -6,7 +6,6 @@ import 'package:athkary/pages/sunnan_alnabi/sunnan_wadu_salah.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-// import 'package:athkar_app/athkar.dart';
 
 class SonanAlnabiNavs extends StatefulWidget {
   const SonanAlnabiNavs({super.key});
@@ -18,101 +17,30 @@ class SonanAlnabiNavs extends StatefulWidget {
 class _SonanAlnabiNavsState extends State<SonanAlnabiNavs> {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    
-    final textStyle1 = GoogleFonts.amiri(
-      fontSize: 28,
-      fontWeight: FontWeight.bold,
-      color: Theme.of(context).colorScheme.primary,
-    );
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.width * 0.04,
+            vertical: screenSize.height * 0.02,
+          ),
           child: Column(
             children: [
-              SizedBox(height: screenHeight * 0.02),
-              // Header with back button and title
-              Row(
-                children: [
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const Spacer(),
-                  Lottie.asset(
-                    'assets/animations/wired-flat-1845-rose-hover-pinch.json',
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.contain,
-                  ),
-                  const Spacer(),
-                  Text(
-                  'سنن النَّبِيِّ',
-                  style: GoogleFonts.tajawal(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                  // Text('سنن النَّبِيِّ', style: textStyle1),
-                  const Spacer(flex: 2),
-                ],
-              ),
+              // Header Section
+              _buildHeader(context, screenSize),
               
-              const Divider(thickness: 1.2, color: Colors.white,),
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: screenSize.height * 0.02),
+              const Divider(thickness: 1.2, color: Colors.white),
+              SizedBox(height: screenSize.height * 0.03),
               
-              // Grid of Sunnah categories
+              // Grid Section
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.0,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                  padding: const EdgeInsets.all(8),
-                  children: [
-                    _buildCategoryCard(
-                      context,
-                      'سنن النوم',
-                      SleepSunnahsPage(),
-                      Icons.nightlight_round,
-                    ),
-                    _buildCategoryCard(
-                      context,
-                      'سنن الوضوء والصلاة',
-                      WuduAndSalahSunnahsScreen(),
-                      Icons.water_drop,
-                    ),
-                    _buildCategoryCard(
-                      context,
-                      'سنن الصيام',
-                      FastingSunnahsPage(),
-                      Icons.fastfood,
-                    ),
-                    _buildCategoryCard(
-                      context,
-                      'سنن متنوعة',
-                      RandomsSunnahsScreen(),
-                      Icons.category,
-                    ),
-                    _buildCategoryCard(
-                      context,
-                      'سنن اللباس و الطعام',
-                      ClothingAndEatingSunnahsScreen(),
-                      Icons.restaurant,
-                    ),
-                  ],
-                ),
+                child: _buildGrid(context, isPortrait, screenSize),
               ),
-              SizedBox(height: screenHeight * 0.02),
             ],
           ),
         ),
@@ -120,35 +48,124 @@ class _SonanAlnabiNavsState extends State<SonanAlnabiNavs> {
     );
   }
 
-  Widget _buildCategoryCard(BuildContext context, String title, Widget page, IconData icon) {
+  Widget _buildHeader(BuildContext context, Size screenSize) {
+    return Row(
+      children: [
+        const Spacer(),
+        IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Theme.of(context).colorScheme.primary,
+            size: screenSize.height * 0.03,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        const Spacer(),
+        Lottie.asset(
+          'assets/animations/wired-flat-1845-rose-hover-pinch.json',
+          width: screenSize.width * 0.2,
+          height: screenSize.height * 0.1,
+          fit: BoxFit.contain,
+        ),
+        const Spacer(),
+        Text(
+          'سنن النَّبِيِّ',
+          style: GoogleFonts.tajawal(
+            fontSize: screenSize.height * 0.025,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const Spacer(flex: 2),
+      ],
+    );
+  }
+
+  Widget _buildGrid(BuildContext context, bool isPortrait, Size screenSize) {
+    final crossAxisCount = isPortrait ? 2 : 3;
+    final childAspectRatio = isPortrait ? 1.0 : 1.3;
+
+    return GridView.count(
+      crossAxisCount: crossAxisCount,
+      childAspectRatio: childAspectRatio,
+      mainAxisSpacing: screenSize.height * 0.02,
+      crossAxisSpacing: screenSize.width * 0.04,
+      padding: EdgeInsets.all(screenSize.width * 0.02),
+      children: [
+        _buildCategoryCard(
+          context,
+          'سنن النوم',
+          SleepSunnahsPage(),
+          Icons.nightlight_round,
+          screenSize,
+        ),
+        _buildCategoryCard(
+          context,
+          'سنن الوضوء والصلاة',
+          WuduAndSalahSunnahsScreen(),
+          Icons.water_drop,
+          screenSize,
+        ),
+        _buildCategoryCard(
+          context,
+          'سنن الصيام',
+          FastingSunnahsPage(),
+          Icons.fastfood,
+          screenSize,
+        ),
+        _buildCategoryCard(
+          context,
+          'سنن متنوعة',
+          RandomsSunnahsScreen(),
+          Icons.category,
+          screenSize,
+        ),
+        _buildCategoryCard(
+          context,
+          'سنن اللباس و الطعام',
+          ClothingAndEatingSunnahsScreen(),
+          Icons.restaurant,
+          screenSize,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryCard(
+    BuildContext context, 
+    String title, 
+    Widget page, 
+    IconData icon,
+    Size screenSize,
+  ) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(screenSize.width * 0.03),
       ),
       color: Theme.of(context).colorScheme.primary,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(screenSize.width * 0.03),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => page),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: EdgeInsets.all(screenSize.width * 0.03),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: 40,
+                size: screenSize.height * 0.06,
                 color: Theme.of(context).colorScheme.surface,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: screenSize.height * 0.015),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.lalezar(
-                  fontSize: 18,
+                  fontSize: screenSize.height * 0.02,
                   color: Theme.of(context).colorScheme.surface,
                 ),
               ),

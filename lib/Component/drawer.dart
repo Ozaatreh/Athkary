@@ -73,25 +73,25 @@ class CustomDrawer extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 children: [
-                  _buildDrawerItem(
-                    context,
-                    title: 'اسماء الله الحسنى',
-                    icon: Image.asset(
-                      'assets/images/allah_.png',
-                      height: 28,
-                      width: 28,
-                      color: theme.colorScheme.primary,
-                    ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AlahNames()),
-                    ),
-                  ),
+                  // _buildDrawerItem(
+                  //   context,
+                  //   title: 'اسماء الله الحسنى',
+                  //   icon: Image.asset(
+                  //     'assets/images/allah_.png',
+                  //     height: 28,
+                  //     width: 28,
+                  //     color: theme.colorScheme.primary,
+                  //   ),
+                  //   onTap: () => Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(builder: (context) => AlahNames()),
+                  //   ),
+                  // ),
                   _buildDrawerItem(
                     context,
                     title: "القبلة",
                     icon: Image.asset(
-                      'assets/images/qiblah_v4.png',
+                      'assets/images/qiblah_v5d.png',
                       height: 33,
                       width: 33,
                       // color: theme.colorScheme.primary,

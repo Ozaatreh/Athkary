@@ -9,7 +9,7 @@ class AlahNames extends StatefulWidget {
 }
 
 class _AlahNamesState extends State<AlahNames> {
-
+ 
   // List of the 99 names of Allah with their meanings
   final List<Map<String, String>> _allahNamesWithMeanings = [
   {
@@ -411,67 +411,52 @@ class _AlahNamesState extends State<AlahNames> {
 ];
 
 
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 180,
+            expandedHeight: screenSize.height * 0.18, // Responsive app bar height
             floating: false,
             pinned: true,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new, color: theme.colorScheme.primary),
+              icon: Icon(
+                Icons.arrow_back_ios_new, 
+                color: theme.colorScheme.primary,
+                size: screenSize.width * 0.06, // Responsive icon size
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'أسماء الله الحسنى',
                 style: GoogleFonts.tajawal(
-                  fontSize: 24,
+                  fontSize: screenSize.width * 0.06, // Responsive font size
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.primary,
                 ),
               ),
               centerTitle: true,
-              // background: Container(
-              //   decoration: BoxDecoration(
-              //     gradient: LinearGradient(
-              //       begin: Alignment.topCenter,
-              //       end: Alignment.bottomCenter,
-              //       colors: [
-              //         theme.colorScheme.surface,
-              //         theme.colorScheme.surface.withOpacity(0.7),
-              //       ],
-              //     ),
-              //   ),
-                // child: 
-                // Center(
-                //   child: Image.asset(
-                //     "assets/images/asma1.png",
-                //     width: 110,
-                //     height: 110,
-                //     color: theme.colorScheme.primary.withOpacity(0.9),
-                //   ),
-                // ),
-          //     ),
             ),
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(screenSize.width * 0.04), // Responsive padding
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.1,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isPortrait ? 3 : 5, // More columns in landscape
+                crossAxisSpacing: screenSize.width * 0.03,
+                mainAxisSpacing: screenSize.height * 0.015,
+                childAspectRatio: isPortrait ? 0.9 : 1.1,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildNameCard(context, index),
+                (context, index) => _buildNameCard(context, index, screenSize),
                 childCount: _allahNamesWithMeanings.length,
               ),
             ),
@@ -481,7 +466,7 @@ class _AlahNamesState extends State<AlahNames> {
     );
   }
 
-  Widget _buildNameCard(BuildContext context, int index) {
+  Widget _buildNameCard(BuildContext context, int index, Size screenSize) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -494,6 +479,7 @@ class _AlahNamesState extends State<AlahNames> {
             pageBuilder: (_, __, ___) => DetailPage(
               name: _allahNamesWithMeanings[index]['name']!,
               meaning: _allahNamesWithMeanings[index]['meaning']!,
+              screenSize: screenSize,
             ),
             transitionsBuilder: (_, animation, __, child) {
               return FadeTransition(
@@ -524,7 +510,7 @@ class _AlahNamesState extends State<AlahNames> {
                         theme.colorScheme.surface, const Color.fromARGB(255, 29, 26, 26), 0.3)!,
                   ],
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(screenSize.width * 0.03), // Responsive border radius
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.1),
@@ -540,20 +526,20 @@ class _AlahNamesState extends State<AlahNames> {
               Text(
                 _allahNamesWithMeanings[index]['name']!,
                 style: GoogleFonts.tajawal(
-                  fontSize: 20,
+                  fontSize: screenSize.width * 0.045, // Responsive font size
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.primary,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: screenSize.height * 0.005),
               Icon(
                 Icons.arrow_circle_up_outlined,
                 color: isDarkMode
                     ? Color.lerp(
                         theme.colorScheme.surface, const Color.fromARGB(255, 29, 26, 26), 0.3)!
                     : theme.colorScheme.inverseSurface,
-                size: 20,
+                size: screenSize.width * 0.06, // Responsive icon size
               ),
             ],
           ),
@@ -566,8 +552,14 @@ class _AlahNamesState extends State<AlahNames> {
 class DetailPage extends StatelessWidget {
   final String name;
   final String meaning;
+  final Size screenSize;
 
-  const DetailPage({super.key, required this.name, required this.meaning});
+  const DetailPage({
+    super.key, 
+    required this.name, 
+    required this.meaning,
+    required this.screenSize
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -576,41 +568,23 @@ class DetailPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-          
-      // appBar: AppBar(
-      //   centerTitle: true,
-      //   backgroundColor: theme.colorScheme.surface,
-      //   elevation: 0,
-      //   leading: IconButton(
-      //     icon: Icon(Icons.arrow_back_ios, color: theme.colorScheme.primary),
-      //     onPressed: () => Navigator.pop(context),
-      //   ),
-      //   title: Text(
-      //     name,
-      //     style: GoogleFonts.tajawal(
-      //       fontSize: 24,
-      //       fontWeight: FontWeight.w700,
-      //       color: theme.colorScheme.primary,
-      //     ),
-      //   ),
-      // ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(screenSize.width * 0.05), // Responsive padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 100,),
+            SizedBox(height: screenSize.height * 0.08),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(screenSize.width * 0.05), // Responsive padding
               decoration: BoxDecoration(
                 color: isDarkMode
                     ? theme.colorScheme.primary
                     : theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(screenSize.width * 0.04), // Responsive radius
                 boxShadow: [
                   BoxShadow(
-                    color:  theme.colorScheme.surface,
+                    color: theme.colorScheme.surface,
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -622,7 +596,7 @@ class DetailPage extends StatelessWidget {
                   Text(
                     name,
                     style: GoogleFonts.tajawal(
-                      fontSize: 32,
+                      fontSize: screenSize.width * 0.08, // Responsive font size
                       fontWeight: FontWeight.w700,
                       color: isDarkMode
                           ? theme.colorScheme.surface
@@ -630,7 +604,7 @@ class DetailPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.right,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: screenSize.height * 0.02),
                   Divider(
                     color: (isDarkMode
                             ? theme.colorScheme.surface
@@ -638,11 +612,11 @@ class DetailPage extends StatelessWidget {
                         .withOpacity(0.3),
                     thickness: 1,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: screenSize.height * 0.02),
                   Text(
                     meaning,
                     style: GoogleFonts.tajawal(
-                      fontSize: 18,
+                      fontSize: screenSize.width * 0.045, // Responsive font size
                       height: 1.6,
                       color: isDarkMode
                           ? theme.colorScheme.surface
@@ -650,12 +624,14 @@ class DetailPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.right,
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: screenSize.height * 0.03),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenSize.width * 0.04,
+                        vertical: screenSize.height * 0.01,
+                      ),
                       decoration: BoxDecoration(
                         color: (isDarkMode
                                 ? theme.colorScheme.surface
@@ -666,7 +642,7 @@ class DetailPage extends StatelessWidget {
                       child: Text(
                         'تفسير الاسم',
                         style: GoogleFonts.tajawal(
-                          fontSize: 14,
+                          fontSize: screenSize.width * 0.035, // Responsive font size
                           color: isDarkMode
                               ? theme.colorScheme.surface
                               : theme.colorScheme.surface,
@@ -678,23 +654,27 @@ class DetailPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            SizedBox(height: screenSize.height * 0.04),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.width * 0.1, // Responsive padding
+                    vertical: screenSize.height * 0.02, // Responsive padding
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              child: Text(
-                'العودة إلى الأسماء',
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.surface,
+                child: Text(
+                  'العودة إلى الأسماء',
+                  style: GoogleFonts.tajawal(
+                    fontSize: screenSize.width * 0.04, // Responsive font size
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.surface,
+                  ),
                 ),
               ),
             ),

@@ -1,8 +1,3 @@
-// ignore_for_file: unused_import
-
-
-import 'package:athkary/Component/drawer.dart';
-import 'package:athkary/Component/notification.dart';
 import 'package:athkary/pages/adyah/adyah_alanbiaa.dart';
 import 'package:athkary/pages/adyah/adyah_alnabi.dart';
 import 'package:athkary/pages/adyah/adyah_alquran.dart';
@@ -10,19 +5,6 @@ import 'package:athkary/pages/adyah/adyah_alrizq.dart';
 import 'package:athkary/pages/adyah/adyah_alsafar.dart';
 import 'package:athkary/pages/adyah/adyah_for_dead.dart';
 import 'package:athkary/pages/adyah/adyah_raining.dart';
-import 'package:athkary/pages/athkar/athkar_almasaa.dart';
-import 'package:athkary/pages/athkar/athkar_alsabah.dart';
-import 'package:athkary/pages/masbahah_elc.dart';
-import 'package:athkary/pages/quran/quran_page.dart';
-import 'package:athkary/pages/tasabeh.dart';
-import 'package:athkary/theme/dark_mode.dart';
-import 'package:athkary/theme/light_mode.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:lottie/lottie.dart';
-// import 'package:athkar_app/athkar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,70 +13,30 @@ class AdyahPartsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.width * 0.04,
+            vertical: screenSize.height * 0.02,
+          ),
           child: Column(
             children: [
               // Header Section
-              _buildHeader(context),
-              const Divider(thickness: 1.5 , color: Colors.white,),
-              const SizedBox(height: 24),
+              _buildHeader(context, screenSize),
+              Divider(
+                thickness: screenSize.height * 0.002,
+                color: Colors.white,
+              ),
+              SizedBox(height: screenSize.height * 0.03),
               
               // Supplication Categories Grid
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.1,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  children: [
-                    _buildDuaaCategory(
-                      context,
-                      'الْأدْعِيَةُ القرآنية',
-                      Icons.menu_book,
-                      AdyahAlquran(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية النَّبِيِّ',
-                      Icons.dark_mode_sharp,
-                      AdyahAlnabi(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية الأنبياء',
-                      Icons.collections_bookmark_rounded,
-                      AdyahAlanbiaa(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية للميّت',
-                      Icons.monitor_heart_rounded,
-                      AdyahForDead(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية السفر',
-                      Icons.directions_car,
-                      AdyahAlsafar(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية المطر',
-                      Icons.water_drop,
-                      AdyahRaining(),
-                    ),
-                    _buildDuaaCategory(
-                      context,
-                      'أدعية الرزق',
-                      Icons.auto_stories_sharp,
-                      AdyahAlrizq(),
-                    ),
-                  ],
-                ),
+                child: _buildGrid(context, isPortrait, screenSize),
               ),
             ],
           ),
@@ -103,9 +45,9 @@ class AdyahPartsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, Size screenSize) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: screenSize.height * 0.01),
       child: Row(
         children: [
           const Spacer(),
@@ -113,59 +55,133 @@ class AdyahPartsPage extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: Theme.of(context).colorScheme.primary,
+              size: screenSize.height * 0.03,
             ),
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
           Image.asset(
             'assets/images/duaa_img.png',
-            width: 70,
-            height: 70,
+            width: screenSize.width * 0.15,
+            height: screenSize.height * 0.08,
             fit: BoxFit.contain,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: screenSize.width * 0.02),
           const Spacer(),
           Text(
             'أدعية',
             style: GoogleFonts.amiri(
-              fontSize: 28,
+              fontSize: screenSize.height * 0.03,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const Spacer(),
-          const SizedBox(width: 48), // Balance the row
+          SizedBox(width: screenSize.width * 0.1), // Balance the row
         ],
       ),
     );
   }
 
-  Widget _buildDuaaCategory(BuildContext context, String title, IconData icon, Widget page) {
+  Widget _buildGrid(BuildContext context, bool isPortrait, Size screenSize) {
+    final crossAxisCount = isPortrait ? 2 : 3;
+    final childAspectRatio = isPortrait ? 1.1 : 1.3;
+
+    return GridView.count(
+      crossAxisCount: crossAxisCount,
+      childAspectRatio: childAspectRatio,
+      mainAxisSpacing: screenSize.height * 0.02,
+      crossAxisSpacing: screenSize.width * 0.04,
+      padding: EdgeInsets.all(screenSize.width * 0.02),
+      children: [
+        _buildDuaaCategory(
+          context,
+          'الْأدْعِيَةُ القرآنية',
+          Icons.menu_book,
+          AdyahAlquran(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية النَّبِيِّ',
+          Icons.dark_mode_sharp,
+          AdyahAlnabi(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية الأنبياء',
+          Icons.collections_bookmark_rounded,
+          AdyahAlanbiaa(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية للميّت',
+          Icons.monitor_heart_rounded,
+          AdyahForDead(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية السفر',
+          Icons.directions_car,
+          AdyahAlsafar(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية المطر',
+          Icons.water_drop,
+          AdyahRaining(),
+          screenSize,
+        ),
+        _buildDuaaCategory(
+          context,
+          'أدعية الرزق',
+          Icons.auto_stories_sharp,
+          AdyahAlrizq(),
+          screenSize,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDuaaCategory(
+    BuildContext context, 
+    String title, 
+    IconData icon, 
+    Widget page,
+    Size screenSize,
+  ) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(screenSize.width * 0.03),
       ),
       color: Theme.of(context).colorScheme.primary,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+        borderRadius: BorderRadius.circular(screenSize.width * 0.03),
+        onTap: () => Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => page)
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: EdgeInsets.all(screenSize.width * 0.03),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: 36,
+                size: screenSize.height * 0.05,
                 color: Theme.of(context).colorScheme.surface,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: screenSize.height * 0.015),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.lalezar(
-                  fontSize: 18,
+                  fontSize: screenSize.height * 0.018,
                   color: Theme.of(context).colorScheme.surface,
                 ),
               ),

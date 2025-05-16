@@ -147,203 +147,205 @@ void _loadNotificationState() async {
     builder: (context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          return SingleChildScrollView(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              ),
+              padding: EdgeInsets.all(24),
+              child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "إعدادات الإشعارات",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                SizedBox(height: 20),
+            
+                // إشعارات Toggle
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+            Text(
+              "تفعيل الإشعارات",
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-            padding: EdgeInsets.all(24),
-            child: Column(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    Text(
-      "إعدادات الإشعارات",
-      style: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    ),
-    SizedBox(height: 20),
-
-    // إشعارات Toggle
-    Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "تفعيل الإشعارات",
+            Switch(
+              value: notificationsEnabled,
+              onChanged: (value) {
+                setModalState(() {
+                  notificationsEnabled = value;
+                });
+                toggleNotifications(value);
+              },
+              trackOutlineColor: WidgetStateProperty.all(
+                notificationsEnabled
+                    ? Color.fromARGB(255, 240, 235, 235)
+                    : Color.fromARGB(255, 240, 237, 237),
+              ),
+              activeColor: Color.fromARGB(255, 63, 189, 67),
+              thumbColor: WidgetStateProperty.all(
+                  notificationsEnabled ? Colors.white : Colors.black),
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor:
+                  Theme.of(context).colorScheme.primary,
+            ),
+                    ],
+                  ),
+                ),
+            
+                SizedBox(height: 20),
+            
+                // أذان Toggle
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+            Text(
+              "تفعيل الأذان",
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            Switch(
+              value: athanEnabled,
+              onChanged: (value) {
+                setModalState(() {
+                  athanEnabled = value;
+                });
+                // Optional: Add a function to handle athan toggle
+              },
+              trackOutlineColor: WidgetStateProperty.all(
+                notificationsEnabled
+                    ? Color.fromARGB(255, 240, 235, 235)
+                    : Color.fromARGB(255, 240, 237, 237),
+              ),
+              activeColor: Color.fromARGB(255, 63, 189, 67),
+              thumbColor: WidgetStateProperty.all(
+                  athanEnabled ? Colors.white : Colors.black),
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor:
+                  Theme.of(context).colorScheme.primary,
+            ),
+                    ],
+                  ),
+                ),
+            
+                // اختيار صوت الأذان (only if athanEnabled)
+                if (athanEnabled) ...[
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "اختيار صوت الأذان : ",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                SizedBox(width: 10), // optional spacing between text and dropdown
+                Flexible(
+                  child: DropdownButton<String>(
+                    isExpanded: true, // so it fills available width
+                    value: selectedAthanSound,
+                    onChanged: (value) async {
+              if (value != null) {
+                setModalState(() {
+                  selectedAthanSound = value;
+                });
+            
+                // Save it to SharedPreferences
+                await saveAthanSound(value);
+            
+                // Update athanSound immediately
+                setState(() {
+                  athanSound = value;
+                });
+              }
+            },
+            
+                    items: [
+            DropdownMenuItem(
+              child: Text("الأذان بصوت محمد الجازي" , 
+              style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
+              value: "audios/athan1.mp3",
+            ),
+            DropdownMenuItem(
+              child: Text("الأذان بصوت القارئ اسلام صبحي",
+              style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
+              value: "audios/athan_islam_sobhi.mp3",
+            ),
+            DropdownMenuItem(
+              child: Text("الأذان بصوت ياسر الدوسري",
+              style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
+              value: "audios/athan_yaseer_dosary.mp3",
+            ),
+            DropdownMenuItem(
+              child: Text("أذان ام القرى",
+              style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
+              value: "audios/athan_om_alqora.mp3",
+            ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+                  ),
+                ],
+            
+                SizedBox(height: 20),
+            
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+            "تم",
             style: TextStyle(
               fontSize: 18,
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
-          ),
-          Switch(
-            value: notificationsEnabled,
-            onChanged: (value) {
-              setModalState(() {
-                notificationsEnabled = value;
-              });
-              toggleNotifications(value);
-            },
-            trackOutlineColor: WidgetStateProperty.all(
-              notificationsEnabled
-                  ? Color.fromARGB(255, 240, 235, 235)
-                  : Color.fromARGB(255, 240, 237, 237),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            activeColor: Color.fromARGB(255, 63, 189, 67),
-            thumbColor: WidgetStateProperty.all(
-                notificationsEnabled ? Colors.white : Colors.black),
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor:
-                Theme.of(context).colorScheme.primary,
-          ),
-        ],
-      ),
-    ),
-
-    SizedBox(height: 20),
-
-    // أذان Toggle
-    Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "تفعيل الأذان",
-            style: TextStyle(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.primary,
             ),
-          ),
-          Switch(
-            value: athanEnabled,
-            onChanged: (value) {
-              setModalState(() {
-                athanEnabled = value;
-              });
-              // Optional: Add a function to handle athan toggle
-            },
-            trackOutlineColor: WidgetStateProperty.all(
-              notificationsEnabled
-                  ? Color.fromARGB(255, 240, 235, 235)
-                  : Color.fromARGB(255, 240, 237, 237),
-            ),
-            activeColor: Color.fromARGB(255, 63, 189, 67),
-            thumbColor: WidgetStateProperty.all(
-                athanEnabled ? Colors.white : Colors.black),
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor:
-                Theme.of(context).colorScheme.primary,
-          ),
-        ],
-      ),
-    ),
-
-    // اختيار صوت الأذان (only if athanEnabled)
-    if (athanEnabled) ...[
-      SizedBox(height: 15),
-      Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text(
-      "اختيار صوت الأذان : ",
-      style: TextStyle(
-        fontSize: 18,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    ),
-    SizedBox(width: 10), // optional spacing between text and dropdown
-    Flexible(
-      child: DropdownButton<String>(
-        isExpanded: true, // so it fills available width
-        value: selectedAthanSound,
-        onChanged: (value) async {
-  if (value != null) {
-    setModalState(() {
-      selectedAthanSound = value;
-    });
-
-    // Save it to SharedPreferences
-    await saveAthanSound(value);
-
-    // Update athanSound immediately
-    setState(() {
-      athanSound = value;
-    });
-  }
-},
-
-        items: [
-          DropdownMenuItem(
-            child: Text("الأذان بصوت محمد الجازي" , 
-            style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
-            value: "audios/athan1.mp3",
-          ),
-          DropdownMenuItem(
-            child: Text("الأذان بصوت القارئ اسلام صبحي",
-            style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
-            value: "audios/athan_islam_sobhi.mp3",
-          ),
-          DropdownMenuItem(
-            child: Text("الأذان بصوت ياسر الدوسري",
-            style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
-            value: "audios/athan_yaseer_dosary.mp3",
-          ),
-          DropdownMenuItem(
-            child: Text("أذان ام القرى",
-            style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
-            value: "audios/athan_om_alqora.mp3",
-          ),
-        ],
-      ),
-    ),
-  ],
-),
-
-      ),
-    ],
-
-    SizedBox(height: 20),
-
-    SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => Navigator.pop(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 16),
-        ),
-        child: Text(
-          "تم",
-          style: TextStyle(
-            fontSize: 18,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
-        ),
-      ),
-    ),
-  ],
-),
           );
         },
       );
@@ -412,20 +414,17 @@ void _loadNotificationState() async {
     prayerTime = DateTime(now.year, now.month, now.day, prayerTime.hour, prayerTime.minute);
 
     if (now.difference(prayerTime).inSeconds.abs() <= 1) {
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => AthanPopup(
-  prayerName: currentPrayer,
-  prayerTime: prayerTimes[currentPrayer] ?? '',
-   athanSoundPath: athanSound ?? 'athan/athan1.mp3',
-
-),
-  ),
-);
-
-
-      break;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AthanPopup(
+            prayerName: entry.key,
+            prayerTime: entry.value,
+            athanSoundPath: athanSound ?? 'audios/athan1.mp3',
+          ),
+        ),
+      );
+      break; // Prevent triggering multiple times
     }
   }
 }
