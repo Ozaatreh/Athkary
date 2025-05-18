@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
    bool _athanLaunched = false;
    Timer? _timer;
    String athanSound = 'audios/athan_islam_sobhi.mp3'; // Default sound path
-
+   
   @override
 void initState() {
   super.initState();

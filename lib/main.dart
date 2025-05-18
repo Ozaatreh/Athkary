@@ -21,25 +21,48 @@ Future<void> main() async {
   CustomNotificationState().initState();
 
   await Firebase.initializeApp();
-   // Initialize Awesome Notifications
+   // Initialize Awesome Notificationsb
   AwesomeNotifications().initialize(
+    
     'resource://drawable/athk_v3', // Set null to use the default icon for notifications
     [
-      NotificationChannel(
-        channelKey: 'tasabeh_channel',
-        channelName: 'Tasabeeh',
-        channelDescription: 'Hourly notifications for Tasabeh reminders',
-        // defaultColor: const Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-        ),
+     NotificationChannel(
+      channelKey: 'tasabeh_with_sound',
+      channelName: 'Tasabeeh (Sound)',
+      channelDescription: 'Tasabeeh reminders with sound',
+      ledColor: Colors.white,
+      importance: NotificationImportance.High,
+      playSound: true,
+      soundSource: 'resource://raw/tasbeeh_sound',
+    ),
 
-      NotificationChannel( // Add this for prayer notifications
-      channelKey: 'prayer_channel',
+    NotificationChannel(
+      channelKey: 'tasabeh_silent',
+      channelName: 'Tasabeeh (Silent)',
+      channelDescription: 'Tasabeeh reminders without sound',
+      ledColor: Colors.white,
+      importance: NotificationImportance.High,
+      playSound: false,
+    ),
+
+
+      NotificationChannel( 
+      channelKey: 'prayer_with_sound',
       channelName:  'وقت الصلاة',
       channelDescription: 'حان الان موعد  ',
       ledColor: Colors.white,
       importance: NotificationImportance.High,
+      playSound: true,
+      soundSource: 'resource://raw/athan_om_alqora',
+    ),
+
+     NotificationChannel( // Add this for prayer notifications
+      channelKey: 'prayer_silent',
+      channelName:  'وقت الصلاة',
+      channelDescription: 'حان الان موعد  ',
+      ledColor: Colors.white,
+      importance: NotificationImportance.High,
+      playSound: false,
     ),
     ],
     

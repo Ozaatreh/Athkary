@@ -17,12 +17,18 @@ Future<String?> loadAthanSound() async {
   return prefs.getString('selectedAthanSound');
 }
 
+Future<void> saveSoundPreference2(bool enabled) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('soundEnabled', enabled);
+}
+
 class PrayerDashboard extends StatefulWidget {
   @override
   _PrayerDashboardState createState() => _PrayerDashboardState();
 }
 
 class _PrayerDashboardState extends State<PrayerDashboard> {
+
   double latitude = 31.9539;
   double longitude = 35.9106;
   Map<String, String> prayerTimes = {};
@@ -32,8 +38,9 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   bool notificationsEnabled = false;
   DateTime selectedDate = DateTime.now();
   bool athanEnabled = true;
-  String selectedAthanSound = "audios/athan1.mp3";
+  String selectedAthanSound = "audios/athan_om_alqora.mp3";
   String? athanSound;
+  bool soundEnabled = true;
 
   @override
   void initState() {
@@ -70,6 +77,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
     initializeNotifications();
   }
 
+
 /// Loads the notification state from SharedPreferences
 void _loadNotificationState() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -93,33 +101,44 @@ void _loadNotificationState() async {
   }
   
   void schedulePrayerNotifications() {
-    for (var entry in prayerTimes.entries) {
-      DateTime prayerTime = DateFormat.jm().parse(entry.value);
-      prayerTime = DateTime(DateTime.now().year, DateTime.now().month, 
-          DateTime.now().day, prayerTime.hour, prayerTime.minute);
+  for (var entry in prayerTimes.entries) {
+    DateTime prayerTime = DateFormat.jm().parse(entry.value);
+    prayerTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      prayerTime.hour,
+      prayerTime.minute,
+    );
+
+    if (prayerTime.isAfter(DateTime.now())) {
       
-      if (prayerTime.isAfter(DateTime.now())) {
-        AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: entry.key.hashCode,
-            channelKey: 'prayer_channel',
-            title: 'وقت الصلاة',
-            body: 'حان الان موعد ${entry.key}',
-          ),
-          schedule: NotificationCalendar(
-            year: prayerTime.year,
-            month: prayerTime.month,
-            day: prayerTime.day,
-            hour: prayerTime.hour,
-            minute: prayerTime.minute,
-            second: 0,
-            preciseAlarm: true,
-            allowWhileIdle: true,
-          ),
-        );
-      }
+      final channelKey = entry.key == "الشروق"
+          ? 'prayer_silent'
+          : (soundEnabled ? 'prayer_with_sound' : 'prayer_silent');
+
+      AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: entry.key.hashCode,
+          channelKey: channelKey,
+          title: 'وقت الصلاة',
+          body: 'حان الان موعد ${entry.key}',
+        ),
+        schedule: NotificationCalendar(
+          year: prayerTime.year,
+          month: prayerTime.month,
+          day: prayerTime.day,
+          hour: prayerTime.hour,
+          minute: prayerTime.minute,
+          second: 0,
+          preciseAlarm: true,
+          allowWhileIdle: true,
+        ),
+      );
     }
   }
+}
+
 
   void _cancelPrayerNotifications() {
     AwesomeNotifications().cancelAll();
@@ -207,6 +226,47 @@ void _loadNotificationState() async {
                     ],
                   ),
                 ),
+
+                SizedBox(height: 20),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text( "تشغيل صوت الإشعارات",
+                      style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  Switch(
+                                    value: soundEnabled, onChanged: (value) {
+                           setModalState(() => soundEnabled = value);
+                           saveSoundPreference2(value);
+                         },
+                          trackOutlineColor: WidgetStateProperty.all(
+                notificationsEnabled
+                    ? Color.fromARGB(255, 240, 235, 235)
+                    : Color.fromARGB(255, 240, 237, 237),
+              ),
+              activeColor: Color.fromARGB(255, 63, 189, 67),
+              thumbColor: WidgetStateProperty.all(
+                  notificationsEnabled ? Colors.white : Colors.black),
+              inactiveThumbColor: Colors.white,
+              inactiveTrackColor:
+                  Theme.of(context).colorScheme.primary,
+                                  ),
+                    ],
+                  ),
+                ),
+                    
+                  
+               
             
                 SizedBox(height: 20),
             
@@ -303,11 +363,6 @@ void _loadNotificationState() async {
               value: "audios/athan_islam_sobhi.mp3",
             ),
             DropdownMenuItem(
-              child: Text("الأذان بصوت ياسر الدوسري",
-              style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
-              value: "audios/athan_yaseer_dosary.mp3",
-            ),
-            DropdownMenuItem(
               child: Text("أذان ام القرى",
               style: TextStyle( fontSize: 15,color: Theme.of(context).colorScheme.primary,),),
               value: "audios/athan_om_alqora.mp3",
@@ -353,26 +408,34 @@ void _loadNotificationState() async {
   );
 }
 
-  void _calculatePrayerTimes({DateTime? date}) {
-    final params = CalculationMethod.muslim_world_league.getParameters();
-    final coordinates = Coordinates(latitude, longitude);
-    final today = date ?? DateTime.now();
-    final dateComponents = DateComponents(today.year, today.month, today.day);
-    final prayerTimesData = PrayerTimes(coordinates, dateComponents, params);
+ void _calculatePrayerTimes({DateTime? date}) async {
+  final params = CalculationMethod.muslim_world_league.getParameters();
+  final coordinates = Coordinates(latitude, longitude);
+  final today = date ?? DateTime.now();
+  final dateComponents = DateComponents(today.year, today.month, today.day);
+  final prayerTimesData = PrayerTimes(coordinates, dateComponents, params);
 
-    setState(() {
-      prayerTimes = {
-        "الفجر": DateFormat.jm().format(prayerTimesData.fajr),
-        "الشروق": DateFormat.jm().format(prayerTimesData.sunrise),
-        "الظهر": DateFormat.jm().format(prayerTimesData.dhuhr),
-        "العصر": DateFormat.jm().format(prayerTimesData.asr),
-        "المغرب": DateFormat.jm().format(
-            prayerTimesData.maghrib.add(Duration(minutes: 4))),
-        "العشاء": DateFormat.jm().format(
-            prayerTimesData.isha.add(Duration(minutes: 5))),
-      };
-    });
+  final calculatedTimes = {
+    "الفجر": DateFormat.jm().format(prayerTimesData.fajr),
+    "الشروق": DateFormat.jm().format(prayerTimesData.sunrise),
+    "الظهر": DateFormat.jm().format(prayerTimesData.dhuhr),
+    "العصر": DateFormat.jm().format(prayerTimesData.asr),
+    "المغرب": DateFormat.jm().format(
+        prayerTimesData.maghrib.add(Duration(minutes: 4))),
+    "العشاء": DateFormat.jm().format(
+        prayerTimesData.isha.add(Duration(minutes: 5))),
+  };
+
+  // Save to SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  for (var entry in calculatedTimes.entries) {
+    await prefs.setString(entry.key, entry.value);
   }
+
+  setState(() {
+    prayerTimes = calculatedTimes;
+  });
+}
 
   void _updateNextPrayer() {
     final now = DateTime.now();
@@ -420,7 +483,7 @@ void _loadNotificationState() async {
           builder: (_) => AthanPopup(
             prayerName: entry.key,
             prayerTime: entry.value,
-            athanSoundPath: athanSound ?? 'audios/athan1.mp3',
+            athanSoundPath: athanSound ?? 'audios/athan_om_alqora.mp3',
           ),
         ),
       );

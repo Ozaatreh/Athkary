@@ -69,7 +69,7 @@ class _QuranPartsScreenState extends State<QuranPartsScreen> {
   Future<void> navigateToLastPage(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final lastPage = prefs.getInt('lastPage') ?? 1;
-    _navigateToPage(context, lastPage);
+    _navigateToPage(context, lastPage );
   }
 
     // Navigate to the saved bookmark page

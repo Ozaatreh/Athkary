@@ -59,8 +59,22 @@ class _TasabehState extends State<Tasabeh> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
     loadCustomNotifications();
+    loadSoundPreference();
   }
   
+  bool soundEnabled = true;
+
+Future<void> saveSoundPreference(bool enabled) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('soundEnabled', enabled);
+}
+
+Future<void> loadSoundPreference() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  soundEnabled = prefs.getBool('soundEnabled') ?? true;
+  setState(() {});
+}
+
   Future<void> saveRecurringNotifications() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool('every30Min', every30Min);
@@ -309,6 +323,14 @@ Future<void> loadCustomNotifications() async {
                     ),
                   ),
                   SizedBox(height: 20),
+                  
+                  _buildToggle( 
+                     title: "تشغيل صوت الإشعارات",
+                     value: soundEnabled, onChanged: (value) {
+                     setModalState(() => soundEnabled = value);
+                     saveSoundPreference(value);
+                   },),
+               
 
                   // Recurring notification toggles
                   _buildToggle(
@@ -506,10 +528,11 @@ Future<void> loadCustomNotifications() async {
       AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: tag.hashCode,
-          channelKey: 'tasabeh_channel',
+          channelKey: soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
           title: getRandomThekrTitle(),
           body: getRandomThekrBody(),
           notificationLayout: NotificationLayout.Default,
+          
         ),
         schedule: NotificationInterval(
           interval: intervalMinutes * 60,
@@ -529,7 +552,7 @@ Future<void> loadCustomNotifications() async {
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: id,
-        channelKey: 'tasabeh_channel',
+        channelKey: soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
         title: theker1[i],
         body: thekinfo1[i],
         notificationLayout: NotificationLayout.Default,
