@@ -35,7 +35,7 @@ class _TasabehState extends State<Tasabeh> {
   ];
 
   final List<String> thekinfo1 = [
-    'ي كتب له ألف حسنة أو يحط عنه ألف خطيئة', //1
+    'يكتب له ألف حسنة أو يحط عنه ألف خطيئة', //1
     'كنز من كنوز الجنة ', //2
     'من صلى على حين يصبح وحين يمسى ادركته شفاعتى يوم القيامة', //3
     'حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ', //4
@@ -266,7 +266,7 @@ Future<void> loadCustomNotifications() async {
                   child: Text(
                     theker1[index],
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.amiri(
+                    style: GoogleFonts.tajawal(
                       fontSize: 20,
                       height: 1.6,
                       color: isDarkMode ? Colors.white : Colors.black,
@@ -282,8 +282,8 @@ Future<void> loadCustomNotifications() async {
             const SizedBox(height: 8),
             Text(
               thekinfo1[index],
-              textAlign: TextAlign.justify,
-              style: GoogleFonts.amiri(
+              textAlign: TextAlign.end,
+              style: GoogleFonts.tajawal(
                 fontSize: 16,
                 height: 1.5,
                 color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
@@ -465,7 +465,7 @@ Future<void> loadCustomNotifications() async {
                     ),
                     child: Text(
             "تم",
-            style: TextStyle(
+            style: GoogleFonts.tajawal(
               fontSize: 18,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
@@ -501,7 +501,7 @@ Future<void> loadCustomNotifications() async {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title,
-              style: TextStyle(
+              style: GoogleFonts.tajawal(
                   fontSize: 16,
                   color: Theme.of(context).colorScheme.primary)),
           Switch(
@@ -536,7 +536,7 @@ Future<void> loadCustomNotifications() async {
         ),
         schedule: NotificationInterval(
           interval: intervalMinutes * 60,
-          timeZone: 'UTC',
+          timeZone: 'Asia/Amman',
           repeats: true,
         ),
       );

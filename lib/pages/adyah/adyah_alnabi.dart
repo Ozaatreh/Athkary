@@ -169,40 +169,43 @@ class _AdyahAlnabiState extends State<AdyahAlnabi> {
                 ),
               ],
       ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          dua["text"] ?? "لا يوجد دعاء",
-          textAlign: TextAlign.right,
-          style: GoogleFonts.amiri(
-            fontSize: 20,
-            height: 1.4,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
-        ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              dua["reference"] ?? "",
-              textAlign: TextAlign.right,
-              style: GoogleFonts.tajawal(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              ),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          title: Text(
+            dua["text"] ?? "لا يوجد دعاء",
+            textAlign: TextAlign.start,
+            style: GoogleFonts.tajawal(
+              fontSize: 20,
+              height: 1.4,
+              color: isDarkMode ? Colors.white : theme.colorScheme.surface,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              indent: 16,
+              endIndent: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                dua["reference"] ?? "",
+                textAlign: TextAlign.right,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
+            ),
+          ],
+          iconColor: theme.colorScheme.primary,
+          collapsedIconColor: theme.colorScheme.primary,
+        ),
       ),
     );
   }

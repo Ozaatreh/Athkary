@@ -167,13 +167,16 @@ class _SleepSunnahsPageState extends State<SleepSunnahsPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              sleepSunnahs[index]['description']!,
-              textAlign: TextAlign.right,
-              style: GoogleFonts.amiri(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Text(
+                sleepSunnahs[index]['description']!,
+                textAlign: TextAlign.right,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                ),
               ),
             ),
           ),

@@ -268,15 +268,18 @@ class _RandomsSunnahsScreenState extends State<RandomsSunnahsScreen> {
             indent: 16,
             endIndent: 16,
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              miscellaneousSunnahs[index]['description']!,
-              textAlign: TextAlign.right,
-              style: GoogleFonts.amiri(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                miscellaneousSunnahs[index]['description']!,
+                textAlign: TextAlign.start,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                ),
               ),
             ),
           ),

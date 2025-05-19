@@ -214,7 +214,7 @@ void _checkAndLaunchAthan() {
                    _buildFeatureCard(
                     context,
                     'أسماء الله الحسنى',
-                    'assets/animations/stare_blink.json',
+                    'assets/animations/flower_fly.json',
                     AlahNames(),
                   ),
                   _buildFeatureCard(

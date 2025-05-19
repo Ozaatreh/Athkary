@@ -1,5 +1,6 @@
 import 'package:athkary/pages/sunnan_alnabi/sunnan_alnom.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_alsiam.dart';
+import 'package:athkary/pages/sunnan_alnabi/sunnan_althekr_doaa.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_eating_clothing.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_randoms.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_wadu_salah.dart';
@@ -115,11 +116,19 @@ class _SonanAlnabiNavsState extends State<SonanAlnabiNavs> {
         ),
         _buildCategoryCard(
           context,
+          'الذكر والدعاء',
+          ThikrAndDuaSunnahsScreen(),
+          Icons.stream_outlined,
+          screenSize,
+        ),
+        _buildCategoryCard(
+          context,
           'سنن متنوعة',
           RandomsSunnahsScreen(),
           Icons.category,
           screenSize,
         ),
+        
         _buildCategoryCard(
           context,
           'سنن اللباس و الطعام',

@@ -447,7 +447,7 @@ final Map<int, List<Map<String, dynamic>>> quranParts = {
                         MaterialPageRoute(
                           builder: (context) => QuranViewerScreen(
                             pdfPath: 'assets/pdfs/Quraan_v0.pdf',
-                            startPage: surah['page'],
+                            startPage: surah['page'] ,
                           ),
                         ),
                       );

@@ -131,15 +131,18 @@ class _AdyahRainingState extends State<AdyahRaining> {
                 ),
               ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        title: Text(
-          adyahAlmatar[index],
-          textAlign: TextAlign.right,
-          style: GoogleFonts.amiri(
-            fontSize: 20,
-            height: 1.6,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          title: Text(
+            adyahAlmatar[index],
+            textAlign: TextAlign.start,
+            style: GoogleFonts.tajawal(
+              fontSize: 20,
+              height: 1.6,
+              color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+            ),
           ),
         ),
       ),

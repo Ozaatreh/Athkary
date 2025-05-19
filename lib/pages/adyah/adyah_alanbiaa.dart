@@ -123,11 +123,11 @@ class _AdyahAlanbiaaState extends State<AdyahAlanbiaa> {
     for (int i = 0; i < adyahAlanbiaa.length; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
       _listKey.currentState?.insertItem(i);
-      await _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      // await _scrollController.animateTo(
+      //   _scrollController.position.maxScrollExtent,
+      //   duration: const Duration(milliseconds: 300),
+      //   curve: Curves.easeOut,
+      // );
     }
   }
 
@@ -253,13 +253,16 @@ class _AdyahAlanbiaaState extends State<AdyahAlanbiaa> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              dua["ayah"] ?? "لا يوجد دعاء",
-              textAlign: TextAlign.right,
-              style: GoogleFonts.amiri(
-                fontSize: 20,
-                height: 1.6,
-                color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Text(
+                dua["ayah"] ?? "لا يوجد دعاء",
+                textAlign: TextAlign.justify,
+                style: GoogleFonts.tajawal(
+                  fontSize: 20,
+                  height: 1.6,
+                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+                ),
               ),
             ),
           ),

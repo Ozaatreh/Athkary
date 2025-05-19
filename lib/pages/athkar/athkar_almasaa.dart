@@ -169,40 +169,43 @@ final List<String> athkarInfo = [
                 ),
               ],
       ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          athkarMorning[index],
-          textAlign: TextAlign.right,
-          style: GoogleFonts.amiri(
-            fontSize: 20,
-            height: 1.6,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
-        ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              athkarInfo[index],
-              textAlign: TextAlign.right,
-              style: GoogleFonts.tajawal(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-              ),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          title: Text(
+            athkarMorning[index],
+            textAlign: TextAlign.start,
+            style: GoogleFonts.tajawal(
+              fontSize: 20,
+              height: 1.6,
+              color: isDarkMode ? Colors.white : theme.colorScheme.surface,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              indent: 16,
+              endIndent: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                athkarInfo[index],
+                textAlign: TextAlign.right,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+                ),
+              ),
+            ),
+          ],
+          iconColor: theme.colorScheme.primary,
+          collapsedIconColor: theme.colorScheme.primary,
+        ),
       ),
     );
   }

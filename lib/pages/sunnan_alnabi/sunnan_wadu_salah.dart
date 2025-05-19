@@ -14,12 +14,12 @@ class _WuduAndSalahSunnahsScreenState extends State<WuduAndSalahSunnahsScreen> {
     {
       'title': 'المضمضة والاستنشاق من غرفة واحدة',
       'description':
-          'عن عبدالله بن زيد رضي الله عنه ، أنَّ رسول الله صلى الله عليه وسلم : (( تمضمض ، واستنشق من كف واحدة )) [ رواه مسلم: 555 ].',
+          'عن عبدالله بن زيد رضي الله عنه ، أنَّ رسول الله صلى الله عليه وسلم :\n (( تمضمض ، واستنشق من كف واحدة )) [ رواه مسلم: 555 ].',
     },
     {
       'title': 'الوضوء قبل الغُسل',
       'description':
-          'عن عائشة رضي الله عنها ، أنَّ النبي صلى الله عليه وسلم : (( كان إذا اغتسل من الجنابة ، بدأ فغسل يديه ، ثم توضأ كما يتوضأ للصلاة ، ثم يُدخل أصابعه في الماء ، فيخلل بها أصول الشعر ، ثم يَصُب على رأسه ثلاث غُرف بيديه ، ثم يُفيض الماء على جلده كله )) [ رواه البخاري :248 ].',
+          'عن عائشة رضي الله عنها ، أنَّ النبي صلى الله عليه وسلم : (( كان إذا اغتسل من الجنابة ، بدأ فغسل يديه ، ثم توضأ كما يتوضأ للصلاة ، ثم يُدخل أصابعه في الماء ، فيخلل بها أصول الشعر ، ثم يَصُب على رأسه ثلاث غُرف بيديه ، ثم يُفيض الماء على جلده كله )) \n[ رواه البخاري :248 ].',
     },
     {
       'title': 'التشهد بعد الوضوء',
@@ -29,7 +29,7 @@ class _WuduAndSalahSunnahsScreenState extends State<WuduAndSalahSunnahsScreen> {
     {
       'title': 'الاقتصاد في الماء',
       'description':
-          'عن أنس ـ رضي الله عنه ـ قال: (( كان النبي ـ صلى الله عليه وسلم ـ يغتسل بالصاع إلى خمسة أمداد ، ويتوضأ بالـمُد )) [ متفق عليه: 201- 737 ].',
+          'عن أنس ـ رضي الله عنه ـ قال: (( كان النبي ـ صلى الله عليه وسلم ـ يغتسل بالصاع إلى خمسة أمداد ، ويتوضأ بالـمُد ))\n [ متفق عليه: 201- 737 ].',
     },
     {
       'title': 'صلاة ركعتين بعد الوضوء',
@@ -284,15 +284,18 @@ class _WuduAndSalahSunnahsScreenState extends State<WuduAndSalahSunnahsScreen> {
             indent: 16,
             endIndent: 16,
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              wuduAndSalahSunnahs[index]['description']!,
-              textAlign: TextAlign.right,
-              style: GoogleFonts.amiri(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                wuduAndSalahSunnahs[index]['description']!,
+                textAlign: TextAlign.justify,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                ),
               ),
             ),
           ),

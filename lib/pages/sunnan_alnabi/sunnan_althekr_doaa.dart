@@ -222,13 +222,16 @@ class _ThikrAndDuaSunnahsScreenState extends State<ThikrAndDuaSunnahsScreen> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              dhikrAndDuaSunnahs[index]['description']!,
-              textAlign: TextAlign.right,
-              style: GoogleFonts.amiri(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Text(
+                dhikrAndDuaSunnahs[index]['description']!,
+                textAlign: TextAlign.start,
+                style: GoogleFonts.tajawal(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                ),
               ),
             ),
           ),
