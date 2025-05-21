@@ -66,9 +66,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
 });
 
     _loadNotificationState();
-    _calculatePrayerTimes();
-    _updateNextPrayer();
-    _checkAndLaunchAthan();
+    calculatePrayerTimes();
    Timer.periodic(Duration(seconds: 1), (timer) {
   _updateNextPrayer();
   _checkAndLaunchAthan();
@@ -408,7 +406,7 @@ void _loadNotificationState() async {
   );
 }
 
- void _calculatePrayerTimes({DateTime? date}) async {
+ void calculatePrayerTimes({DateTime? date}) async {
   final params = CalculationMethod.muslim_world_league.getParameters();
   final coordinates = Coordinates(latitude, longitude);
   final today = date ?? DateTime.now();
@@ -540,7 +538,7 @@ void _loadNotificationState() async {
                     onPressed: () {
                       setState(() {
                         selectedDate = selectedDate.subtract(Duration(days: 1));
-                        _calculatePrayerTimes(date: selectedDate);
+                        calculatePrayerTimes(date: selectedDate);
                       });
                     },
                   ),
@@ -562,7 +560,7 @@ void _loadNotificationState() async {
                     onPressed: () {
                       setState(() {
                         selectedDate = selectedDate.add(Duration(days: 1));
-                        _calculatePrayerTimes(date: selectedDate);
+                        calculatePrayerTimes(date: selectedDate);
                       });
                     },
                   ),
