@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       'title': 'القبلة',
-      'animationPath': 'assets/images/qiblah_v5d.png',
+      'animationPath': 'assets/images/compass_v2.png',
       'page': QiblahScreen(),
       'type': 'large',
     },
@@ -299,128 +299,124 @@ class _HomePageState extends State<HomePage> {
       drawer: CustomDrawer(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+          padding: EdgeInsets.all(  screenWidth * 0.01),
           child: Column(
             children: [
               // Hero Image
 
               LiquidSwipe(
-                pages: [
-                  // First page - Image (now with fixed height)
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height *
-                        0.42, // Adjust this value as needed
-                    child: Container(
-                      // margin: const EdgeInsets.only(bottom: 24),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          'assets/images/athk_pic3.png',
-                          fit: BoxFit.fill, // Ensures image fills the space
-                        ),
-                      ),
-                    ),
-                  ),
+  pages: [
+    // First page - Image
+    Container(
+      height: MediaQuery.of(context).size.height * 0.42,
+      width: MediaQuery.of(context).size.width,
+      margin: const EdgeInsets.all(16), // Consistent margin
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.asset(
+          'assets/images/athk_pic3.png',
+          fit: BoxFit.cover, // Changed from fill to cover for better aspect ratio
+        ),
+      ),
+    ),
 
-                  // Second page - Prayer Times (same fixed height)
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height *
-                        0.423, // Same as image height
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: ListView(
-                        // Use ListView for scrollable content if needed
-                        children: _prayerTimes.entries.map((entry) {
-                          bool isCurrent = entry.key == _currentPrayer;
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary
-                                      .withOpacity(0.1),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            child: ListTile(
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isCurrent
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .surface
-                                          .withOpacity(0.2)
-                                      : Colors.transparent,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.access_time,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary,
-                                ),
-                              ),
-                              title: Text(
-                                entry.key,
-                                style: GoogleFonts.tajawal(
-                                  fontSize: 18,
-                                  fontWeight: isCurrent
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary,
-                                ),
-                              ),
-                              trailing: Text(
-                                entry.value,
-                                style: GoogleFonts.tajawal(
-                                  fontSize: 18,
-                                  fontWeight: isCurrent
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ],
-                fullTransitionValue: 300,
-                slideIconWidget: Icon(Icons.swipe_left_outlined,
-                    color: const Color.fromARGB(255, 10, 10, 10)),
-                positionSlideIcon: 0.5,
-                waveType: WaveType.liquidReveal,
+    // Second page - Prayer Times
+    Container(
+      height: MediaQuery.of(context).size.height * 0.42, // Same height
+      margin: const EdgeInsets.all(16), // Same margin
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 213, 243, 214),
+        borderRadius: BorderRadius.circular(15), // Same border radius
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListView(
+        children: _prayerTimes.entries.map((entry) {
+          bool isCurrent = entry.key == _currentPrayer;
+          return Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .inversePrimary
+                      .withOpacity(0.1),
+                  width: 1,
+                ),
               ),
+            ),
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isCurrent
+                      ? Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withOpacity(0.2)
+                      : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.access_time,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .inversePrimary,
+                ),
+              ),
+              title: Text(
+                entry.key,
+                style: GoogleFonts.tajawal(
+                  fontSize: 18,
+                  fontWeight: isCurrent
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .inversePrimary,
+                ),
+              ),
+              trailing: Text(
+                entry.value,
+                style: GoogleFonts.tajawal(
+                  fontSize: 18,
+                  fontWeight: isCurrent
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .inversePrimary,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    ),
+  ],
+  fullTransitionValue: 300,
+  slideIconWidget: Icon(Icons.swipe_left_outlined,
+      color: const Color.fromARGB(255, 10, 10, 10)),
+  positionSlideIcon: 0.5,
+  waveType: WaveType.liquidReveal,
+),
 
               SizedBox(
                 height: 20,

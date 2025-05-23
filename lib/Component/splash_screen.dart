@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Choose the animation based on the theme
     String animationFile = isDarkMode
         ? 'assets/animation_riv/logo_dark.riv' // Dark mode animation
-        : 'assets/animation_riv/logo_ligh.riv'; // Light mode animation
+        : 'assets/animation_riv/light_riv (2).riv'; // Light mode animation
 
     return Scaffold(
       backgroundColor: Colors.white, // Set a background color

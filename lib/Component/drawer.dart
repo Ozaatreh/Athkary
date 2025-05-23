@@ -91,7 +91,7 @@ class CustomDrawer extends StatelessWidget {
                     context,
                     title: "القبلة",
                     icon: Image.asset(
-                      'assets/images/qiblah_v5d.png',
+                      'assets/images/compass_v3.png',
                       height: 33,
                       width: 33,
                       // color: theme.colorScheme.primary,
