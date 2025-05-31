@@ -336,7 +336,7 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.all(16), // Same margin
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 213, 243, 214),
+        color: const Color.fromARGB(255, 198, 198, 198),
         borderRadius: BorderRadius.circular(15), // Same border radius
         boxShadow: [
           BoxShadow(
@@ -411,10 +411,11 @@ class _HomePageState extends State<HomePage> {
       ),
     ),
   ],
-  fullTransitionValue: 300,
+  fullTransitionValue: 700,
   slideIconWidget: Icon(Icons.swipe_left_outlined,
-      color: const Color.fromARGB(255, 10, 10, 10)),
-  positionSlideIcon: 0.5,
+  size: 16,
+      color: const Color.fromARGB(255, 249, 248, 248)),
+  positionSlideIcon: 0.20,
   waveType: WaveType.liquidReveal,
 ),
 
@@ -443,15 +444,18 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   } else {
-                    return _buildFeatureCard(
+                    return SizedBox(
+                    width: (screenWidth - screenWidth * 0.075) / 2 - 8, // adjust for spacing
+                    child: _buildFeatureCard(
                       context,
                       feature['title'],
                       feature['animationPath'],
                       feature['page'],
                       smallCardSize,
                       smallTitleFontSize,
-                      animationSize * 0.7, // Smaller animation for small cards
-                    );
+                      animationSize * 0.7,
+                    ),
+                  );
                   }
                 }).toList(),
               ),
