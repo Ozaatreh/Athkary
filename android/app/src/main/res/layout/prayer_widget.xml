@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="أوقات الصلاة اليوم"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textColor="#1E88E5"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/prayerTimesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="10dp">
+    </LinearLayout>
+</LinearLayout>
