@@ -53,7 +53,7 @@ Future<void> main() async {
       ledColor: Colors.white,
       importance: NotificationImportance.High,
       playSound: true,
-      soundSource: 'resource://raw/athan_om_alqora',
+      soundSource: 'resource://raw/athan_islam_sobhi',
     ),
 
      NotificationChannel( // Add this for prayer notifications

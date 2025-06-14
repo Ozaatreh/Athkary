@@ -262,203 +262,20 @@ class _HomePageState extends State<HomePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final theme = Theme.of(context);
 
-    // Calculate responsive sizes
-    final smallCardSize = screenWidth * 0.4; // 40% of screen width
-    final largeCardHeight = screenHeight * 0.13; // 12% of screen height
-    final titleFontSize = screenWidth * 0.05; // 6% of screen width
-    final smallTitleFontSize = screenWidth * 0.049; // 4.5% of screen width
-    final animationSize = screenWidth * 0.15; // 15% of screen width
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Lottie.asset(
-              'assets/animations/wired-flat-63-home-loop-smoke.json',
-              width: animationSize,
-              height: animationSize,
-              fit: BoxFit.contain,
-            ),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(
-          'أذكاري',
-          style: GoogleFonts.tajawal(
-            fontSize: titleFontSize,
-            fontWeight: FontWeight.w700,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ),
+      appBar: _buildAppBar(context, theme, screenWidth),
       drawer: CustomDrawer(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(  screenWidth * 0.01),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero Image
-
-              LiquidSwipe(
-  pages: [
-    // First page - Image
-    Container(
-      height: MediaQuery.of(context).size.height * 0.42,
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.all(16), // Consistent margin
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Image.asset(
-          'assets/images/athk_pic3.png',
-          fit: BoxFit.cover, // Changed from fill to cover for better aspect ratio
-        ),
-      ),
-    ),
-
-    // Second page - Prayer Times
-    Container(
-      height: MediaQuery.of(context).size.height * 0.42, // Same height
-      margin: const EdgeInsets.all(16), // Same margin
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 198, 198, 198),
-        borderRadius: BorderRadius.circular(15), // Same border radius
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListView(
-        children: _prayerTimes.entries.map((entry) {
-          bool isCurrent = entry.key == _currentPrayer;
-          return Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .inversePrimary
-                      .withOpacity(0.1),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: isCurrent
-                      ? Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withOpacity(0.2)
-                      : Colors.transparent,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.access_time,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .inversePrimary,
-                ),
-              ),
-              title: Text(
-                entry.key,
-                style: GoogleFonts.tajawal(
-                  fontSize: 18,
-                  fontWeight: isCurrent
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .inversePrimary,
-                ),
-              ),
-              trailing: Text(
-                entry.value,
-                style: GoogleFonts.tajawal(
-                  fontSize: 18,
-                  fontWeight: isCurrent
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .inversePrimary,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    ),
-  ],
-  fullTransitionValue: 700,
-  slideIconWidget: Icon(Icons.swipe_left_outlined,
-  size: 16,
-      color: const Color.fromARGB(255, 249, 248, 248)),
-  positionSlideIcon: 0.20,
-  waveType: WaveType.liquidReveal,
-),
-
-              SizedBox(
-                height: 20,
-              ),
-
-              ReorderableWrap(
-                spacing: screenWidth * 0.075,
-                runSpacing: screenWidth * 0.04,
-                padding: EdgeInsets.zero,
-                needsLongPressDraggable: true,
-                onReorder: _onReorder,
-                children: _features.map((feature) {
-                  if (feature['type'] == 'large') {
-                    return SizedBox(
-                      width: double.infinity,
-                      child: _buildLargeFeatureCard(
-                        context,
-                        feature['title'],
-                        feature['animationPath'],
-                        feature['page'],
-                        largeCardHeight,
-                        titleFontSize,
-                        animationSize,
-                      ),
-                    );
-                  } else {
-                    return SizedBox(
-                    width: (screenWidth - screenWidth * 0.075) / 2 - 8, // adjust for spacing
-                    child: _buildFeatureCard(
-                      context,
-                      feature['title'],
-                      feature['animationPath'],
-                      feature['page'],
-                      smallCardSize,
-                      smallTitleFontSize,
-                      animationSize * 0.7,
-                    ),
-                  );
-                  }
-                }).toList(),
-              ),
+              SizedBox(height: screenHeight * 0.02),
+              _buildHeroSection(context, screenWidth, screenHeight),
+              SizedBox(height: screenHeight * 0.03),
+              _buildFeaturesGrid(context, screenWidth, screenHeight),
             ],
           ),
         ),
@@ -466,21 +283,193 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildFeatureCard(
+  PreferredSizeWidget _buildAppBar(BuildContext context, ThemeData theme, double screenWidth) {
+    return AppBar(
+      centerTitle: true,
+      automaticallyImplyLeading: false,
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: Lottie.asset(
+            'assets/animations/wired-flat-63-home-loop-smoke.json',
+            width: screenWidth * 0.1,
+            height: screenWidth * 0.1,
+          ),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+      ),
+      title: Text(
+        'أذكاري',
+        style: GoogleFonts.tajawal(
+          fontSize: screenWidth * 0.06,
+          fontWeight: FontWeight.w700,
+          color: theme.colorScheme.primary,
+        ),
+      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      // actions: [
+      //   IconButton(
+      //     icon: Icon(Icons.notifications_none, size: screenWidth * 0.07),
+      //     onPressed: () {},
+      //   ),
+      // ],
+    );
+  }
+
+  Widget _buildHeroSection(BuildContext context, double screenWidth, double screenHeight) {
+    return Container(
+      height: screenHeight * 0.5,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: LiquidSwipe(
+          pages: [
+            // Image Page
+            Container(
+              width: screenWidth,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/athk_pic3.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            
+            // Prayer Times Page
+            Container(
+              color: Theme.of(context).colorScheme.primary ,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'أوقات الصلاة',
+                    style: GoogleFonts.tajawal(
+                      fontSize: screenWidth * 0.06,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: _prayerTimes.length,
+                      separatorBuilder: (_, __) => Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final entry = _prayerTimes.entries.elementAt(index);
+                        final isCurrent = entry.key == _currentPrayer;
+                        return ListTile(
+                          leading: Icon(
+                            Icons.access_time,
+                            color: isCurrent 
+                                ? Theme.of(context).colorScheme.inversePrimary
+                                : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.6),
+                          ),
+                          title: Text(
+                            entry.key,
+                            style: GoogleFonts.tajawal(
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                              color: Theme.of(context).colorScheme.inversePrimary,
+                            ),
+                          ),
+                          trailing: Text(
+                            entry.value,
+                            style: GoogleFonts.tajawal(
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                              color: Theme.of(context).colorScheme.inversePrimary,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          fullTransitionValue: 700,
+          slideIconWidget: Icon(
+            Icons.swipe_left,
+            size: 16,
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          positionSlideIcon: 0.1,
+          waveType: WaveType.liquidReveal,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturesGrid(BuildContext context, double screenWidth, double screenHeight) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+        //   child: Text(
+        //     'الأدوات',
+        //     style: GoogleFonts.tajawal(
+        //       fontSize: screenWidth * 0.055,
+        //       fontWeight: FontWeight.bold,
+        //       color: Theme.of(context).colorScheme.primary,
+        //     ),
+        //   ),
+        // ),
+        SizedBox(height: screenHeight * 0.02),
+        ReorderableWrap(
+          spacing: screenWidth * 0.05,
+          runSpacing: screenWidth * 0.05,
+          padding: EdgeInsets.zero,
+          onReorder: _onReorder,
+          children: _features.map((feature) {
+            return feature['type'] == 'large'
+                ? _buildLargeFeatureCard(
+                    context,
+                    feature['title'],
+                    feature['animationPath'],
+                    feature['page'],
+                    screenWidth,
+                    screenHeight,
+                  )
+                : _buildSmallFeatureCard(
+                    context,
+                    feature['title'],
+                    feature['animationPath'],
+                    feature['page'],
+                    screenWidth,
+                    screenHeight,
+                  );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSmallFeatureCard(
     BuildContext context,
     String title,
     String animationPath,
     Widget page,
-    double cardSize,
-    double fontSize,
-    double animationSize,
+    double screenWidth,
+    double screenHeight,
   ) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       onTap: () => Navigator.push(
         context,
         PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 500),
+          transitionDuration: Duration(milliseconds: 300),
           pageBuilder: (_, __, ___) => page,
           transitionsBuilder: (_, animation, __, child) => FadeTransition(
             opacity: animation,
@@ -488,62 +477,52 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: (screenWidth - screenWidth * 0.15) / 2,
+        height: screenHeight * 0.18,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            width: 1,
+          ),
         ),
-        color: Theme.of(context).colorScheme.primary,
-        child: Container(
-          width: cardSize ,
-          height: cardSize,
-          padding: EdgeInsets.all(cardSize * 0.05),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                Theme.of(context).colorScheme.primary,
-              ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: screenWidth * 0.15,
+              height: screenWidth * 0.15,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: animationPath.endsWith('.json')
+                    ? Lottie.asset(
+                        animationPath,
+                        width: screenWidth * 0.1,
+                        height: screenWidth * 0.1,
+                      )
+                    : Image.asset(
+                        animationPath,
+                        width: screenWidth * 0.1,
+                        height: screenWidth * 0.1,
+                      ),
+              ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.tajawal(
+                fontSize: screenWidth * 0.04,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              animationPath.endsWith('.json')
-                  ? Lottie.asset(
-                      animationPath,
-                      width: animationSize,
-                      height: animationSize,
-                      fit: BoxFit.contain,
-                    )
-                  : Image.asset(
-                      animationPath,
-                      width: animationSize,
-                      height: animationSize,
-                      fit: BoxFit.contain,
-                    ),
-              SizedBox(height: cardSize * 0.05),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.tajawal(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -554,70 +533,66 @@ class _HomePageState extends State<HomePage> {
     String title,
     String animationPath,
     Widget page,
-    double cardHeight,
-    double fontSize,
-    double animationSize,
+    double screenWidth,
+    double screenHeight,
   ) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => page),
       ),
       child: Container(
-        height: cardHeight,
-        margin: EdgeInsets.symmetric(vertical: cardHeight * 0.05),
+        width: double.infinity,
+        height: screenHeight * 0.12,
+        margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
-              Theme.of(context).colorScheme.primary,
-            ],
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Row(
           children: [
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(cardHeight * 0.1),
-                child: Text(
-                  title,
-                  style: GoogleFonts.tajawal(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                ),
+            Container(
+              width: screenWidth * 0.15,
+              height: screenWidth * 0.15,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(cardHeight * 0.05),
+              child: Center(
                 child: animationPath.endsWith('.json')
                     ? Lottie.asset(
                         animationPath,
-                        width: animationSize,
-                        height: animationSize,
-                        fit: BoxFit.contain,
+                        width: screenWidth * 0.1,
+                        height: screenWidth * 0.1,
                       )
                     : Image.asset(
                         animationPath,
-                        width: animationSize,
-                        height: animationSize,
-                        fit: BoxFit.contain,
+                        width: screenWidth * 0.1,
+                        height: screenWidth * 0.1,
                       ),
               ),
+            ),
+            SizedBox(width: screenWidth * 0.04),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.tajawal(
+                  fontSize: screenWidth * 0.045,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: screenWidth * 0.04,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
             ),
           ],
         ),
@@ -625,3 +600,163 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+  // Widget _buildFeatureCard(
+  //   BuildContext context,
+  //   String title,
+  //   String animationPath,
+  //   Widget page,
+  //   double cardSize,
+  //   double fontSize,
+  //   double animationSize,
+  // ) {
+  //   return InkWell(
+  //     borderRadius: BorderRadius.circular(16),
+  //     onTap: () => Navigator.push(
+  //       context,
+  //       PageRouteBuilder(
+  //         transitionDuration: const Duration(milliseconds: 500),
+  //         pageBuilder: (_, __, ___) => page,
+  //         transitionsBuilder: (_, animation, __, child) => FadeTransition(
+  //           opacity: animation,
+  //           child: child,
+  //         ),
+  //       ),
+  //     ),
+  //     child: Card(
+  //       elevation: 4,
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       color: Theme.of(context).colorScheme.primary,
+  //       child: Container(
+  //         width: cardSize ,
+  //         height: cardSize,
+  //         padding: EdgeInsets.all(cardSize * 0.05),
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadius.circular(16),
+  //           gradient: LinearGradient(
+  //             begin: Alignment.topLeft,
+  //             end: Alignment.bottomRight,
+  //             colors: [
+  //               Theme.of(context).colorScheme.primary.withOpacity(0.8),
+  //               Theme.of(context).colorScheme.primary,
+  //             ],
+  //           ),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+  //               blurRadius: 10,
+  //               offset: const Offset(0, 4),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Column(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             animationPath.endsWith('.json')
+  //                 ? Lottie.asset(
+  //                     animationPath,
+  //                     width: animationSize,
+  //                     height: animationSize,
+  //                     fit: BoxFit.contain,
+  //                   )
+  //                 : Image.asset(
+  //                     animationPath,
+  //                     width: animationSize,
+  //                     height: animationSize,
+  //                     fit: BoxFit.contain,
+  //                   ),
+  //             SizedBox(height: cardSize * 0.05),
+  //             Text(
+  //               title,
+  //               textAlign: TextAlign.center,
+  //               style: GoogleFonts.tajawal(
+  //                 fontSize: fontSize,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Theme.of(context).colorScheme.inversePrimary,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildLargeFeatureCard(
+  //   BuildContext context,
+  //   String title,
+  //   String animationPath,
+  //   Widget page,
+  //   double cardHeight,
+  //   double fontSize,
+  //   double animationSize,
+  // ) {
+  //   return InkWell(
+  //     borderRadius: BorderRadius.circular(16),
+  //     onTap: () => Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => page),
+  //     ),
+  //     child: Container(
+  //       height: cardHeight,
+  //       margin: EdgeInsets.symmetric(vertical: cardHeight * 0.05),
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(16),
+  //         gradient: LinearGradient(
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //           colors: [
+  //             Theme.of(context).colorScheme.primary.withOpacity(0.8),
+  //             Theme.of(context).colorScheme.primary,
+  //           ],
+  //         ),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+  //             blurRadius: 10,
+  //             offset: const Offset(0, 4),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Expanded(
+  //             flex: 2,
+  //             child: Padding(
+  //               padding: EdgeInsets.all(cardHeight * 0.1),
+  //               child: Text(
+  //                 title,
+  //                 style: GoogleFonts.tajawal(
+  //                   fontSize: fontSize,
+  //                   fontWeight: FontWeight.w700,
+  //                   color: Theme.of(context).colorScheme.inversePrimary,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           Expanded(
+  //             child: Padding(
+  //               padding: EdgeInsets.all(cardHeight * 0.05),
+  //               child: animationPath.endsWith('.json')
+  //                   ? Lottie.asset(
+  //                       animationPath,
+  //                       width: animationSize,
+  //                       height: animationSize,
+  //                       fit: BoxFit.contain,
+  //                     )
+  //                   : Image.asset(
+  //                       animationPath,
+  //                       width: animationSize,
+  //                       height: animationSize,
+  //                       fit: BoxFit.contain,
+  //                     ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+

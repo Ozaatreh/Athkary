@@ -1,8 +1,10 @@
 import 'package:athkary/Component/qiblah_compass.dart';
+import 'package:athkary/Component/setting_page.dart';
 import 'package:athkary/pages/alah_names.dart';
 import 'package:athkary/pages/home_page.dart';
 import 'package:athkary/pages/prayer_page.dart';
 import 'package:athkary/pages/quran/quran_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -73,59 +75,41 @@ class CustomDrawer extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 children: [
+                
+                  _buildDrawerItem(
+                    context,
+                    title: "الاعدادات",
+                    icon: Icon(Icons.settings , size: 33,) ,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingPage()),
+                    ),
+                  // ),
                   // _buildDrawerItem(
                   //   context,
-                  //   title: 'اسماء الله الحسنى',
-                  //   icon: Image.asset(
-                  //     'assets/images/allah_.png',
+                  //   title: 'القرآن الكريم',
+                  //   icon: Lottie.asset(
+                  //     'assets/animations/wired-lineal-112-book-hover-closed.json',
                   //     height: 28,
                   //     width: 28,
-                  //     color: theme.colorScheme.primary,
                   //   ),
                   //   onTap: () => Navigator.push(
                   //     context,
-                  //     MaterialPageRoute(builder: (context) => AlahNames()),
+                  //     MaterialPageRoute(builder: (context) => QuranPartsScreen()),
                   //   ),
                   // ),
-                  _buildDrawerItem(
-                    context,
-                    title: "القبلة",
-                    icon: Image.asset(
-                      'assets/images/compass_v3.png',
-                      height: 33,
-                      width: 33,
-                      // color: theme.colorScheme.primary,
-                    ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => QiblahScreen()),
-                    ),
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    title: 'القرآن الكريم',
-                    icon: Lottie.asset(
-                      'assets/animations/wired-lineal-112-book-hover-closed.json',
-                      height: 28,
-                      width: 28,
-                    ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => QuranPartsScreen()),
-                    ),
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    title: 'مواعيد الصلاة',
-                    icon: Lottie.asset(
-                      'assets/animations/wired-lineal-1923-mosque-hover-pinch.json',
-                      height: 28,
-                      width: 28,
-                    ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => PrayerDashboard()),
-                    ),
+                  // _buildDrawerItem(
+                  //   context,
+                  //   title: 'مواعيد الصلاة',
+                  //   icon: Lottie.asset(
+                  //     'assets/animations/wired-lineal-1923-mosque-hover-pinch.json',
+                  //     height: 28,
+                  //     width: 28,
+                  //   ),
+                  //   onTap: () => Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(builder: (context) => PrayerDashboard()),
+                  //   ),
                   ),
                   const Divider(
                     height: 32,
