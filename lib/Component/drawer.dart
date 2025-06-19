@@ -76,40 +76,42 @@ class CustomDrawer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 children: [
                 
-                  _buildDrawerItem(
-                    context,
-                    title: "الاعدادات",
-                    icon: Icon(Icons.settings , size: 33,) ,
-                    onTap: () => Navigator.push(
+                  Center(
+                    child: _buildDrawerItem(
                       context,
-                      MaterialPageRoute(builder: (context) => SettingPage()),
+                      title: "الاعدادات",
+                      icon: Icon(Icons.settings , size: 20,) ,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SettingsPage()),
+                      ),
+                    // ),
+                    // _buildDrawerItem(
+                    //   context,
+                    //   title: 'القرآن الكريم',
+                    //   icon: Lottie.asset(
+                    //     'assets/animations/wired-lineal-112-book-hover-closed.json',
+                    //     height: 28,
+                    //     width: 28,
+                    //   ),
+                    //   onTap: () => Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => QuranPartsScreen()),
+                    //   ),
+                    // ),
+                    // _buildDrawerItem(
+                    //   context,
+                    //   title: 'مواعيد الصلاة',
+                    //   icon: Lottie.asset(
+                    //     'assets/animations/wired-lineal-1923-mosque-hover-pinch.json',
+                    //     height: 28,
+                    //     width: 28,
+                    //   ),
+                    //   onTap: () => Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => PrayerDashboard()),
+                    //   ),
                     ),
-                  // ),
-                  // _buildDrawerItem(
-                  //   context,
-                  //   title: 'القرآن الكريم',
-                  //   icon: Lottie.asset(
-                  //     'assets/animations/wired-lineal-112-book-hover-closed.json',
-                  //     height: 28,
-                  //     width: 28,
-                  //   ),
-                  //   onTap: () => Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => QuranPartsScreen()),
-                  //   ),
-                  // ),
-                  // _buildDrawerItem(
-                  //   context,
-                  //   title: 'مواعيد الصلاة',
-                  //   icon: Lottie.asset(
-                  //     'assets/animations/wired-lineal-1923-mosque-hover-pinch.json',
-                  //     height: 28,
-                  //     width: 28,
-                  //   ),
-                  //   onTap: () => Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => PrayerDashboard()),
-                  //   ),
                   ),
                   const Divider(
                     height: 32,
