@@ -1,3 +1,5 @@
+import 'package:athkary/Component/audios_files.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
@@ -23,19 +25,14 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
     'رَضِيتُ باللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِيناً، وَبِمُحَمَّدٍ صَلَى اللَّهُ عَلِيهِ وَسَلَّمَ نَبِيَّاً',
     'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
     'يَاحَيُّ، يَا قَيُّومُ، بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ',
-    'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّـي أَسْأَلُكَ خَـيْرَ هَذَا الْـيَوْمِ ، فَتْحَهُ، وَنَصْرَهُ، وَنُورَهُ وَبَرَكَتَهُ، وَهُدَاهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشَرِّ مَا بَعْدَهُ',
-    'اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ',
+    'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّـي أَسْأَلُكَ خَـيْرَ هَذَا الْلَيْلِ ، فَتْحَهُ، وَنَصْرَهُ، وَنُورَهُ وَبَرَكَتَهُ، وَهُدَاهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشَرِّ مَا بَعْدَهُ',
+    'اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ',
     'اللَّهُمَّ أَنْتَ رَبِّي لَّا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِر لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
-    'اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ',
+    'اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ',
     'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
   ];
 
   final List<String> athkarInfo = [
-    'يثبت العبودية والتوحيد',
-    'شهادة على الإيمان بالله',
-    ' يعظم الله ويعدد نعمه',
-    'دعاء يعبر عن الرضا بالله والإسلام والنبي',
-    'طلب العافية في البدن',
     'سورة الإخلاص فيها التوحيد الخالص',
     'سورة الفلق للحماية من الشرور',
     'سورة الناس للحماية من وسوسة الشيطان',
@@ -44,10 +41,10 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
     'ذكر للحفظ من الأذى',
     'دعاء للحماية من النفس والشيطان',
     'ذكر يعظم الله بطرق متعددة',
-    'الرضا بالله والإسلام والنبي محمد',
+    'دعاء يعبر عن الرضا بالله والإسلام والنبي',
     'تسبيح لله بحمده',
     'طلب إصلاح كل شؤون العبد',
-    'طلب الخير في اليوم والبركة',
+    'طلب الخير في الليل والبركة',
     'شهادة على وحدانية الله ورسالة النبي',
     'دعاء للثبات على الوعد والاستغفار',
     'شكر الله على نعمه العظيمة',
@@ -56,11 +53,16 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
 
   final List<int> maxCounts = [3, 3, 3, 1, 100, 3, 1, 3, 1, 100, 1, 1, 4, 1, 1, 100];
   late List<int> currentCounts;
-  late String lastResetDate;
+  late DateTime lastResetDate;
   late SharedPreferences _prefs;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
+
+  // Keys for SharedPreferences
+  final String _prefsKey = 'lastResetDateEvening';
+  final String _countsKey = 'eveningCounts';
 
   @override
   void initState() {
@@ -71,23 +73,33 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
 
   Future<void> _initializeCounts() async {
     _prefs = await SharedPreferences.getInstance();
-    final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Load last reset date
+    final lastResetString = _prefs.getString(_prefsKey);
+    DateTime? storedResetDate;
     
-    // Try to load last reset date
-    lastResetDate = _prefs.getString('lastResetDate') ?? today;
-    
+    if (lastResetString != null) {
+      storedResetDate = DateTime.parse(lastResetString);
+      storedResetDate = DateTime(storedResetDate.year, storedResetDate.month, storedResetDate.day);
+    }
+
     // Check if we need to reset (new day)
-    if (lastResetDate != today) {
+    if (storedResetDate == null || storedResetDate.isBefore(today)) {
+      debugPrint('Resetting evening counts - new day detected');
       await _resetCounts();
-      await _prefs.setString('lastResetDate', today);
+      await _prefs.setString(_prefsKey, today.toString());
+      lastResetDate = today;
     } else {
       // Load saved counts if available
-      final savedCounts = _prefs.getStringList('eveningCounts');
+      final savedCounts = _prefs.getStringList(_countsKey);
       if (savedCounts != null && savedCounts.length == maxCounts.length) {
         currentCounts = savedCounts.map((e) => int.parse(e)).toList();
       } else {
         currentCounts = List<int>.from(maxCounts);
       }
+      lastResetDate = storedResetDate;
     }
     
     setState(() {});
@@ -100,17 +112,19 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
 
   Future<void> _saveCounts() async {
     await _prefs.setStringList(
-      'eveningCounts',
+      _countsKey,
       currentCounts.map((e) => e.toString()).toList(),
     );
   }
 
   Future<void> _decrementCount(int index) async {
-    final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
-    if (lastResetDate != today) {
-      await _resetCounts();
-      lastResetDate = today;
-      await _prefs.setString('lastResetDate', today);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // Re-check date in case app was running across midnight
+    if (lastResetDate.isBefore(today)) {
+      await _initializeCounts(); // This will handle the reset
+      return;
     }
 
     if (currentCounts[index] > 0) {
@@ -120,6 +134,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
       await _saveCounts();
     }
   }
+
   void _animateItems() async {
     for (int i = 0; i < athkarEvening.length; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
@@ -143,7 +158,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
             color: theme.colorScheme.primary,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
@@ -170,7 +185,6 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
                   end: Alignment.bottomCenter,
                   colors: [
                     theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
                     theme.colorScheme.surface,
                   ],
                 )
@@ -230,80 +244,81 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
             BoxShadow(
               color: Colors.black12,
               blurRadius: 8,
-              offset: Offset(0, 4),)
+              offset: Offset(0, 4),
+            ),
           ],
         ),
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.brightness_2_rounded,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.nights_stay_rounded,
+                      color: isDarkMode
+                          ? theme.colorScheme.primary.withOpacity(0.65)
+                          : theme.colorScheme.surface),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: currentCounts[index] == 0
+                          ? Colors.green.withOpacity(0.65)
+                          : theme.colorScheme.primary.withOpacity(0.65),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      currentCounts[index] == 0
+                          ? "تم"
+                          : "${currentCounts[index]} ",
+                      style: GoogleFonts.tajawal(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.inversePrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                athkarEvening[index],
+                style: GoogleFonts.tajawal(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  height: 1.8,
+                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                athkarInfo[index],
+                style: GoogleFonts.tajawal(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+                ),
+              ),
+              Divider(
+                  height: 20,
+                  color: theme.colorScheme.primary.withOpacity(0.2)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.volume_up_rounded,
                         color: isDarkMode
                             ? theme.colorScheme.primary.withOpacity(0.65)
                             : theme.colorScheme.surface),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: currentCounts[index] == 0
-                            ? Colors.green.withOpacity(0.65)
-                            : theme.colorScheme.primary.withOpacity(0.65),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        currentCounts[index] == 0
-                            ? "تم"
-                            : "${currentCounts[index]} ",
-                        style: GoogleFonts.tajawal(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.inversePrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  athkarEvening[index],
-                  style: GoogleFonts.tajawal(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    height: 1.8,
-                    color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+                    onPressed: () async {
+                      if (AudiosFiles.audioFiles2[index] != null) {
+                        await _audioPlayer.play(
+                            AssetSource(AudiosFiles.audioFiles2[index]!));
+                      }
+                    },
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  athkarInfo[index],
-                  style: GoogleFonts.tajawal(
-                    fontSize: 14,
-                    color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
-                  ),
-                ),
-                Divider(
-                    height: 20,
-                    color: theme.colorScheme.primary.withOpacity(0.2)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.volume_up_rounded,
-                          color: isDarkMode
-                              ? theme.colorScheme.primary.withOpacity(0.65)
-                              : theme.colorScheme.surface),
-                      onPressed: () {
-                        // TODO: add audio functionality later
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
