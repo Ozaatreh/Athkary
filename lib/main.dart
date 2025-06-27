@@ -7,10 +7,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 
 Future<void> main() async {
@@ -26,6 +28,22 @@ Future<void> main() async {
     
     'resource://drawable/athk_v3', // Set null to use the default icon for notifications
     [
+      NotificationChannel(
+      channelKey: 'athkar_sabah',
+      channelName: 'athkar',
+      channelDescription: 'Tasabeeh reminders without sound',
+      ledColor: Colors.white,
+      importance: NotificationImportance.High,
+      playSound: false,
+    ),
+      NotificationChannel(
+      channelKey: 'athkar_masaa',
+      channelName: 'athkar',
+      channelDescription: 'Tasabeeh reminders without sound',
+      ledColor: Colors.white,
+      importance: NotificationImportance.High,
+      playSound: false,
+    ),
      NotificationChannel(
       channelKey: 'tasabeh_with_sound',
       channelName: 'Tasabeeh (Sound)',
@@ -71,17 +89,30 @@ Future<void> main() async {
     
   );
   checkForUpdate();
+  
+
+
+ // Load shared preferences BEFORE runApp
+  final prefs = await SharedPreferences.getInstance();
+  final isDarkMode = prefs.getBool('darkMode') ?? false;
+  themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   runApp(
-   MaterialApp(
-      navigatorKey: navigatorKey,  // Use the global navigator key
-      theme: lightMode,
-      darkTheme: darkMode,
-      debugShowCheckedModeBanner: false,
-      home: SplashScreen()
-      //  HomePage() 
-      )
-   );
+    ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          theme: lightMode,
+          darkTheme: darkMode,
+          themeMode: themeMode,
+          debugShowCheckedModeBanner: false,
+          home: SplashScreen(),
+        );
+      },
+    ),
+  );
+
 }
 Future<void> checkForUpdate() async {
   String currentVersion = await getAppVersion();

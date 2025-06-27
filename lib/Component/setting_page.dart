@@ -1,5 +1,9 @@
+import 'package:athkary/Component/contact_us_page.dart';
+import 'package:athkary/main.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -15,13 +19,88 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _enableMorningAthkar = true;
   bool _enableEveningAthkar = true;
   bool _enableSleepAthkar = false;
-  bool _showRepetitionCounter = true;
-  bool _showExplanation = false;
+  // bool _showRepetitionCounter = true;
+  // bool _showExplanation = false;
   TimeOfDay _morningTime = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay _eveningTime = const TimeOfDay(hour: 17, minute: 0);
   bool _notificationSound = true;
-  String _athan = 'Athan 1';
-  double _volume = 0.5;
+  // String _athan = 'Athan 1';
+  // double _volume = 0.5;
+  
+  @override
+void initState() {
+  super.initState();
+  _loadSettings();
+}
+
+void _loadSettings() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    _language = prefs.getString('language') ?? 'Arabic';
+    _darkMode = prefs.getBool('darkMode') ?? false;
+    _fontSize = prefs.getDouble('fontSize') ?? 16.0;
+    _enableMorningAthkar = prefs.getBool('enableMorningAthkar') ?? true;
+    _enableEveningAthkar = prefs.getBool('enableEveningAthkar') ?? true;
+    _enableSleepAthkar = prefs.getBool('enableSleepAthkar') ?? false;
+    _notificationSound = prefs.getBool('notificationSound') ?? true;
+
+    final morningHour = prefs.getInt('morningHour') ?? 7;
+    final morningMinute = prefs.getInt('morningMinute') ?? 0;
+    _morningTime = TimeOfDay(hour: morningHour, minute: morningMinute);
+
+    final eveningHour = prefs.getInt('eveningHour') ?? 17;
+    final eveningMinute = prefs.getInt('eveningMinute') ?? 0;
+    _eveningTime = TimeOfDay(hour: eveningHour, minute: eveningMinute);
+  });
+}
+
+ void _scheduleMorningNotification() {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: 100,
+      channelKey: 'athkar_sabah',
+      title: '🌅 أذكار الصباح',
+      body: 'لا تنسَ أذكار الصباح ✨',
+      payload: {'screen': 'sabah'},
+    ),
+    schedule: NotificationCalendar(
+      hour: _morningTime.hour,
+      minute: _morningTime.minute,
+      second: 0,
+      millisecond: 0,
+      repeats: true,
+    ),
+  );
+}
+
+void _scheduleEveningNotification() {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: 200,
+      channelKey: 'athkar_masaa',
+      title: '🌇 أذكار المساء',
+      body: 'لا تنسَ أذكار المساء 🌙',
+      payload: {'screen': 'masaa'},
+    ),
+    schedule: NotificationCalendar(
+      hour: _eveningTime.hour,
+      minute: _eveningTime.minute,
+      second: 0,
+      millisecond: 0,
+      repeats: true,
+    ),
+  );
+}
+
+
+void _cancelMorningNotification() {
+  AwesomeNotifications().cancel(100);
+}
+
+
+void _cancelEveningNotification() {
+  AwesomeNotifications().cancel(200);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +125,11 @@ class _SettingsPageState extends State<SettingsPage> {
             }),
             _buildSwitchTile('Dark Mode', _darkMode, (val) {
               setState(() => _darkMode = val);
+              SharedPreferences.getInstance().then((prefs) {
+                prefs.setBool('darkMode', val);
+              });
+              themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+
             }),
             _buildSliderTile('Font Size', _fontSize, 12, 24, (val) {
               setState(() => _fontSize = val);
@@ -55,20 +139,33 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildSectionTitle('Athkar Settings'),
           _buildCard([
             _buildSwitchTile('Enable Morning Athkar', _enableMorningAthkar, (val) {
-              setState(() => _enableMorningAthkar = val);
-            }),
+            setState(() => _enableMorningAthkar = val);
+            if (val) {
+              _scheduleMorningNotification();
+            } else {
+              _cancelMorningNotification();
+            }
+          }),
+
             _buildSwitchTile('Enable Evening Athkar', _enableEveningAthkar, (val) {
-              setState(() => _enableEveningAthkar = val);
-            }),
+            setState(() => _enableEveningAthkar = val);
+            if (val) {
+              _scheduleEveningNotification();
+            } else {
+              _cancelEveningNotification();
+            }
+          }),
+          
+
             _buildSwitchTile('Enable Sleep Athkar', _enableSleepAthkar, (val) {
               setState(() => _enableSleepAthkar = val);
             }),
-            _buildSwitchTile('Show Repetition Counter', _showRepetitionCounter, (val) {
-              setState(() => _showRepetitionCounter = val);
-            }),
-            _buildSwitchTile('Show Explanation of Athkar', _showExplanation, (val) {
-              setState(() => _showExplanation = val);
-            }),
+            // _buildSwitchTile('Show Repetition Counter', _showRepetitionCounter, (val) {
+            //   setState(() => _showRepetitionCounter = val);
+            // }),
+            // _buildSwitchTile('Show Explanation of Athkar', _showExplanation, (val) {
+            //   setState(() => _showExplanation = val);
+            // }),
           ]),
 
           _buildSectionTitle('Notifications'),
@@ -79,25 +176,27 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildTimeTile(context, 'Evening Reminder', _eveningTime, (picked) {
               setState(() => _eveningTime = picked);
             }),
-            _buildSwitchTile('Enable Notification Sound', _notificationSound, (val) {
-              setState(() => _notificationSound = val);
-            }),
+            // _buildSwitchTile('Enable Notification Sound', _notificationSound, (val) {
+            //   setState(() => _notificationSound = val);
+            // }),
           ]),
 
-          _buildSectionTitle('Athan Sound'),
-          _buildCard([
-            _buildDropdownTile('Choose Athan', ['Athan 1', 'Athan 2'], _athan, (val) {
-              setState(() => _athan = val);
-            }),
-            _buildSliderTile('Volume', _volume, 0.0, 1.0, (val) {
-              setState(() => _volume = val);
-            }),
-            _buildButtonTile('Preview Athan', () {}),
-          ]),
+          // _buildSectionTitle('Athan Sound'),
+          // _buildCard([
+            // _buildDropdownTile('Choose Athan', ['Athan 1', 'Athan 2'], _athan, (val) {
+            //   setState(() => _athan = val);
+            // }),
+            // _buildSliderTile('Volume', _volume, 0.0, 1.0, (val) {
+            //   setState(() => _volume = val);
+          //   // }),
+          //   _buildButtonTile('Preview Athan', () {}),
+          // ]),
 
           _buildSectionTitle('About'),
           _buildCard([
-            _buildButtonTile('Contact Us', () {}),
+            _buildButtonTile('Contact Us', () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUsPage(),));
+            }),
             _buildButtonTile('Rate the App', () {}),
             _buildButtonTile('Share the App', () {}),
           ]),
