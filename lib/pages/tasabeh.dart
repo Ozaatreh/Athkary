@@ -535,7 +535,7 @@ Future<void> loadCustomNotifications() async {
           
         ),
         schedule: NotificationInterval(
-          interval: intervalMinutes * 60,
+          interval: Duration(minutes:  intervalMinutes * 60) ,
           timeZone: 'Asia/Amman',
           repeats: true,
         ),

@@ -27,7 +27,15 @@ Future<void> main() async {
   AwesomeNotifications().initialize(
     
     'resource://drawable/athk_v3', // Set null to use the default icon for notifications
-    [
+    [ 
+    //   NotificationChannel(
+    //   channelKey: 'sleep',
+    //   channelName: 'sleep',
+    //   channelDescription: 'sleep without sound',
+    //   ledColor: Colors.white,
+    //   importance: NotificationImportance.High,
+    //   playSound: false,
+    // ),
       NotificationChannel(
       channelKey: 'athkar_sabah',
       channelName: 'athkar',

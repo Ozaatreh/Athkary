@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shared_preferences/shared_preferences.dart';
+
 class AthkarAlsabah extends StatefulWidget {
   const AthkarAlsabah({super.key});
 
@@ -32,31 +33,33 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
   /* 17*/ 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
   ];
 
-final List<String> athkarInfo = [
-  "سورة الإخلاص فيها التوحيد الخالص",                          // 0
-  "سورة الفلق للحماية من الشرور",                              // 1
-  "سورة الناس للحماية من وسوسة الشيطان",                      // 2
-  "طلب العلم النافع والعمل المقبول",                           // 3
-  "طلب المغفرة والعودة إلى الله",                              // 4
-  "ذكر للحفظ من الأذى",                                        // 5
-  "دعاء للحماية من النفس والشيطان",                           // 6
-  "ذكر يعظم الله بطرق متعددة",                                // 7
-  "الاستعاذه من الكفر وعذاب القبر",                           // 8
-  "دعاء يعبر عن الرضا بالله والإسلام والنبي",                 // 9
-  "تسبيح لله بحمده",                                          // 10
-  "طلب إصلاح كل شؤون العبد",                                  // 11
-  "طلب الخير في اليوم والبركة",                               // 12
-  "شهادة على وحدانية الله ورسالة النبي",                      // 13
-  "دعاء للثبات على الوعد والاستغفار",                         // 14
-  "شكر الله على نعمه العظيمة",                                // 15
-  "ذكر عظيم يثبت التوحيد وقدرة الله",                         // 16
-];
+  final List<String> athkarInfo = [
+    "سورة الإخلاص فيها التوحيد الخالص",
+    "سورة الفلق للحماية من الشرور",
+    "سورة الناس للحماية من وسوسة الشيطان",
+    "طلب العلم النافع والعمل المقبول",
+    "طلب المغفرة والعودة إلى الله",
+    "ذكر للحفظ من الأذى",
+    "دعاء للحماية من النفس والشيطان",
+    "ذكر يعظم الله بطرق متعددة",
+    "الاستعاذه من الكفر وعذاب القبر",
+    "دعاء يعبر عن الرضا بالله والإسلام والنبي",
+    "تسبيح لله بحمده",
+    "طلب إصلاح كل شؤون العبد",
+    "طلب الخير في اليوم والبركة",
+    "شهادة على وحدانية الله ورسالة النبي",
+    "دعاء للثبات على الوعد والاستغفار",
+    "شكر الله على نعمه العظيمة",
+    "ذكر عظيم يثبت التوحيد وقدرة الله",
+  ];
 
-    final List<int> maxCounts = [3, 3, 3, 1, 100, 3, 1,3,3, 1, 100, 1, 1, 4, 1, 1, 100];
+  final List<int> maxCounts = [3, 3, 3, 1, 100, 3, 1, 3, 3, 1, 100, 1, 1, 4, 1, 1, 100];
   late List<int> currentCounts;
   late String lastResetDate;
   late SharedPreferences _prefs;
   final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isPlaying = false;
+  int? _currentlyPlayingIndex;
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
@@ -69,37 +72,34 @@ final List<String> athkarInfo = [
   }
 
   Future<void> _initializeCounts() async {
-  _prefs = await SharedPreferences.getInstance();
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day); // Normalize to midnight
-  
-  // Load last reset date
-  final lastResetString = _prefs.getString('lastResetDateMorning');
-  DateTime? lastResetDate;
-  
-  if (lastResetString != null) {
-    lastResetDate = DateTime.parse(lastResetString);
-    lastResetDate = DateTime(lastResetDate.year, lastResetDate.month, lastResetDate.day);
-  }
-
-  // Check if we need to reset (new day)
-  if (lastResetDate == null || lastResetDate.isBefore(today)) {
-    await _resetCounts();
-    await _prefs.setString('lastResetDateMorning', today.toString());
-    this.lastResetDate = today.toString();
-  } else {
-    // Load saved counts if available
-    final savedCounts = _prefs.getStringList('morningCounts');
-    if (savedCounts != null && savedCounts.length == maxCounts.length) {
-      currentCounts = savedCounts.map((e) => int.parse(e)).toList();
-    } else {
-      currentCounts = List<int>.from(maxCounts);
+    _prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    final lastResetString = _prefs.getString('lastResetDateMorning');
+    DateTime? lastResetDate;
+    
+    if (lastResetString != null) {
+      lastResetDate = DateTime.parse(lastResetString);
+      lastResetDate = DateTime(lastResetDate.year, lastResetDate.month, lastResetDate.day);
     }
-    this.lastResetDate = lastResetDate.toString();
+
+    if (lastResetDate == null || lastResetDate.isBefore(today)) {
+      await _resetCounts();
+      await _prefs.setString('lastResetDateMorning', today.toString());
+      this.lastResetDate = today.toString();
+    } else {
+      final savedCounts = _prefs.getStringList('morningCounts');
+      if (savedCounts != null && savedCounts.length == maxCounts.length) {
+        currentCounts = savedCounts.map((e) => int.parse(e)).toList();
+      } else {
+        currentCounts = List<int>.from(maxCounts);
+      }
+      this.lastResetDate = lastResetDate.toString();
+    }
+    
+    setState(() {});
   }
-  
-  setState(() {});
-}
 
   Future<void> _resetCounts() async {
     currentCounts = List<int>.from(maxCounts);
@@ -114,28 +114,34 @@ final List<String> athkarInfo = [
   }
 
   Future<void> _decrementCount(int index) async {
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  
-  // Re-check date in case app was running across midnight
-  if (lastResetDate != today.toString()) {
-    await _initializeCounts(); // This will handle the reset
-    return;
-  }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    if (lastResetDate != today.toString()) {
+      await _initializeCounts();
+      return;
+    }
 
-  if (currentCounts[index] > 0) {
-    setState(() {
-      currentCounts[index]--;
-    });
-    await _saveCounts();
+    if (currentCounts[index] > 0) {
+      setState(() {
+        currentCounts[index]--;
+      });
+      await _saveCounts();
+    }
   }
-}
 
   void _animateItems() async {
     for (int i = 0; i < athkarMorning.length; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
       _listKey.currentState?.insertItem(i);
     }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -295,12 +301,41 @@ final List<String> athkarInfo = [
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.volume_up_rounded, color: isDarkMode ? theme.colorScheme.primary.withOpacity(0.65) : theme.colorScheme.surface),
+                      icon: Icon(
+                        _currentlyPlayingIndex == index && _isPlaying
+                          ? Icons.stop_rounded
+                          : Icons.volume_up_rounded,
+                        color: isDarkMode ? theme.colorScheme.primary.withOpacity(0.65) : theme.colorScheme.surface,
+                      ),
                       onPressed: () async {
-                        await _audioPlayer.play(AssetSource(AudiosFiles.audioFiles[index]!));
-
+                        if (_currentlyPlayingIndex == index && _isPlaying) {
+                          await _audioPlayer.stop();
+                          setState(() {
+                            _isPlaying = false;
+                            _currentlyPlayingIndex = null;
+                          });
+                        } else {
+                          if (_isPlaying) {
+                            await _audioPlayer.stop();
+                          }
+                          
+                          await _audioPlayer.play(AssetSource(AudiosFiles.audioFiles[index]!));
+                          
+                          setState(() {
+                            _isPlaying = true;
+                            _currentlyPlayingIndex = index;
+                          });
+                          
+                          _audioPlayer.onPlayerComplete.listen((_) {
+                            if (mounted) {
+                              setState(() {
+                                _isPlaying = false;
+                                _currentlyPlayingIndex = null;
+                              });
+                            }
+                          });
+                        }
                       },
-
                     ),
                   ],
                 ),

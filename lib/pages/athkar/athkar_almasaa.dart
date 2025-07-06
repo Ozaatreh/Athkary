@@ -56,6 +56,8 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
   late DateTime lastResetDate;
   late SharedPreferences _prefs;
   final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isPlaying = false;
+  int? _currentlyPlayingIndex;
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
@@ -140,6 +142,13 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
       await Future.delayed(const Duration(milliseconds: 200));
       _listKey.currentState?.insertItem(i);
     }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -305,14 +314,44 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.volume_up_rounded,
-                        color: isDarkMode
-                            ? theme.colorScheme.primary.withOpacity(0.65)
-                            : theme.colorScheme.surface),
+                    icon: Icon(
+                      _currentlyPlayingIndex == index && _isPlaying
+                          ? Icons.stop_rounded
+                          : Icons.volume_up_rounded,
+                      color: isDarkMode
+                          ? theme.colorScheme.primary.withOpacity(0.65)
+                          : theme.colorScheme.surface,
+                    ),
                     onPressed: () async {
-                      if (AudiosFiles.audioFiles2[index] != null) {
-                        await _audioPlayer.play(
-                            AssetSource(AudiosFiles.audioFiles2[index]!));
+                      if (_currentlyPlayingIndex == index && _isPlaying) {
+                        await _audioPlayer.stop();
+                        setState(() {
+                          _isPlaying = false;
+                          _currentlyPlayingIndex = null;
+                        });
+                      } else {
+                        if (_isPlaying) {
+                          await _audioPlayer.stop();
+                        }
+                        
+                        if (AudiosFiles.audioFiles2[index] != null) {
+                          await _audioPlayer.play(
+                              AssetSource(AudiosFiles.audioFiles2[index]!));
+                          
+                          setState(() {
+                            _isPlaying = true;
+                            _currentlyPlayingIndex = index;
+                          });
+                          
+                          _audioPlayer.onPlayerComplete.listen((_) {
+                            if (mounted) {
+                              setState(() {
+                                _isPlaying = false;
+                                _currentlyPlayingIndex = null;
+                              });
+                            }
+                          });
+                        }
                       }
                     },
                   ),

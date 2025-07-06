@@ -80,7 +80,7 @@ class CustomDrawer extends StatelessWidget {
                     child: _buildDrawerItem(
                       context,
                       title: "الاعدادات",
-                      icon: Icon(Icons.settings , size: 20,) ,
+                      icon: Image.asset("assets/icons/setting_icon.png" , height: 40,width: 40,) ,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SettingsPage()),

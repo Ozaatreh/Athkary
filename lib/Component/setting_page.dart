@@ -21,17 +21,35 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _enableSleepAthkar = false;
   // bool _showRepetitionCounter = true;
   // bool _showExplanation = false;
-  TimeOfDay _morningTime = const TimeOfDay(hour: 7, minute: 0);
-  TimeOfDay _eveningTime = const TimeOfDay(hour: 17, minute: 0);
+  TimeOfDay _morningTime =  TimeOfDay(hour: 7, minute: 0);
+  TimeOfDay _eveningTime =  TimeOfDay(hour: 17, minute: 0);
   bool _notificationSound = true;
   // String _athan = 'Athan 1';
   // double _volume = 0.5;
+  final sleepStart = TimeOfDay(hour: 22, minute: 0);
+  final sleepEnd = TimeOfDay(hour: 6, minute: 0);
+
   
   @override
 void initState() {
   super.initState();
   _loadSettings();
 }
+
+// Future<String> getCurrentNotificationChannel() async {
+//   final now = DateTime.now();
+//   final prefs = await SharedPreferences.getInstance();
+//   final enableSleep = prefs.getBool('enableSleepAthkar') ?? false;
+
+//   if (!enableSleep) return 'tasabeh_with_sound';
+
+//   // Between 10 PM and 7 AM
+//   if (now.hour >= 22 || now.hour < 7) {
+//     return 'tasabeh_silent';
+//   }
+
+//   return 'tasabeh_with_sound';
+// }
 
 void _loadSettings() async {
   final prefs = await SharedPreferences.getInstance();
@@ -53,6 +71,40 @@ void _loadSettings() async {
     _eveningTime = TimeOfDay(hour: eveningHour, minute: eveningMinute);
   });
 }
+ 
+ void scheduleSilentModeSwitches() {
+  if (_enableSleepAthkar) {
+    // At night (10 PM): switch to silent channels
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 300,
+        channelKey: 'tasabeh_silent', // Your silent channel
+        title: '🌙 وضع السكون',
+        body: 'تم تفعيل وضع السكون، سيتم كتم الإشعارات',
+        notificationLayout: NotificationLayout.Default,
+        payload: {'silent_mode': 'on'},
+      ),
+      schedule: NotificationCalendar(hour: 22, minute: 0, second: 0, repeats: true),
+    );
+
+    // In the morning (7 AM): switch back to normal (with sound)
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 301,
+        channelKey: 'tasabeh_with_sound', // your sound channel
+        title: '☀️ تم إلغاء وضع السكون',
+        body: 'تمت إعادة تشغيل الإشعارات مع الصوت',
+        notificationLayout: NotificationLayout.Default,
+        payload: {'silent_mode': 'off'},
+      ),
+      schedule: NotificationCalendar(hour: 7, minute: 0, second: 0, repeats: true),
+    );
+  } else {
+    AwesomeNotifications().cancel(300);
+    AwesomeNotifications().cancel(301);
+  }
+}
+
 
  void _scheduleMorningNotification() {
   AwesomeNotifications().createNotification(
@@ -131,9 +183,9 @@ void _cancelEveningNotification() {
               themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
 
             }),
-            _buildSliderTile('Font Size', _fontSize, 12, 24, (val) {
-              setState(() => _fontSize = val);
-            }),
+          //   _buildSliderTile('Font Size', _fontSize, 12, 24, (val) {
+          //     setState(() => _fontSize = val);
+          //   }),
           ]),
 
           _buildSectionTitle('Athkar Settings'),
@@ -157,9 +209,10 @@ void _cancelEveningNotification() {
           }),
           
 
-            _buildSwitchTile('Enable Sleep Athkar', _enableSleepAthkar, (val) {
-              setState(() => _enableSleepAthkar = val);
-            }),
+            // _buildSwitchTile('Enable Sleep Athkar', _enableSleepAthkar, (val) {
+            //   setState(() =>{ });
+            // }),
+
             // _buildSwitchTile('Show Repetition Counter', _showRepetitionCounter, (val) {
             //   setState(() => _showRepetitionCounter = val);
             // }),
@@ -170,12 +223,21 @@ void _cancelEveningNotification() {
 
           _buildSectionTitle('Notifications'),
           _buildCard([
-            _buildTimeTile(context, 'Morning Reminder', _morningTime, (picked) {
+
+            _buildTimeTile(context, 'Morning Reminder', _morningTime, (picked) async {
               setState(() => _morningTime = picked);
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setInt('morningHour', picked.hour);
+              prefs.setInt('morningMinute', picked.minute);
             }),
-            _buildTimeTile(context, 'Evening Reminder', _eveningTime, (picked) {
+
+            _buildTimeTile(context, 'Evening Reminder', _eveningTime, (picked) async {
               setState(() => _eveningTime = picked);
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setInt('eveningHour', picked.hour);
+              prefs.setInt('eveningMinute', picked.minute);
             }),
+
             // _buildSwitchTile('Enable Notification Sound', _notificationSound, (val) {
             //   setState(() => _notificationSound = val);
             // }),
@@ -231,6 +293,7 @@ void _cancelEveningNotification() {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
+      color: Theme.of(context).colorScheme.primary.withOpacity(.10),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(children: children),

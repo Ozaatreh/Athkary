@@ -13,6 +13,7 @@ import 'package:athkary/pages/alah_names.dart';
 import 'package:athkary/pages/athkar/athkar_almasaa.dart';
 import 'package:athkary/pages/masbahah_elc.dart';
 import 'package:athkary/pages/prayer_page.dart';
+import 'package:athkary/pages/quran/quran_new.dart';
 import 'package:athkary/pages/quran/quran_page.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_alnabi_navs.dart';
 import 'package:athkary/pages/tasabeh.dart';
@@ -88,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       'title': 'القبلة',
-      'animationPath': 'assets/images/compass_v2.png',
+      'animationPath': 'assets/images/qiblah_v5d.png',
       'page': QiblahScreen(),
       'type': 'large',
     },
@@ -600,163 +601,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-  // Widget _buildFeatureCard(
-  //   BuildContext context,
-  //   String title,
-  //   String animationPath,
-  //   Widget page,
-  //   double cardSize,
-  //   double fontSize,
-  //   double animationSize,
-  // ) {
-  //   return InkWell(
-  //     borderRadius: BorderRadius.circular(16),
-  //     onTap: () => Navigator.push(
-  //       context,
-  //       PageRouteBuilder(
-  //         transitionDuration: const Duration(milliseconds: 500),
-  //         pageBuilder: (_, __, ___) => page,
-  //         transitionsBuilder: (_, animation, __, child) => FadeTransition(
-  //           opacity: animation,
-  //           child: child,
-  //         ),
-  //       ),
-  //     ),
-  //     child: Card(
-  //       elevation: 4,
-  //       shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(16),
-  //       ),
-  //       color: Theme.of(context).colorScheme.primary,
-  //       child: Container(
-  //         width: cardSize ,
-  //         height: cardSize,
-  //         padding: EdgeInsets.all(cardSize * 0.05),
-  //         decoration: BoxDecoration(
-  //           borderRadius: BorderRadius.circular(16),
-  //           gradient: LinearGradient(
-  //             begin: Alignment.topLeft,
-  //             end: Alignment.bottomRight,
-  //             colors: [
-  //               Theme.of(context).colorScheme.primary.withOpacity(0.8),
-  //               Theme.of(context).colorScheme.primary,
-  //             ],
-  //           ),
-  //           boxShadow: [
-  //             BoxShadow(
-  //               color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-  //               blurRadius: 10,
-  //               offset: const Offset(0, 4),
-  //             ),
-  //           ],
-  //         ),
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             animationPath.endsWith('.json')
-  //                 ? Lottie.asset(
-  //                     animationPath,
-  //                     width: animationSize,
-  //                     height: animationSize,
-  //                     fit: BoxFit.contain,
-  //                   )
-  //                 : Image.asset(
-  //                     animationPath,
-  //                     width: animationSize,
-  //                     height: animationSize,
-  //                     fit: BoxFit.contain,
-  //                   ),
-  //             SizedBox(height: cardSize * 0.05),
-  //             Text(
-  //               title,
-  //               textAlign: TextAlign.center,
-  //               style: GoogleFonts.tajawal(
-  //                 fontSize: fontSize,
-  //                 fontWeight: FontWeight.w600,
-  //                 color: Theme.of(context).colorScheme.inversePrimary,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildLargeFeatureCard(
-  //   BuildContext context,
-  //   String title,
-  //   String animationPath,
-  //   Widget page,
-  //   double cardHeight,
-  //   double fontSize,
-  //   double animationSize,
-  // ) {
-  //   return InkWell(
-  //     borderRadius: BorderRadius.circular(16),
-  //     onTap: () => Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => page),
-  //     ),
-  //     child: Container(
-  //       height: cardHeight,
-  //       margin: EdgeInsets.symmetric(vertical: cardHeight * 0.05),
-  //       decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(16),
-  //         gradient: LinearGradient(
-  //           begin: Alignment.topLeft,
-  //           end: Alignment.bottomRight,
-  //           colors: [
-  //             Theme.of(context).colorScheme.primary.withOpacity(0.8),
-  //             Theme.of(context).colorScheme.primary,
-  //           ],
-  //         ),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-  //             blurRadius: 10,
-  //             offset: const Offset(0, 4),
-  //           ),
-  //         ],
-  //       ),
-  //       child: Row(
-  //         children: [
-  //           Expanded(
-  //             flex: 2,
-  //             child: Padding(
-  //               padding: EdgeInsets.all(cardHeight * 0.1),
-  //               child: Text(
-  //                 title,
-  //                 style: GoogleFonts.tajawal(
-  //                   fontSize: fontSize,
-  //                   fontWeight: FontWeight.w700,
-  //                   color: Theme.of(context).colorScheme.inversePrimary,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //           Expanded(
-  //             child: Padding(
-  //               padding: EdgeInsets.all(cardHeight * 0.05),
-  //               child: animationPath.endsWith('.json')
-  //                   ? Lottie.asset(
-  //                       animationPath,
-  //                       width: animationSize,
-  //                       height: animationSize,
-  //                       fit: BoxFit.contain,
-  //                     )
-  //                   : Image.asset(
-  //                       animationPath,
-  //                       width: animationSize,
-  //                       height: animationSize,
-  //                       fit: BoxFit.contain,
-  //                     ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
