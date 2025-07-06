@@ -1,4 +1,4 @@
-name: athkar_app
+name: athkary
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: ^3.6.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,35 +30,88 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
+  flutter_localizations:
+    sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.8
+  awesome_notifications: ^0.10.1
   google_fonts: ^6.2.1
   flutter_launcher_icons: ^0.14.2
-  awesome_notifications: ^0.8.0
+  pdf: ^3.11.1
+  printing: ^5.13.4
+  flutter_pdfview: ^1.4.0
+  # syncfusion_flutter_pdfviewer: ^22.1.40
+  # syncfusion_flutter_pdfviewer: ^28.1.41
+  # device_info_plus: ^11.2.1
+  path_provider: ^2.1.5
+  # shared_preferences: ^2.3.5
+  shared_preferences: ^2.4.0
+  rive: ^0.13.20
+  lottie: ^3.3.1
+  # flutter_native_splash: ^2.4.4
+  timezone: ^0.10.0
+  # geolocator: ^9.0.2
+  intl: ^0.20.2
+  audioplayers: ^6.1.2
+  adhan: ^2.0.0+1
+  easy_localization: ^3.0.7
+  flutter_localization: ^0.3.0
+  firebase_core: ^3.12.0
+  cloud_firestore: ^5.6.4
+  firebase_auth: ^5.5.0
+  url_launcher: ^6.3.1
+  package_info_plus: ^8.3.0
+  # geolocator: ^13.0.4
+  # flutter_compass: ^0.8.0
+  # vector_math: ^2.1.4
+  flutter_qiblah: ^3.0.0
+  # cupertino_icons: ^1.0.2
+  permission_handler: ^12.0.1
+  # flutter_qiblah: ^2.1.0
+  location: ^8.0.1
+  just_audio: ^0.10.4
+  reorderables: ^0.6.0
+  liquid_swipe: ^3.0.0 
+  reorderable_grid_view: ^2.2.8
+  speech_to_text: ^7.0.0
+  quran: ^1.3.3
+  alquran_cloud: ^0.0.1
   
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/athk_v3.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/athk_v3.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/images/athk_v3.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/images/athk_v3.png"
+    
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  
   flutter_lints: ^5.0.0
 
 
-flutter_launcher_icon:
-  android: "launcher_icon"
-  ios: true 
-  image_path: "assets/images/App_icon.png"
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
 
-
+# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -68,15 +121,28 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/icons/anniversary.png
-    - assets/images/App_icon.png
-  
+    - assets/
+    - assets/icons/
+    - assets/images/
+    - assets/pdfs/
+    - assets/animations/
+    - assets/animation_riv/
+    # - assets/animation_riv/Logo-4-[remix] (2).json
+    - assets/audios/
+    - assets/audio_athkar/
+    - assets/audios/athan1.mp3
+    # - assets/audios/20250210_220909_1 (1).m4a
+    - assets/animations/duaa1746555885.json
+    # - assets/pdfs/quran_hafs_m.pdf
+    # - assets/lang/
+    # - assets/pdfs/khass1brown.pdf
+    # - assets/pdfs/juzutabarak.pdf
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
+  # https://flutter.dev/to/resolution-aware-images
 
   # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
+  # https://flutter.dev/to/asset-from-package
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -96,4 +162,4 @@ flutter:
   #         weight: 700
   #
   # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  # see https://flutter.dev/to/font-from-package
