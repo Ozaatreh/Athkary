@@ -2,7 +2,9 @@
 
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:adhan/adhan.dart';
 import 'package:athkary/Component/athan_page.dart';
 import 'package:athkary/Component/drawer.dart';
@@ -127,9 +129,72 @@ class _HomePageState extends State<HomePage> {
       _calculatePrayerTimes();
       _updateCurrentPrayer();
       _checkAndLaunchAthan();
+      _checkForUpdate();
     });
   }
+  
+  Future<void> _checkForUpdate() async {
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  
+  try {
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 10),
+      minimumFetchInterval: const Duration(hours: 1),
+    ));
+    
+    await remoteConfig.fetchAndActivate();
+    
+    final minAppVersion = remoteConfig.getString('min_app_version');
+    final updateUrl = remoteConfig.getString('update_url');
+    
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+    
+    if (_compareVersions(currentVersion, minAppVersion) < 0) {
+      _showUpdateDialog(updateUrl);
+    }
+  } catch (e) {
+    print('Error fetching remote config: $e');
+  }
+}
 
+int _compareVersions(String v1, String v2) {
+  final v1Parts = v1.split('.').map(int.parse).toList();
+  final v2Parts = v2.split('.').map(int.parse).toList();
+  
+  for (var i = 0; i < v1Parts.length; i++) {
+    if (v1Parts[i] > v2Parts[i]) return 1;
+    if (v1Parts[i] < v2Parts[i]) return -1;
+  }
+  
+  return 0;
+}
+
+void _showUpdateDialog(String updateUrl) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('تحديث متاح', style: GoogleFonts.tajawal()),
+        content: Text(
+          'يوجد إصدار جديد من التطبيق. يرجى التحديث للحصول على أفضل تجربة.',
+          style: GoogleFonts.tajawal(),
+        ),
+        actions: [
+          TextButton(
+            child: Text('تحديث الآن', style: GoogleFonts.tajawal()),
+            onPressed: () async {
+              if (await canLaunch(updateUrl)) {
+                await launch(updateUrl);
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
   void _loadUserFeatures() async {
     final prefs = await SharedPreferences.getInstance();
     final savedOrder = prefs.getStringList('feature_order');
