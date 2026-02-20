@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.white, // Set a background color
       body: Center(
         child: RiveAnimation.asset(
-          animationFile, // Your Rive file
+          animationFile, 
           fit: BoxFit.cover,
         ),
       ),

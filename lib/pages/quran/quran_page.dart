@@ -1,14 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:athkary/pages/home_page.dart';
 import 'package:athkary/pages/quran/bookmark_view.dart';
 import 'package:athkary/pages/quran/pdf_view.dart';
 import 'package:athkary/pages/quran/quran_complete_duaa.dart';
+import 'package:athkary/services/pdf_cache_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 
 class QuranPartsScreen extends StatefulWidget {
   @override
@@ -16,12 +16,22 @@ class QuranPartsScreen extends StatefulWidget {
 }
 
 class _QuranPartsScreenState extends State<QuranPartsScreen> {
-  // Search-related variables
+
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> searchResults = [];
   bool isSearching = false;
 
-  // Function to handle search
+  @override
+  void initState() {
+    super.initState();
+
+    /// Show popup after page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowPopup();
+    });
+  }
+  
+ // Function to handle search
   void _onSearchChanged(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -40,54 +50,123 @@ class _QuranPartsScreenState extends State<QuranPartsScreen> {
       }
     });
   }
+  /// Popup + download logic
+  Future<void> _checkAndShowPopup() async {
 
- Future<void> _navigateToPage(BuildContext context, int pageNumber) async {
-    // First verify the PDF exists
-    try {
-      await DefaultAssetBundle.of(context)
-          .load('assets/pdfs/Quraan_v0.pdf');
-      
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QuranViewerScreen(
-            pdfPath: 'assets/pdfs/Quraan_v0.pdff',
-            startPage: pageNumber ,
+    final downloaded = await PdfCacheService.isDownloaded();
+    if (downloaded) return;
+
+    bool shouldDownload = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("تحميل القرآن"),
+        content: const Text(
+          "القرآن غير محمّل على جهازك.\nهل تريد تحميله الآن؟",
+        ),
+        actions: [
+          TextButton(
+            child: const Text("إلغاء"),
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-      );
+          ElevatedButton(
+            child: const Text("تحميل"),
+            onPressed: () {
+              shouldDownload = true;
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+
+    if (!shouldDownload) return;
+
+    /// Loader while downloading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await PdfCacheService.downloadPdf();
+      Navigator.pop(context);
     } catch (e) {
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error loading Quran PDF: $e'),
-          duration: Duration(seconds: 3),
-        ),
+        SnackBar(content: Text("فشل تحميل القرآن: $e")),
       );
     }
   }
 
-  Future<void> navigateToLastPage(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastPage = prefs.getInt('lastPage') ?? 1;
-    _navigateToPage(context, lastPage );
+  /// Navigate safely
+  Future<void> _navigateToPage(BuildContext context, int pageNumber) async {
+
+    final file = await PdfCacheService.getIfExists();
+
+    if (file == null) {
+      await _checkAndShowPopup();
+
+      final after = await PdfCacheService.getIfExists();
+      if (after == null) return;
+
+      _openPdf(after, pageNumber);
+    } else {
+      _openPdf(file, pageNumber);
+    }
   }
 
-    // Navigate to the saved bookmark page
-  Future<void> navigateToBookmarkPage(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedBookmarkPage = prefs.getInt('savedBookmarkPage') ?? 0; // Use 'savedBookmarkPage' key
-
+  void _openPdf(File file, int page) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BookmarkPdfViewerScreen(
-          pdfPath: 'assets/pdfs/Quraan_v0.pdf',
-          startPage: savedBookmarkPage + 1, // Convert index to page number
+        builder: (_) => QuranViewerScreen(
+          pdfPath: file.path,
+          startPage: page,
         ),
       ),
     );
   }
 
+  Future<void> navigateToLastPage(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastPage = prefs.getInt('lastPage') ?? 1;
+    _navigateToPage(context, lastPage);
+  }
+
+  Future<void> navigateToBookmarkPage(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedBookmarkPage = prefs.getInt('savedBookmarkPage') ?? 0;
+
+    final file = await PdfCacheService.getIfExists();
+    if (file == null) {
+      await _checkAndShowPopup();
+      final after = await PdfCacheService.getIfExists();
+      if (after == null) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BookmarkPdfViewerScreen(
+            pdfPath: after.path,
+            startPage: savedBookmarkPage + 1,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BookmarkPdfViewerScreen(
+            pdfPath: file.path,
+            startPage: savedBookmarkPage + 1,
+          ),
+        ),
+      );
+    }
+  }
 final Map<int, List<Map<String, dynamic>>> quranParts = {
   1: [
     {"name": "الفاتحة", "page": 1},
@@ -427,17 +506,7 @@ final Map<int, List<Map<String, dynamic>>> quranParts = {
                   return ListTile(
                     title: Text(surah['name'], style: surahNameStyle),
                     trailing: Text('صفحة ${surah['page']}', style: pageNumberStyle),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => QuranViewerScreen(
-                            pdfPath: 'assets/pdfs/Quraan_v0.pdf',
-                            startPage: surah['page'] ,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => _navigateToPage(context, surah['page']),
                   );
                 },
                 childCount: searchResults.length,
@@ -465,17 +534,7 @@ final Map<int, List<Map<String, dynamic>>> quranParts = {
                             contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                             title: Text(surah['name'], style: surahNameStyle),
                             trailing: Text('صفحة ${surah['page']}', style: pageNumberStyle),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => QuranViewerScreen(
-                                    pdfPath: 'assets/pdfs/Quraan_v0.pdf',
-                                    startPage: surah['page'],
-                                  ),
-                                ),
-                              );
-                            },
+                           onTap: () => _navigateToPage(context, surah['page']),
                           );
                         }).toList(),
                       ),

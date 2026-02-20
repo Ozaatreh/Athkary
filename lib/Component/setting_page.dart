@@ -3,6 +3,7 @@ import 'package:athkary/main.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -154,6 +155,15 @@ void _cancelEveningNotification() {
   AwesomeNotifications().cancel(200);
 }
 
+
+void _shareAppLink() {
+  const String appLink = 'https://drive.google.com/uc?export=download&id=1uIEqRrm5lVl41yXeJ_4OfAWmegfTvTAt';
+  final String message = '📲 حمل تطبيق الأذكار من هنا:\n$appLink';
+
+  Share.share(message, subject: 'تحميل تطبيق الأذكار');
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,9 +182,9 @@ void _cancelEveningNotification() {
         children: [
           _buildSectionTitle('General Settings'),
           _buildCard([
-            _buildDropdownTile('Language', ['Arabic', 'English'], _language, (val) {
-              setState(() => _language = val);
-            }),
+            // _buildDropdownTile('Language', ['Arabic', 'English'], _language, (val) {
+            //   setState(() => _language = val);
+            // }),
             _buildSwitchTile('Dark Mode', _darkMode, (val) {
               setState(() => _darkMode = val);
               SharedPreferences.getInstance().then((prefs) {
@@ -259,8 +269,9 @@ void _cancelEveningNotification() {
             _buildButtonTile('Contact Us', () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUsPage(),));
             }),
-            _buildButtonTile('Rate the App', () {}),
-            _buildButtonTile('Share the App', () {}),
+            // _buildButtonTile('Rate the App', () {}),
+            _buildButtonTile('Share the App', _shareAppLink),
+
           ]),
         ],
       ),

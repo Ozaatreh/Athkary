@@ -74,7 +74,9 @@ Future<void> loadSoundPreference() async {
   soundEnabled = prefs.getBool('soundEnabled') ?? true;
   setState(() {});
 }
-
+int _generateNotificationId() {
+  return DateTime.now().millisecondsSinceEpoch % 100000;
+}
   Future<void> saveRecurringNotifications() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool('every30Min', every30Min);

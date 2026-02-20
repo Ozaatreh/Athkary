@@ -2,7 +2,11 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:athkary/pages/quranv2/app_provider.dart';
+import 'package:athkary/pages/quranv2/quran_page_screen.dart';
+import 'package:athkary/pages/quranv2/quranv2hc.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:adhan/adhan.dart';
@@ -91,7 +95,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       'title': 'القبلة',
-      'animationPath': 'assets/images/qiblah_v5d.png',
+      'animationPath': 'assets/images/compass_v3.png',
       'page': QiblahScreen(),
       'type': 'large',
     },
@@ -114,6 +118,17 @@ class _HomePageState extends State<HomePage> {
           'assets/animations/wired-gradient-49-plus-circle-hover-rotation.json',
       'page': MasbahaElc(),
       'type': 'large',
+    },
+    {
+      'title': 'القرآن الكريم2',
+      'animationPath':
+          'assets/animations/wired-flat-63-home-hover-3d-roll.json',
+      'page': ChangeNotifierProvider(
+        create: (_) => AppProvider(),
+        child: const Quranv2hc(),
+),
+
+      'type': 'small',
     },
   ];
 

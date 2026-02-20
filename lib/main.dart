@@ -1,5 +1,6 @@
 import 'package:athkary/Component/splash_screen.dart';
 import 'package:athkary/Component/notification.dart';
+import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/theme/dark_mode.dart';
 import 'package:athkary/theme/light_mode.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,14 +30,6 @@ Future<void> main() async {
     
     'resource://drawable/athk_v3', // Set null to use the default icon for notifications
     [ 
-    //   NotificationChannel(
-    //   channelKey: 'sleep',
-    //   channelName: 'sleep',
-    //   channelDescription: 'sleep without sound',
-    //   ledColor: Colors.white,
-    //   importance: NotificationImportance.High,
-    //   playSound: false,
-    // ),
       NotificationChannel(
       channelKey: 'athkar_sabah',
       channelName: 'athkar',
@@ -106,7 +100,11 @@ Future<void> main() async {
   themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   runApp(
-    ValueListenableBuilder<ThemeMode>(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => AppProvider()),
+    ],
+    child: ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, themeMode, _) {
         return MaterialApp(
@@ -119,7 +117,9 @@ Future<void> main() async {
         );
       },
     ),
-  );
+  ),
+);
+
 
 }
 Future<void> checkForUpdate() async {
