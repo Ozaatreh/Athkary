@@ -48,8 +48,22 @@ class _TasabehState extends State<Tasabeh> {
     'في كل مره تحط عنه عشر خطايا ويرفع له عشر درجات ويصلي الله عليه عشرا وتعرض على الرسول صلى الله عليه وسلم'
   ];
 
+
+
+  final List<int> tasbeehTargetCounts = const [
+    100, // سبحان الله
+    100, // لا حول ولا قوة إلا بالله
+    10,  // الصلاة على النبي
+    100, // سبحان الله وبحمده
+    100, // أستغفر الله
+    100, // التسبيح والتحميد والتهليل والتكبير
+    100, // لا إله إلا الله
+    10,  // الحمد لله حمداً كثيراً
+    100, // الله أكبر
+    10,  // الله أكبر كبيراً...
+    10,  // الصلاة الإبراهيمية
+  ];
   int _notificationId = 100;
-   static final String icon1 = 'assets/icons/anniversary.png';
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
@@ -61,7 +75,7 @@ class _TasabehState extends State<Tasabeh> {
     loadCustomNotifications();
     loadSoundPreference();
   }
-  
+
   bool soundEnabled = true;
 
 Future<void> saveSoundPreference(bool enabled) async {
@@ -170,8 +184,8 @@ Future<void> loadCustomNotifications() async {
         ),
         actions: [
           IconButton(
-            icon: Icon(notificationsEnabled 
-                ? Icons.notifications_active 
+            icon: Icon(notificationsEnabled
+                ? Icons.notifications_active
                 : Icons.notifications_off_outlined,
                 color: Theme.of(context).colorScheme.primary,),
             onPressed: _showNotificationSettings,
@@ -218,7 +232,7 @@ Future<void> loadCustomNotifications() async {
                 },
               ),
             ),
-            
+
           ],
         ),
       ),
@@ -226,77 +240,121 @@ Future<void> loadCustomNotifications() async {
   }
 
   Widget _buildThikrCard(BuildContext context, int index) {
-  final theme = Theme.of(context);
-  final isDarkMode = theme.brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final targetCount =
+        index < tasbeehTargetCounts.length ? tasbeehTargetCounts[index] : 100;
 
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: ((context) => MasbahaElc())),
-      );
-    },
-    child: Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: ((context) => MasbahaElc())),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          gradient: isDarkMode
+              ? const LinearGradient(
+                  colors: [Color(0xFF2E2E2E), Color(0xFF1C1C1C)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : const LinearGradient(
+                  colors: [Color(0xFFEAF2F8), Color(0xFFDFECF2)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Image(image: AssetImage(icon1)
-                  ,height:50,width:50  ,),
-                ),
-                Expanded(
-                  child: Text(
-                    theker1[index],
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.tajawal(
-                      fontSize: 20,
-                      height: 1.6,
-                      color: isDarkMode ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Divider(
-              color: theme.colorScheme.primary.withOpacity(0.5),
-              thickness: 1,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              thekinfo1[index],
-              textAlign: TextAlign.end,
-              style: GoogleFonts.tajawal(
-                fontSize: 16,
-                height: 1.5,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
           ],
         ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.self_improvement_rounded,
+                    color: isDarkMode
+                        ? theme.colorScheme.primary.withOpacity(0.65)
+                        : theme.colorScheme.surface,
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.65),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'العدد: $targetCount',
+                      style: GoogleFonts.tajawal(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.inversePrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                theker1[index],
+                textAlign: TextAlign.right,
+                style: GoogleFonts.tajawal(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  height: 1.8,
+                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                thekinfo1[index],
+                textAlign: TextAlign.right,
+                style: GoogleFonts.tajawal(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+                ),
+              ),
+              Divider(
+                height: 20,
+                color: theme.colorScheme.primary.withOpacity(0.2),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'تسبيحة رقم ${index + 1}',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
 
 
   void _showNotificationSettings() {
@@ -325,14 +383,14 @@ Future<void> loadCustomNotifications() async {
                     ),
                   ),
                   SizedBox(height: 20),
-                  
-                  _buildToggle( 
+
+                  _buildToggle(
                      title: "تشغيل صوت الإشعارات",
                      value: soundEnabled, onChanged: (value) {
                      setModalState(() => soundEnabled = value);
                      saveSoundPreference(value);
                    },),
-               
+
 
                   // Recurring notification toggles
                   _buildToggle(
@@ -384,7 +442,7 @@ Future<void> loadCustomNotifications() async {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
-                          
+
                           Row(
                             children: [
                               Switch(
@@ -485,7 +543,7 @@ Future<void> loadCustomNotifications() async {
 }
 
 
-  
+
 
   Widget _buildToggle({
     required String title,
@@ -534,10 +592,10 @@ Future<void> loadCustomNotifications() async {
           title: getRandomThekrTitle(),
           body: getRandomThekrBody(),
           notificationLayout: NotificationLayout.Default,
-          
+
         ),
         schedule: NotificationInterval(
-          interval: Duration(minutes:  intervalMinutes * 60) ,
+          interval: Duration(minutes: intervalMinutes),
           timeZone: 'Asia/Amman',
           repeats: true,
         ),

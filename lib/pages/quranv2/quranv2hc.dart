@@ -23,7 +23,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final isDark = provider.isDarkMode;
-    final gold = isDark ? AppTheme.goldPrimary : AppTheme.goldDark;
+    final gold = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       body: Container(
@@ -32,8 +32,8 @@ class _Quranv2hcState extends State<Quranv2hc> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-                ? [AppTheme.darkBg, const Color(0xFF0A1628), AppTheme.darkBg]
-                : [AppTheme.lightBg, AppTheme.lightSurface, AppTheme.lightBg],
+                ? [Theme.of(context).colorScheme.surface, const Color(0xFF0A1628), Theme.of(context).colorScheme.surface]
+                : [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.surface],
           ),
         ),
         child: CustomScrollView(
@@ -45,11 +45,11 @@ class _Quranv2hcState extends State<Quranv2hc> {
               )
             else ...[
               _buildLastReadBanner(context, provider, isDark, gold),
-              // _buildPrayerBanner(context, isDark, gold),
-              // SliverPadding(
-              //   padding: const EdgeInsets.all(16),
-              //   sliver: _buildJuzList(context, provider, isDark, gold),
-              // ),
+            
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: _buildJuzList(context, provider, isDark, gold),
+              ),
             ],
           ],
         ),
@@ -62,7 +62,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
       expandedHeight: 200,
       floating: false,
       pinned: true,
-      backgroundColor: isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
+      backgroundColor: isDark ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.secondary,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
@@ -71,7 +71,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
               end: Alignment.bottomRight,
               colors: isDark
                   ? [const Color(0xFF1A2744), const Color(0xFF0D1117)]
-                  : [AppTheme.lightSurface, AppTheme.lightBg],
+                  : [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.surface],
             ),
           ),
           child: Stack(
@@ -136,54 +136,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
     );
   }
 
-  // Widget _buildPrayerBanner(BuildContext context, bool isDark, Color gold) {
-  //   return SliverToBoxAdapter(
-  //     child: Padding(
-  //       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-  //       child: GestureDetector(
-  //         onTap: () => Navigator.push(
-  //             context, MaterialPageRoute(builder: (_) => const PrayerTimesScreen())),
-  //         child: Container(
-  //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-  //           decoration: BoxDecoration(
-  //             gradient: LinearGradient(
-  //               colors: isDark
-  //                   ? [const Color(0xFF1A3A1A), const Color(0xFF0D2210)]
-  //                   : [AppTheme.lightInverseSurface.withOpacity(0.7),
-  //                      AppTheme.lightSurface.withOpacity(0.9)],
-  //             ),
-  //             borderRadius: BorderRadius.circular(16),
-  //             border: Border.all(
-  //               color: isDark
-  //                   ? AppTheme.goldPrimary.withOpacity(0.25)
-  //                   : AppTheme.lightInverseSurface.withOpacity(0.5),
-  //             ),
-  //           ),
-  //           child: Row(children: [
-  //             Icon(Icons.mosque_rounded,
-  //                 color: isDark ? AppTheme.goldPrimary : AppTheme.lightPrimary, size: 26),
-  //             const SizedBox(width: 12),
-  //             Expanded(
-  //               child: Text(
-  //                 'أوقات الصلاة',
-  //                 style: GoogleFonts.amiri(
-  //                   color: isDark ? AppTheme.goldPrimary : AppTheme.lightPrimary,
-  //                   fontSize: 18,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //             ),
-  //             Icon(Icons.arrow_back_ios_rounded,
-  //                 color: isDark
-  //                     ? AppTheme.goldPrimary.withOpacity(0.6)
-  //                     : AppTheme.lightPrimary.withOpacity(0.6),
-  //                 size: 14),
-  //           ]),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+
 
   Widget _buildLastReadBanner(BuildContext context, AppProvider provider, bool isDark, Color gold) {
     if (provider.currentPage == 1 && provider.bookmarks.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
@@ -197,14 +150,14 @@ class _Quranv2hcState extends State<Quranv2hc> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppTheme.emeraldGreen.withOpacity(0.3), AppTheme.emeraldGreen.withOpacity(0.1)],
+                 colors: [const Color(0xFF2E7D32).withOpacity(0.3), const Color(0xFF2E7D32).withOpacity(0.1)],
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.emeraldGreen.withOpacity(0.4)),
+              border: Border.all(color: const Color(0xFF2E7D32).withOpacity(0.4)),
             ),
             child: Row(
               children: [
-                Icon(Icons.auto_stories_rounded, color: AppTheme.emeraldLight, size: 28),
+                Icon(Icons.auto_stories_rounded, color: const Color(0xFF81C784), size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -213,14 +166,14 @@ class _Quranv2hcState extends State<Quranv2hc> {
                       Text(
                         'آخر قراءة',
                         style: GoogleFonts.amiri(
-                          color: AppTheme.emeraldLight,
+                          color: const Color(0xFF81C784),
                           fontSize: 12,
                         ),
                       ),
                       Text(
                         'الصفحة ${provider.currentPage}',
                         style: GoogleFonts.amiri(
-                          color: isDark ? Colors.white : AppTheme.darkBg,
+                          color: isDark ? Colors.white : Theme.of(context).colorScheme.surface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -228,7 +181,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.emeraldLight, size: 16),
+                Icon(Icons.arrow_forward_ios_rounded, color: const Color(0xFF81C784), size: 16),
               ],
             ),
           ),
@@ -260,10 +213,10 @@ class _Quranv2hcState extends State<Quranv2hc> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        color: isDark ? Theme.of(context).colorScheme.secondary.withOpacity(0.35) : Theme.of(context).colorScheme.secondary.withOpacity(0.35),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isExpanded ? gold.withOpacity(0.5) : (isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+          color: isExpanded ? gold.withOpacity(0.5) : Theme.of(context).colorScheme.primary.withOpacity(0.2),
           width: isExpanded ? 1.5 : 1,
         ),
         boxShadow: isExpanded
@@ -294,7 +247,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                         style: GoogleFonts.amiri(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? AppTheme.darkBg : Colors.white,
+                          color: isDark ? Theme.of(context).primaryColor : Colors.white,
                         ),
                       ),
                     ),
@@ -334,7 +287,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
           if (isExpanded && surahs.isNotEmpty)
             Container(
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder)),
+                border: Border(top: BorderSide(color: isDark ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.inversePrimary)),
               ),
               child: ListView.separated(
                 shrinkWrap: true,
@@ -343,7 +296,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                 itemCount: surahs.length,
                 separatorBuilder: (_, __) => Divider(
                   height: 1,
-                  color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                  color: isDark ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.inversePrimary,
                   indent: 16,
                   endIndent: 16,
                 ),
@@ -372,7 +325,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                       surah.name,
                       style: GoogleFonts.amiri(
                         fontSize: 18,
-                        color: isDark ? const Color(0xFFE6D5A7) : AppTheme.lightPrimary,
+                        color: isDark ? const Color(0xFFE6D5A7) : Theme.of(context).colorScheme.primary,
                       ),
                       textDirection: TextDirection.rtl,
                     ),
@@ -423,12 +376,12 @@ class _IslamicLoaderState extends State<_IslamicLoader> with SingleTickerProvide
       children: [
         RotationTransition(
           turns: _controller,
-          child: const Icon(Icons.star_rounded, color: AppTheme.goldPrimary, size: 48),
+          child:  Icon(Icons.star_rounded, color: Theme.of(context).colorScheme.primary , size: 48),
         ),
         const SizedBox(height: 16),
         Text(
           'جاري التحميل...',
-          style: GoogleFonts.amiri(color: AppTheme.goldPrimary, fontSize: 18),
+          style: GoogleFonts.amiri(color: Theme.of(context).colorScheme.primary, fontSize: 18),
         ),
       ],
     );

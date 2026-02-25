@@ -12,10 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
-
 
 Future<void> main() async {
   // AwesomeNotifications().
@@ -25,103 +23,92 @@ Future<void> main() async {
   CustomNotificationState().initState();
 
   await Firebase.initializeApp();
-   // Initialize Awesome Notificationsb
+  // Initialize Awesome Notificationsb
   AwesomeNotifications().initialize(
-    
     'resource://drawable/athk_v3', // Set null to use the default icon for notifications
-    [ 
+    [
       NotificationChannel(
-      channelKey: 'athkar_sabah',
-      channelName: 'athkar',
-      channelDescription: 'Tasabeeh reminders without sound',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: false,
-    ),
+        channelKey: 'athkar_sabah',
+        channelName: 'athkar',
+        channelDescription: 'Tasabeeh reminders without sound',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: false,
+      ),
       NotificationChannel(
-      channelKey: 'athkar_masaa',
-      channelName: 'athkar',
-      channelDescription: 'Tasabeeh reminders without sound',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: false,
-    ),
-     NotificationChannel(
-      channelKey: 'tasabeh_with_sound',
-      channelName: 'Tasabeeh (Sound)',
-      channelDescription: 'Tasabeeh reminders with sound',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: true,
-      soundSource: 'resource://raw/tasbeeh_sound',
-    ),
-
-    NotificationChannel(
-      channelKey: 'tasabeh_silent',
-      channelName: 'Tasabeeh (Silent)',
-      channelDescription: 'Tasabeeh reminders without sound',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: false,
-    ),
-
-
-      NotificationChannel( 
-      channelKey: 'prayer_with_sound',
-      channelName:  'وقت الصلاة',
-      channelDescription: 'حان الان موعد  ',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: true,
-      soundSource: 'resource://raw/athan_islam_sobhi',
-    ),
-
-     NotificationChannel( // Add this for prayer notifications
-      channelKey: 'prayer_silent',
-      channelName:  'وقت الصلاة',
-      channelDescription: 'حان الان موعد  ',
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-      playSound: false,
-    ),
+        channelKey: 'athkar_masaa',
+        channelName: 'athkar',
+        channelDescription: 'Tasabeeh reminders without sound',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: false,
+      ),
+      NotificationChannel(
+        channelKey: 'tasabeh_with_sound',
+        channelName: 'Tasabeeh (Sound)',
+        channelDescription: 'Tasabeeh reminders with sound',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: true,
+        soundSource: 'resource://raw/tasbeeh_sound',
+      ),
+      NotificationChannel(
+        channelKey: 'tasabeh_silent',
+        channelName: 'Tasabeeh (Silent)',
+        channelDescription: 'Tasabeeh reminders without sound',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: false,
+      ),
+      NotificationChannel(
+        channelKey: 'prayer_with_sound',
+        channelName: 'وقت الصلاة',
+        channelDescription: 'حان الان موعد  ',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: true,
+        soundSource: 'resource://raw/athan_islam_sobhi',
+      ),
+      NotificationChannel(
+        // Add this for prayer notifications
+        channelKey: 'prayer_silent',
+        channelName: 'وقت الصلاة',
+        channelDescription: 'حان الان موعد  ',
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+        playSound: false,
+      ),
     ],
-    
-
-    
-    
   );
   checkForUpdate();
-  
 
-
- // Load shared preferences BEFORE runApp
+  // Load shared preferences BEFORE runApp
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('darkMode') ?? false;
   themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   runApp(
-  MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => AppProvider()),
-    ],
-    child: ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (context, themeMode, _) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          theme: lightMode,
-          darkTheme: darkMode,
-          themeMode: themeMode,
-          debugShowCheckedModeBanner: false,
-          home: SplashScreen(),
-        );
-      },
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+      ],
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeNotifier,
+        builder: (context, themeMode, _) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            theme: lightMode,
+            darkTheme: darkMode,
+            themeMode: themeMode,
+            debugShowCheckedModeBanner: false,
+            home: SplashScreen(),
+          );
+        },
+      ),
     ),
-  ),
-);
-
-
+  );
 }
+
 Future<void> checkForUpdate() async {
   String currentVersion = await getAppVersion();
   String latestVersion = await getLatestVersion();
@@ -171,4 +158,3 @@ void showUpdateDialog() {
     ),
   );
 }
-

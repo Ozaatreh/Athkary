@@ -14,8 +14,8 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final isDark = provider.isDarkMode;
-    final gold = isDark ? AppTheme.goldPrimary : AppTheme.goldDark;
-    final bgColor = isDark ? AppTheme.darkSurface : AppTheme.lightSurface;
+    final gold = isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary;
+    final bgColor = isDark ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.onPrimary;
 
     return SingleChildScrollView(
       child: Container(
@@ -82,7 +82,7 @@ class SettingsScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                      color: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: gold.withOpacity(0.2)),
                     ),
@@ -133,7 +133,7 @@ class SettingsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                      color: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: gold.withOpacity(0.2)),
                     ),

@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:athkary/Component/audios_files.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class AthkarAlsabah extends StatefulWidget {
   const AthkarAlsabah({super.key});
@@ -60,6 +63,7 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   int? _currentlyPlayingIndex;
+  final Map<int, String> _downloadedAudioPaths = <int, String>{};
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
@@ -69,16 +73,17 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
     super.initState();
     _initializeCounts();
     WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _prefetchCloudAudio();
   }
 
   Future<void> _initializeCounts() async {
     _prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     final lastResetString = _prefs.getString('lastResetDateMorning');
     DateTime? lastResetDate;
-    
+
     if (lastResetString != null) {
       lastResetDate = DateTime.parse(lastResetString);
       lastResetDate = DateTime(lastResetDate.year, lastResetDate.month, lastResetDate.day);
@@ -97,7 +102,7 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
       }
       this.lastResetDate = lastResetDate.toString();
     }
-    
+
     setState(() {});
   }
 
@@ -116,7 +121,7 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
   Future<void> _decrementCount(int index) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     if (lastResetDate != today.toString()) {
       await _initializeCounts();
       return;
@@ -134,6 +139,39 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
     for (int i = 0; i < athkarMorning.length; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
       _listKey.currentState?.insertItem(i);
+    }
+  }
+
+
+  Future<void> _prefetchCloudAudio() async {
+    for (int i = 0; i < maxCounts.length; i++) {
+      final cloudUrl = AudiosFiles.cloudAudioUrlForMorning(i);
+      if (cloudUrl == null) continue;
+      await _downloadAudioIfNeeded(i, cloudUrl);
+    }
+  }
+
+  Future<String?> _downloadAudioIfNeeded(int index, String cloudUrl) async {
+    if (_downloadedAudioPaths[index] != null) return _downloadedAudioPaths[index];
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final cacheDir = Directory('${dir.path}/athkar_audio_cache');
+      if (!await cacheDir.exists()) {
+        await cacheDir.create(recursive: true);
+      }
+
+      final file = File('${cacheDir.path}/morning_$index.mp3');
+      if (!await file.exists() || await file.length() == 0) {
+        final response = await http.get(Uri.parse(cloudUrl));
+        if (response.statusCode != 200) return null;
+        await file.writeAsBytes(response.bodyBytes, flush: true);
+      }
+
+      _downloadedAudioPaths[index] = file.path;
+      return file.path;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -261,8 +299,8 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: currentCounts[index] == 0 
-                            ? Colors.green.withOpacity(0.65) 
+                        color: currentCounts[index] == 0
+                            ? Colors.green.withOpacity(0.65)
                             : theme.colorScheme.primary.withOpacity(0.65),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -318,14 +356,30 @@ class _AthkarAlsabahState extends State<AthkarAlsabah> {
                           if (_isPlaying) {
                             await _audioPlayer.stop();
                           }
-                          
-                          await _audioPlayer.play(AssetSource(AudiosFiles.audioFiles[index]!));
-                          
+
+                          final cloudUrl = AudiosFiles.cloudAudioUrlForMorning(index);
+                          final localCachedPath = cloudUrl == null
+                              ? null
+                              : await _downloadAudioIfNeeded(index, cloudUrl);
+                          try {
+                            if (localCachedPath != null) {
+                              await _audioPlayer.play(DeviceFileSource(localCachedPath));
+                            } else if (cloudUrl != null) {
+                              await _audioPlayer.play(UrlSource(cloudUrl));
+                            } else {
+                              await _audioPlayer.play(AssetSource(AudiosFiles.audioFiles[index]!));
+                            }
+                          } catch (_) {
+                            if (AudiosFiles.audioFiles[index] != null) {
+                              await _audioPlayer.play(AssetSource(AudiosFiles.audioFiles[index]!));
+                            }
+                          }
+
                           setState(() {
                             _isPlaying = true;
                             _currentlyPlayingIndex = index;
                           });
-                          
+
                           _audioPlayer.onPlayerComplete.listen((_) {
                             if (mounted) {
                               setState(() {

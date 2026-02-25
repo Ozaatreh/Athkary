@@ -14,12 +14,12 @@ class BookmarksScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final isDark = provider.isDarkMode;
-    final gold = isDark ? AppTheme.goldPrimary : AppTheme.goldDark;
+    final gold = isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary;
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
+      backgroundColor: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
       appBar: AppBar(
-        backgroundColor: isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
+        backgroundColor: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_rounded, color: gold),
           onPressed: () => Navigator.pop(context),
@@ -79,7 +79,7 @@ class BookmarksScreen extends StatelessWidget {
                             style: GoogleFonts.cormorantGaramond(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? AppTheme.darkBg : Colors.white,
+                              color: isDark ? Theme.of(context).colorScheme.onPrimary : Colors.white,
                             ),
                           ),
                         ),

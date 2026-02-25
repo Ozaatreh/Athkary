@@ -31,7 +31,7 @@ class AyahWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Color bgColor = Colors.transparent;
     if (isHighlighted) {
-      bgColor = AppTheme.highlightGreen.withOpacity(0.25);
+      bgColor = const Color(0xFF66BB6A).withOpacity(0.25);
     } else if (isSelected) {
       bgColor = gold.withOpacity(0.15);
     }
@@ -48,7 +48,7 @@ class AyahWidget extends StatelessWidget {
           border: isSelected
               ? Border.all(color: gold.withOpacity(0.4), width: 1)
               : isHighlighted
-                  ? Border.all(color: AppTheme.highlightGreen.withOpacity(0.6), width: 1)
+                   ? Border.all(color: const Color(0xFF66BB6A).withOpacity(0.6), width: 1)
                   : null,
         ),
         child: RichText(
@@ -60,7 +60,7 @@ class AyahWidget extends StatelessWidget {
                 style: GoogleFonts.amiri(
                   fontSize: fontSize,
                   color: isHighlighted
-                      ? AppTheme.emeraldLight
+                      ? const Color(0xFF81C784)
                       : isDark
                           ? const Color(0xFFEAE0C8)
                           : const Color(0xFF2C1810),

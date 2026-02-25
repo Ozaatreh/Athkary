@@ -18,6 +18,7 @@ class _QiblahScreenState extends State<QiblahScreen> with SingleTickerProviderSt
   bool _locationEnabled = false;
   String _statusMessage = "جارٍ التحقق من صلاحية الموقع...";
   String _degreeText = "";
+  String _locationText = 'جارٍ تحديد الموقع...';
   late final Stream<QiblahDirection> _qiblahStream;
   double _previousDegree = 0.0;
 bool _isHeadingCorrect = false;
@@ -79,11 +80,30 @@ double _directionThreshold = 5.0;
         _locationEnabled = true;
       });
     }
+
+    await _loadCurrentLocationLabel();
+  }
+
+
+  Future<void> _loadCurrentLocationLabel() async {
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      if (!mounted) return;
+      setState(() {
+        _locationText =
+            'الموقع الحالي: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _locationText = 'تعذر تحديد الموقع الحالي';
+      });
+    }
   }
 
  void updateCompass(double newDirection) {
   final degreeDifference = (newDirection - _previousDirection).abs();
-  
+
   // Only update if the change is significant (more than 1 degree)
   if (degreeDifference > (pi / 180)) {
     _animation = Tween(begin: _previousDirection, end: newDirection).animate(
@@ -91,11 +111,11 @@ double _directionThreshold = 5.0;
     );
     _previousDirection = newDirection;
     _animationController.forward(from: 0);
-    
+
     // Check if we're heading in the right direction
     final currentDegree = (newDirection * (180 / pi)).abs();
     final degreeChange = (currentDegree - _previousDegree).abs();
-    
+
     if (degreeChange > _directionThreshold) {
       _previousDegree = currentDegree;
       final newHeadingState = currentDegree <= _directionThreshold;
@@ -144,6 +164,35 @@ double _directionThreshold = 5.0;
               fontSize: _screenWidth * 0.06,
               fontWeight: FontWeight.bold,
               color: _theme.colorScheme.primary,
+            ),
+          ),
+          SizedBox(height: _screenHeight * 0.015),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: _screenWidth * 0.08),
+            padding: EdgeInsets.symmetric(
+              horizontal: _screenWidth * 0.04,
+              vertical: _screenHeight * 0.012,
+            ),
+            decoration: BoxDecoration(
+              color: _theme.colorScheme.primary.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _theme.colorScheme.primary.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.place_rounded, color: _theme.colorScheme.primary),
+                SizedBox(width: _screenWidth * 0.02),
+                Expanded(
+                  child: Text(
+                    _locationText,
+                    style: TextStyle(
+                      fontSize: _screenWidth * 0.035,
+                      color: _theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(height: _screenHeight * 0.03),

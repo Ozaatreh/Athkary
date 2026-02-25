@@ -1,5 +1,63 @@
 class AudiosFiles {
-  
+
+
+  static const String _cloudBaseUrl =
+      'https://ykvcjhxfyodririeyqiw.supabase.co/storage/v1/object/public/Audios';
+
+  static const List<String?> _cloudMorningFileNames = [
+     'Iklas.mp3',      // 0: سورة الإخلاص
+     'Alfalaq.mp3',        // 1: سورة الفلق
+    'Alnaas.mp3', 
+    "Alahm eny asalk elman nafeaa.mp3", // 3
+    "Astaghfirullaha w Atoob elaeh.mp3", // 4
+    null, // 5: بسم الله الذي لا يضر...
+    "Alahm Alem algyb w alsh'hadah Fater alsmawat.mp3", // 6
+    "Subhan Alah W bihamdeh Adada Khlkeh.mp3", // 7
+    "Allahumma A'udhu Bika Min Al-Kufr.mp3", // 8
+    null, // 9: رضيت بالله رباً
+    "Subhan Allah Wa Bi Hamdihi.mp3", // 10
+    "Ya hy ya qaium.mp3", // 11
+    "Asbahna w asbaha almulk llah rub.mp3", // 12
+    "Alahm eny asbaht oush'hedouka.mp3", // 13
+    "Allahumma Anta Rabbi La Ilaha Illa Ant.mp3", // 14
+    null, // 15: اللهم ما أصبح بي من نعمة
+    "La Ilaha Illa Allah Wahdahu.mp3", // 16
+  ];
+
+  static const List<String?> _cloudEveningFileNames = [
+     'Iklas.mp3',      // 0: سورة الإخلاص
+     'Alfalaq.mp3',        // 1: سورة الفلق
+    'Alnaas.mp3', 
+    "Alahm eny asalk elman nafeaa.mp3", // 3
+    "Astaghfirullaha w Atoob elaeh.mp3", // 4
+    null, // 5: بسم الله الذي لا يضر...
+    "Alahm Alem algyb w alsh'hadah Fater alsmawat.mp3", // 6
+    "Subhan Alah W bihamdeh Adada Khlkeh.mp3", // 7
+    null, // 8: رضيت بالله رباً
+    "Subhan Allah Wa Bi Hamdihi.mp3", // 9
+    "Ya hy ya qaium.mp3", // 10
+    "Asbahna w asbaha almulk.mp3", // 11: أمسينا وأمسى الملك
+    "Alahm eny asbaht oush'hedouka.mp3", // 12: اللهم إني أمسيت أشهدك
+    "Allahumma Anta Rabbi La Ilaha Illa Ant.mp3", // 13
+    null, // 14: اللهم ما أمسى بي من نعمة
+    "La Ilaha Illa Allah Wahdahu.mp3", // 15
+  ];
+
+  static String? cloudAudioUrlFromFileName(String? fileName) {
+    if (fileName == null || fileName.isEmpty) return null;
+    return '$_cloudBaseUrl/${Uri.encodeComponent(fileName)}';
+  }
+
+  static String? cloudAudioUrlForMorning(int index) {
+    if (index < 0 || index >= _cloudMorningFileNames.length) return null;
+    return cloudAudioUrlFromFileName(_cloudMorningFileNames[index]);
+  }
+
+  static String? cloudAudioUrlForEvening(int index) {
+    if (index < 0 || index >= _cloudEveningFileNames.length) return null;
+    return cloudAudioUrlFromFileName(_cloudEveningFileNames[index]);
+  }
+
  static const List<String?> audioFiles = [
   'audio_athkar/سورة الإخلاص.mp3',      // 0: سورة الإخلاص
   'audio_athkar/سورة الفلق.mp3',        // 1: سورة الفلق
@@ -38,84 +96,5 @@ static const List<String?> audioFiles2 = [
   'audio_athkar/e14.mp3',               // 14: اللَّهُمَّ مَا أَمْسَى بِي... (evening version)
   'audio_athkar/a13.mp3',               // 15: لَا إِلَهَ إِلَّا اللَّهُ...
 ];
-//   class AudiosFiles {
-//   static const List<String> audioFiles = [
-//     'audio/a1.mp3',  //اللّهُمَّ إِنِّي أسْأَلُكَ العَفْوَ وَالعافِيةَ في الدُّنْيا وَالآخِرَة.mp3
-
-//     'audio/a2.mp3',  // أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ
-
-//  not exist   'audio/a3.mp3',  // بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ
-
-//     'audio/a4.mp3',  // اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّماوَاتِ وَالْأَرْضِ...
-
-//     'audio/a5.mp3',  // سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ...
-
-//     'audio/a6.mp3',  // اللهم اني اعوذ بك من عذاب القبر
-
-
-
-//     'audio/a7.mp3',  // اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ الْهَمِّ وَالْحَزَنِ.
-
-//     'audio/a8.mp3',  // يَاحَيُّ، يَا قَيُّومُ، بِرَحْمَتِكَ أَسْتَغِيثُ...
-
-//     'audio/a9.mp3',  // أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ...
-
-//     'audio/a10.mp3', // سبْحَانَ اللَّهِ وَبِحَمْدِهِ
-
-
-
-//     'audio/a11.mp3', // اللهم صلي على محمد
-
-
-//     'audio/a12.mp3', // اللهم عافني في بدني 
-
-
-//     'audio/a13.mp3', // لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ
-
-//     'audio/a14.mp3', // أَسْتَغْفِرُ اللهَ العَظِيمَ الَّذِي لاَ إلَهَ إلاَّ هُوَ
-
-
-//     'audio/a15.mp3', // أَصْبَحْنا وَأَصْبَحَ المُلْكُ
-
-//     'audio/a16.mp3', // أَعوذُ بِكَلِماتِ اللّهِ التّامّاتِ مِنْ شَرِّ ما خَلَق
-
-//     'audio/a17.mp3', // اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ
-
-
-//     'audio/a18.mp3', // اللَّهُمَّ إِنَّا نَعُوذُ بِكَ مِنْ أَنْ نُشْرِكَ بِكَ شَيْئًا نَعْلَمُهُ
-
-//     'audio/a19.mp3', //  اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نَافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً
-
-//     'audio/a20.mp3', // اللّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُك
-
-//     'audio/a21.mp3', // يَا رَبِّ , لَكَ الْحَمْدُ كَمَا
-
-//   ];
-
-// }
-
-  // static const List<String> audioFiles3 = [
-  //   'audio_athkar/أسْتَغْفِرُ اللهَ العَظِيمَ الَّذِي لاَ إلَهَ إلاَّ هُوَ.mp3',
-  //   'audio_athkar/أسْتَغْفِرُ اللهَ وَأتُوبُ إلَيْهِ.mp3',
-  //   'audio_athkar/أَصْبَحْنا وَأَصْبَحَ المُلْكُ.mp3',
-  //   'audio_athkar/أَصْبَحْنا وَأَصْبَحْ المُلكُ للهِ رَبِّ العالَمين.mp3',
-  //   'audio_athkar/أَعوذُ بِكَلِماتِ اللّهِ التّامّاتِ مِنْ شَرِّ ما خَلَق.mp3',
-  //   'audio_athkar/اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ على نَبِيِّنَا مُحمَّد.mp3',
-  //   'audio_athkar/اللّهُمَّ إِنِّي أسْأَلُكَ العَفْوَ وَالعافِيةَ في الدُّنْيا وَالآخِرَة.mp3',
-  //   'audio_athkar/اللّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُك.mp3',
-  //   'audio_athkar/اللّهُمَّ إِنّي أَعوذُ بِكَ مِنَ الْكُفر.mp3',
-  //   'audio_athkar/اللّهُمَّ عافِني في بَدَني.mp3',
-  //   'audio_athkar/اللّهُمَّ عالِمَ الغَيْبِ وَالشّهادَةِ فاطِرَ السّماواتِ.mp3',
-  //   'audio_athkar/اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ.mp3',
-  //   'audio_athkar/اللَّهُمَّ إِنَّا نَعُوذُ بِكَ مِنْ أَنْ نُشْرِكَ بِكَ شَيْئًا نَعْلَمُهُ.mp3',
-  //   'audio_athkar/اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا.mp3',
-  //   'audio_athkar/اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ الْهَمِّ وَالْحَزَنِ.mp3',
-  //   'audio_athkar/سُبْحانَ اللهِ وَبِحَمْدِهِ عَدَدَ خَلْقِه.mp3',
-  //   'audio_athkar/سُبْحانَ اللهِ وَبِحَمْدِهِ...mp3',
-  //   'audio_athkar/لَا إلَه إلّا اللهُ وَحْدَهُ.mp3',
-  //   'audio_athkar/يَا حَيُّ يَا قيُّومُ بِرَحْمَتِكَ أسْتَغِيثُ.mp3',
-  //   'audio_athkar/يَا رَبِّ , لَكَ الْحَمْدُ كَمَا.mp3',
-  // ];
-
 
 }

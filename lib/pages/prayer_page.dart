@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
 
 // Shared Preferences Keys
 const String _athanSoundKey = 'selectedAthanSound';
@@ -67,17 +68,180 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   String selectedAthanSound = "audios/athan_om_alqora.mp3";
   String? athanSound;
   bool soundEnabled = true;
+  Timer? _ticker;
+  bool _isLoadingLocation = false;
+  String _locationLabel = 'عمان، الأردن';
+  final TextEditingController _latitudeController = TextEditingController();
+  final TextEditingController _longitudeController = TextEditingController();
+  String? _lastAthanKey;
+  final Set<int> _prayerNotificationIds = <int>{};
 
   @override
   void initState() {
     super.initState();
     _loadAllSettings();
+    _initializeLocation();
     calculatePrayerTimes();
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       _updateNextPrayer();
       _checkAndLaunchAthan();
     });
     initializeNotifications();
+  }
+
+
+  Future<void> _initializeLocation() async {
+    final location = Location();
+
+    try {
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+      }
+
+      PermissionStatus permission = await location.hasPermission();
+      if (permission == PermissionStatus.denied) {
+        permission = await location.requestPermission();
+      }
+
+      if (serviceEnabled && permission == PermissionStatus.granted) {
+        await _useCurrentLocation(showSuccessMessage: false);
+      }
+    } catch (_) {
+      // Keep default location if current location is unavailable.
+    }
+  }
+
+  Future<void> _useCurrentLocation({bool showSuccessMessage = true}) async {
+    final location = Location();
+    setState(() => _isLoadingLocation = true);
+    try {
+      final data = await location.getLocation();
+      final lat = data.latitude;
+      final lon = data.longitude;
+      if (lat == null || lon == null) return;
+
+      _updateCoordinates(
+        lat,
+        lon,
+        label: 'الموقع الحالي',
+      );
+
+      if (showSuccessMessage && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم تحديث الموقع الحالي')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر الوصول إلى الموقع الحالي')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingLocation = false);
+      }
+    }
+  }
+
+  void _updateCoordinates(double lat, double lon, {required String label}) {
+    setState(() {
+      latitude = lat;
+      longitude = lon;
+      _locationLabel = label;
+      _lastAthanKey = null;
+    });
+    calculatePrayerTimes(date: selectedDate);
+  }
+
+  void _saveManualLocation() {
+    final lat = double.tryParse(_latitudeController.text.trim());
+    final lon = double.tryParse(_longitudeController.text.trim());
+
+    if (lat == null || lon == null || lat.abs() > 90 || lon.abs() > 180) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى إدخال إحداثيات صحيحة')),
+      );
+      return;
+    }
+
+    _updateCoordinates(lat, lon, label: 'موقع مخصص');
+    Navigator.pop(context);
+  }
+
+  void _showLocationSettings() {
+    _latitudeController.text = latitude.toStringAsFixed(4);
+    _longitudeController.text = longitude.toStringAsFixed(4);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'الموقع',
+                style: GoogleFonts.tajawal(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'يمكنك استخدام الموقع الحالي أو إدخال موقع يدويًا.',
+                style: GoogleFonts.tajawal(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoadingLocation
+                      ? null
+                      : () async {
+                          await _useCurrentLocation();
+                          if (mounted) Navigator.pop(context);
+                        },
+                  icon: const Icon(Icons.my_location_rounded),
+                  label: Text(_isLoadingLocation ? 'جاري التحديد...' : 'استخدام موقعي الحالي'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _latitudeController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                decoration: const InputDecoration(labelText: 'خط العرض (Latitude)'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _longitudeController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                decoration: const InputDecoration(labelText: 'خط الطول (Longitude)'),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveManualLocation,
+                  child: const Text('حفظ الموقع المخصص'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadAllSettings() async {
@@ -104,25 +268,50 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
     });
   }
 
+
+  bool _isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  Map<String, DateTime> _notificationPrayerTimesForDate(DateTime date) {
+    final params = CalculationMethod.muslim_world_league.getParameters();
+    final coordinates = Coordinates(latitude, longitude);
+    final dateComponents = DateComponents(date.year, date.month, date.day);
+    final prayerTimesData = PrayerTimes(coordinates, dateComponents, params);
+
+    return {
+      "الفجر": prayerTimesData.fajr,
+      "الشروق": prayerTimesData.sunrise,
+      "الظهر": prayerTimesData.dhuhr,
+      "العصر": prayerTimesData.asr,
+      "المغرب": prayerTimesData.maghrib.add(const Duration(minutes: 4)),
+      "العشاء": prayerTimesData.isha.add(const Duration(minutes: 5)),
+    };
+  }
+
   void schedulePrayerNotifications() {
-    for (var entry in prayerTimes.entries) {
-      DateTime prayerTime = DateFormat.jm().parse(entry.value);
-      prayerTime = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        prayerTime.hour,
-        prayerTime.minute,
-      );
+    final prayerOrder = ['الفجر', 'الشروق', 'الظهر', 'العصر', 'المغرب', 'العشاء'];
+    final today = DateTime.now();
+    final prayersForToday = _notificationPrayerTimesForDate(today);
+
+    for (var entry in prayersForToday.entries) {
+      final prayerTime = entry.value;
 
       if (prayerTime.isAfter(DateTime.now())) {
         final channelKey = entry.key == "الشروق"
             ? 'prayer_silent'
             : (soundEnabled ? 'prayer_with_sound' : 'prayer_silent');
 
+        final prayerIndex = prayerOrder.indexOf(entry.key);
+        final notificationId = prayerTime.year * 1000000 +
+            prayerTime.month * 10000 +
+            prayerTime.day * 100 +
+            (prayerIndex < 0 ? 0 : prayerIndex);
+        _prayerNotificationIds.add(notificationId);
+
         AwesomeNotifications().createNotification(
           content: NotificationContent(
-            id: entry.key.hashCode,
+            id: notificationId,
             channelKey: channelKey,
             title: 'وقت الصلاة',
             body: 'حان الان موعد ${entry.key}',
@@ -143,7 +332,10 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   }
 
   void _cancelPrayerNotifications() {
-    AwesomeNotifications().cancelAll();
+    for (final id in _prayerNotificationIds) {
+      AwesomeNotifications().cancel(id);
+    }
+    _prayerNotificationIds.clear();
   }
 
   void toggleNotifications(bool value) async {
@@ -154,6 +346,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
     await saveNotificationsEnabled(value);
 
     if (value) {
+      _cancelPrayerNotifications();
       schedulePrayerNotifications();
     } else {
       _cancelPrayerNotifications();
@@ -165,7 +358,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
       soundEnabled = value;
     });
     await saveSoundPreference(value);
-    
+
     // Reschedule notifications if they're enabled
     if (notificationsEnabled) {
       _cancelPrayerNotifications();
@@ -205,7 +398,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    
+
                     // Notifications Toggle
                     _buildSettingSwitch(
                       context: context,
@@ -216,9 +409,9 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                         toggleNotifications(value);
                       },
                     ),
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Sound Toggle
                     _buildSettingSwitch(
                       context: context,
@@ -229,9 +422,9 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                         toggleSoundEnabled(value);
                       },
                     ),
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Athan Toggle
                     _buildSettingSwitch(
                       context: context,
@@ -242,15 +435,15 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                         toggleAthanEnabled(value);
                       },
                     ),
-                    
+
                     // Athan Sound Selection (only if athanEnabled)
                     if (athanEnabled) ...[
                       SizedBox(height: 15),
                       _buildAthanSoundDropdown(context, setModalState),
                     ],
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Done Button
                     SizedBox(
                       width: double.infinity,
@@ -271,7 +464,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                         ),
                       ),
                     ),
-                    
+
                   ],
                 ),
               ),
@@ -307,7 +500,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
             value: value,
             onChanged: onChanged,
             trackOutlineColor: WidgetStateProperty.all(
-              value ? Color.fromARGB(255, 240, 235, 235) 
+              value ? Color.fromARGB(255, 240, 235, 235)
                    : Color.fromARGB(255, 240, 237, 237),
             ),
             activeColor: Color.fromARGB(255, 63, 189, 67),
@@ -416,6 +609,11 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
     setState(() {
       prayerTimes = calculatedTimes;
     });
+
+    if (notificationsEnabled && _isSameDate(today, DateTime.now())) {
+      _cancelPrayerNotifications();
+      schedulePrayerNotifications();
+    }
   }
 
   void _updateNextPrayer() {
@@ -428,7 +626,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
       if (prayerTimes[prayer] != null) {
         try {
           DateTime prayerTime = DateFormat.jm().parse(prayerTimes[prayer]!);
-          prayerTime = DateTime(now.year, now.month, now.day, 
+          prayerTime = DateTime(now.year, now.month, now.day,
                               prayerTime.hour, prayerTime.minute);
 
           if (prayerTime.isAfter(now)) {
@@ -450,16 +648,19 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
       });
     }
   }
-  
+
   void _checkAndLaunchAthan() {
     if (!athanEnabled) return;
-    
+
     final now = DateTime.now();
     for (var entry in prayerTimes.entries) {
       DateTime prayerTime = DateFormat.jm().parse(entry.value);
       prayerTime = DateTime(now.year, now.month, now.day, prayerTime.hour, prayerTime.minute);
 
       if (now.difference(prayerTime).inSeconds.abs() <= 1) {
+        final athanKey = '${entry.key}-${DateFormat('yyyy-MM-dd HH:mm').format(prayerTime)}';
+        if (_lastAthanKey == athanKey) continue;
+        _lastAthanKey = athanKey;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -473,6 +674,15 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
         break;
       }
     }
+  }
+
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    _latitudeController.dispose();
+    _longitudeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -496,8 +706,12 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(notificationsEnabled 
-                ? Icons.notifications_active 
+            icon: Icon(Icons.location_on_outlined, color: Theme.of(context).colorScheme.primary),
+            onPressed: _showLocationSettings,
+          ),
+          IconButton(
+            icon: Icon(notificationsEnabled
+                ? Icons.notifications_active
                 : Icons.notifications_off_outlined,
                 color: Theme.of(context).colorScheme.primary,),
             onPressed: _showNotificationSettings,
@@ -552,9 +766,34 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                 ],
               ),
             ),
-            
+
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.place_outlined, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'الموقع: $_locationLabel (${latitude.toStringAsFixed(3)}, ${longitude.toStringAsFixed(3)})',
+                      style: GoogleFonts.tajawal(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             SizedBox(height: 30),
-            
+
             // Next Prayer Card
             Container(
               decoration: BoxDecoration(
@@ -614,9 +853,9 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                 ],
               ),
             ),
-            
+
             SizedBox(height: 30),
-            
+
             // All Prayer Times
             Text(
               "أوقات الصلاة اليوم",
@@ -627,7 +866,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
               ),
             ),
             SizedBox(height: 15),
-            
+
             Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
@@ -657,7 +896,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: isCurrent 
+                          color: isCurrent
                               ? Theme.of(context).colorScheme.surface.withOpacity(0.2)
                               : Colors.transparent,
                           shape: BoxShape.circle,

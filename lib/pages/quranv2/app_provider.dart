@@ -1,5 +1,6 @@
 // lib/providers/app_provider.dart
 import 'dart:convert';
+import 'package:athkary/main.dart';
 import 'package:athkary/pages/quranv2/quran_models.dart';
 import 'package:athkary/pages/quranv2/quran_service.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    _isDarkMode = prefs.getBool('isDarkMode') ?? true;
+    _isDarkMode = themeNotifier.value == ThemeMode.dark;
     _ayahFontSize = prefs.getDouble('ayahFontSize') ?? 24.0;
     _ayahsPerPage = prefs.getInt('ayahsPerPage') ?? 15;
     _currentPage = prefs.getInt('lastPage') ?? 1;
@@ -275,8 +276,10 @@ class AppProvider extends ChangeNotifier {
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    _savePreferences();
-    notifyListeners();
+     themeNotifier.value = _isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    SharedPreferences.getInstance().then(
+      (prefs) => prefs.setBool('darkMode', _isDarkMode),
+    );
   }
 
   void updateFontSize(double size) {

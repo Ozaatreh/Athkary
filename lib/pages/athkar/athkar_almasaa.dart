@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:athkary/Component/audios_files.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class AthkarAlmasaa extends StatefulWidget {
   const AthkarAlmasaa({super.key});
@@ -58,6 +61,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   int? _currentlyPlayingIndex;
+  final Map<int, String> _downloadedAudioPaths = <int, String>{};
 
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final ScrollController _scrollController = ScrollController();
@@ -71,6 +75,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
     super.initState();
     _initializeCounts();
     WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _prefetchCloudAudio();
   }
 
   Future<void> _initializeCounts() async {
@@ -81,7 +86,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
     // Load last reset date
     final lastResetString = _prefs.getString(_prefsKey);
     DateTime? storedResetDate;
-    
+
     if (lastResetString != null) {
       storedResetDate = DateTime.parse(lastResetString);
       storedResetDate = DateTime(storedResetDate.year, storedResetDate.month, storedResetDate.day);
@@ -103,7 +108,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
       }
       lastResetDate = storedResetDate;
     }
-    
+
     setState(() {});
   }
 
@@ -122,7 +127,7 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
   Future<void> _decrementCount(int index) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     // Re-check date in case app was running across midnight
     if (lastResetDate.isBefore(today)) {
       await _initializeCounts(); // This will handle the reset
@@ -141,6 +146,39 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
     for (int i = 0; i < athkarEvening.length; i++) {
       await Future.delayed(const Duration(milliseconds: 200));
       _listKey.currentState?.insertItem(i);
+    }
+  }
+
+
+  Future<void> _prefetchCloudAudio() async {
+    for (int i = 0; i < maxCounts.length; i++) {
+      final cloudUrl = AudiosFiles.cloudAudioUrlForEvening(i);
+      if (cloudUrl == null) continue;
+      await _downloadAudioIfNeeded(i, cloudUrl);
+    }
+  }
+
+  Future<String?> _downloadAudioIfNeeded(int index, String cloudUrl) async {
+    if (_downloadedAudioPaths[index] != null) return _downloadedAudioPaths[index];
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final cacheDir = Directory('${dir.path}/athkar_audio_cache');
+      if (!await cacheDir.exists()) {
+        await cacheDir.create(recursive: true);
+      }
+
+      final file = File('${cacheDir.path}/evening_$index.mp3');
+      if (!await file.exists() || await file.length() == 0) {
+        final response = await http.get(Uri.parse(cloudUrl));
+        if (response.statusCode != 200) return null;
+        await file.writeAsBytes(response.bodyBytes, flush: true);
+      }
+
+      _downloadedAudioPaths[index] = file.path;
+      return file.path;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -333,16 +371,31 @@ class _AthkarAlmasaaState extends State<AthkarAlmasaa> {
                         if (_isPlaying) {
                           await _audioPlayer.stop();
                         }
-                        
+
                         if (AudiosFiles.audioFiles2[index] != null) {
-                          await _audioPlayer.play(
-                              AssetSource(AudiosFiles.audioFiles2[index]!));
-                          
+                          final cloudUrl = AudiosFiles.cloudAudioUrlForEvening(index);
+                          final localCachedPath = cloudUrl == null
+                              ? null
+                              : await _downloadAudioIfNeeded(index, cloudUrl);
+                          try {
+                            if (localCachedPath != null) {
+                              await _audioPlayer.play(DeviceFileSource(localCachedPath));
+                            } else if (cloudUrl != null) {
+                              await _audioPlayer.play(UrlSource(cloudUrl));
+                            } else {
+                              await _audioPlayer.play(
+                                  AssetSource(AudiosFiles.audioFiles2[index]!));
+                            }
+                          } catch (_) {
+                            await _audioPlayer.play(
+                                AssetSource(AudiosFiles.audioFiles2[index]!));
+                          }
+
                           setState(() {
                             _isPlaying = true;
                             _currentlyPlayingIndex = index;
                           });
-                          
+
                           _audioPlayer.onPlayerComplete.listen((_) {
                             if (mounted) {
                               setState(() {

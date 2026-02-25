@@ -61,17 +61,17 @@ class _QuranPartsScreenState extends State<QuranPartsScreen> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("تحميل القرآن"),
-        content: const Text(
+        title:  Text(textAlign: TextAlign.end , style: TextStyle(color: Colors.white),"تحميل القرآن"),
+        content: const Text(textAlign: TextAlign.end, style: TextStyle(color: Colors.white),
           "القرآن غير محمّل على جهازك.\nهل تريد تحميله الآن؟",
         ),
         actions: [
           TextButton(
-            child: const Text("إلغاء"),
+            child: const Text("إلغاء",style: TextStyle(color: Colors.red),),
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton(
-            child: const Text("تحميل"),
+            child: const Text("تحميل",style: TextStyle(color: Colors.white),),
             onPressed: () {
               shouldDownload = true;
               Navigator.pop(context);
@@ -96,7 +96,7 @@ class _QuranPartsScreenState extends State<QuranPartsScreen> {
     } catch (e) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("فشل تحميل القرآن: $e")),
+        SnackBar(content: Text("فشل تحميل القرآن: $e",style: TextStyle(color: Colors.white),)),
       );
     }
   }

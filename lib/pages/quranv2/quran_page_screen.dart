@@ -36,10 +36,10 @@ class _QuranPagev2State extends State<QuranPagev2> {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final isDark = provider.isDarkMode;
-    final gold = isDark ? AppTheme.goldPrimary : AppTheme.goldDark;
+    final gold = isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary;
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
+      backgroundColor: isDark ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.inversePrimary,
       appBar: _buildAppBar(context, provider, isDark, gold),
       body: Stack(
         children: [
@@ -57,7 +57,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
         : '';
 
     return AppBar(
-      backgroundColor: isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
+      backgroundColor: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_rounded, color: gold),
         onPressed: () => Navigator.pop(context),
@@ -88,7 +88,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('تم حفظ الصفحة ${provider.currentPage}', style: GoogleFonts.amiri()),
-                backgroundColor: AppTheme.emeraldGreen,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -287,7 +287,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
   Widget _buildLoadingOverlay() {
     return Container(
       color: Colors.black26,
-      child: const Center(child: CircularProgressIndicator(color: AppTheme.goldPrimary)),
+      child:  Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary)),
     );
   }
 
@@ -301,7 +301,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         decoration: BoxDecoration(
-          color: (isDark ? AppTheme.darkSurface : AppTheme.lightSurface).withOpacity(0.95),
+          color: (isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary).withOpacity(0.95),
           border: Border(top: BorderSide(color: gold.withOpacity(0.2))),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, -4)),
@@ -332,12 +332,12 @@ class _QuranPagev2State extends State<QuranPagev2> {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: provider.isPlaying
-                        ? [AppTheme.emeraldGreen, AppTheme.emeraldGreen.withOpacity(0.7)]
+                        ? [Theme.of(context).colorScheme.onPrimary, Theme.of(context).colorScheme.onPrimary.withOpacity(0.7)]
                         : [gold, gold.withOpacity(0.7)],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (provider.isPlaying ? AppTheme.emeraldGreen : gold).withOpacity(0.4),
+                      color: (provider.isPlaying ? Theme.of(context).colorScheme.onPrimary : gold).withOpacity(0.4),
                       blurRadius: 16,
                       spreadRadius: 2,
                     ),
@@ -345,7 +345,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
                 ),
                 child: Icon(
                   provider.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                  color: isDark ? AppTheme.darkBg : Colors.white,
+                  color: isDark ? Theme.of(context).colorScheme.inversePrimary : Colors.white,
                   size: 32,
                 ),
               ),

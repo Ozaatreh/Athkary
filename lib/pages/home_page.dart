@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/pages/quranv2/quran_page_screen.dart';
 import 'package:athkary/pages/quranv2/quranv2hc.dart';
+import 'package:athkary/pages/ramadan/ramadan_navs.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,7 +20,6 @@ import 'package:athkary/pages/alah_names.dart';
 import 'package:athkary/pages/athkar/athkar_almasaa.dart';
 import 'package:athkary/pages/masbahah_elc.dart';
 import 'package:athkary/pages/prayer_page.dart';
-import 'package:athkary/pages/quran/quran_new.dart';
 import 'package:athkary/pages/quran/quran_page.dart';
 import 'package:athkary/pages/sunnan_alnabi/sunnan_alnabi_navs.dart';
 import 'package:athkary/pages/tasabeh.dart';
@@ -60,16 +60,17 @@ class _HomePageState extends State<HomePage> {
       'type': 'small',
     },
     {
-      'title': 'أسماء الله الحسنى',
-      'animationPath': 'assets/images/allah_.png',
-      'page': AlahNames(),
-      'type': 'small',
-    },
-    {
       'title': 'سنن النَّبِيِّ',
       'animationPath':
           'assets/animations/wired-flat-1845-rose-hover-pinch.json',
       'page': SonanAlnabiNavs(),
+      'type': 'small',
+    },
+    {
+      'title': 'رمضان',
+      'animationPath':
+          'assets/animations/wired-flat-1821-night-sky-moon-stars-hover-pinch.json',
+      'page': RamadanNavs(),
       'type': 'small',
     },
     {
@@ -120,7 +121,13 @@ class _HomePageState extends State<HomePage> {
       'type': 'large',
     },
     {
-      'title': 'القرآن الكريم2',
+      'title': 'أسماء الله الحسنى',
+      'animationPath': 'assets/images/allah_.png',
+      'page': AlahNames(),
+      'type': 'small',
+    },
+    {
+      'title': 'Quran Cloud',
       'animationPath':
           'assets/animations/wired-flat-63-home-hover-3d-roll.json',
       'page': ChangeNotifierProvider(
