@@ -2,25 +2,75 @@
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/prayer_widget_background"
     android:orientation="vertical"
-    android:background="#FFFFFF"
-    android:padding="10dp">
+    android:padding="14dp">
 
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="أوقات الصلاة اليوم"
         android:gravity="center"
+        android:text="☪ أوقات الصلاة"
+        android:textColor="@color/widget_gold"
         android:textSize="18sp"
-        android:textColor="#1E88E5"
         android:textStyle="bold" />
 
-    <LinearLayout
-        android:id="@+id/prayerTimesContainer"
+    <TextView
+        android:id="@+id/widgetDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="10dp">
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/widget_subtext"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/widgetLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="الموقع الافتراضي"
+        android:textColor="@color/widget_subtext"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName1" style="@style/WidgetPrayerName" android:text="الفجر" />
+            <TextView android:id="@+id/prayerTime1" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName2" style="@style/WidgetPrayerName" android:text="الشروق" />
+            <TextView android:id="@+id/prayerTime2" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName3" style="@style/WidgetPrayerName" android:text="الظهر" />
+            <TextView android:id="@+id/prayerTime3" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName4" style="@style/WidgetPrayerName" android:text="العصر" />
+            <TextView android:id="@+id/prayerTime4" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName5" style="@style/WidgetPrayerName" android:text="المغرب" />
+            <TextView android:id="@+id/prayerTime5" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/WidgetRowStyle">
+            <TextView android:id="@+id/prayerName6" style="@style/WidgetPrayerName" android:text="العشاء" />
+            <TextView android:id="@+id/prayerTime6" style="@style/WidgetPrayerTime" android:text="--:--" />
+        </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>
