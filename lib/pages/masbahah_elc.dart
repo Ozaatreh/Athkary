@@ -11,20 +11,37 @@ class MasbahaElc extends StatefulWidget {
   const MasbahaElc({super.key});
 
   @override
-  _MasbahaElcState createState() => _MasbahaElcState();
+  State<MasbahaElc> createState() => _MasbahaElcState();
 }
 
-class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateMixin {
+class _MasbahaElcState extends State<MasbahaElc>
+    with SingleTickerProviderStateMixin {
+
   int counter = 0;
   int tasabehcount = 0;
+  int _targetCount = 100;
+  String _selectedWerd = 'سبحان الله';
+
   final player = AudioPlayer();
+
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
-  // Voice recognition
+
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  String _lastWords = '';
+
+  final Duration _listeningDuration = const Duration(minutes: 10);
+  final Duration _cooldownPeriod = const Duration(milliseconds: 800);
+
+  Timer? _listeningTimer;
+  Timer? _countdownTimer;
+  Timer? _silenceTimer;
+
+  int _secondsRemaining = 600;
+  DateTime? _lastDhikrTime;
+  DateTime? _lastSpeechTime;
+
+  final Set<String> _processedTexts = {};
 
   final List<String> _dhikrPhrases = [
     'سبحان الله',
@@ -82,130 +99,79 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
     'اللهم إني أسألك خشيتك في الغيب والشهادة، وأسألك كلمة الحق في الرضا والغضب، وأسألك القصد في الغنى والفقر، وأسألك نعيماً لا ينفد، وأسألك قرة عين لا تنقطع، وأسألك الرضا بعد القضاء، وأسألك برد العيش بعد الموت، وأسألك لذة النظر إلى وجهك والشوق إلى لقائك في غير ضراء مضرة ولا فتنة مضلة'
   ];
 
-  // Voice counting control
-  Timer? _listeningTimer;
-  final Duration _listeningDuration = Duration(minutes: 1); // 1 minute listening
-  final Duration _cooldownPeriod = Duration(milliseconds: 800);
-  DateTime? _lastDhikrTime;
-  Set<String> _processedTexts = Set();
-  int _secondsRemaining = 60;
-  Timer? _countdownTimer;
-
   @override
   void initState() {
     super.initState();
     _loadCounts();
-    
+
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 120),
     );
-    
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    
+
+    _scaleAnimation =
+        Tween<double>(begin: 1.0, end: 0.9).animate(_animationController);
+
     _speech = stt.SpeechToText();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initSpeech();
+  }
+
+  /// ================= VOICE =================
+
+  void _startListening() async {
+    _processedTexts.clear();
+    _secondsRemaining = 600;
+    _lastSpeechTime = DateTime.now();
+    _startCountdown();
+    _startSilenceWatcher();
+
+    bool available = await _speech.initialize();
+    if (!available) return;
+
+    setState(() => _isListening = true);
+
+    _listeningTimer?.cancel();
+    _listeningTimer = Timer(_listeningDuration, _stopListening);
+
+    await _speech.listen(
+      localeId: 'ar-SA',
+      listenFor: _listeningDuration,
+      pauseFor: const Duration(seconds: 30),
+      partialResults: true,
+      onResult: (result) {
+        _lastSpeechTime = DateTime.now();
+        _processDhikr(result.recognizedWords);
+      },
+    );
+  }
+
+  void _startSilenceWatcher() {
+    _silenceTimer?.cancel();
+    _silenceTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (_lastSpeechTime != null &&
+          DateTime.now().difference(_lastSpeechTime!).inMinutes >= 5) {
+        _stopListening();
+      }
     });
   }
 
-  void _initSpeech() async {
-    try {
-      var status = await Permission.microphone.status;
-      
-      if (status.isDenied) {
-        if (Platform.isAndroid) {
-          await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Microphone Permission'),
-              content: Text('This app needs microphone access to recognize thekir'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await Permission.microphone.request();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          await Permission.microphone.request();
-        }
-        
-        status = await Permission.microphone.status;
-      }
-      
-      if (status.isPermanentlyDenied) {
-        await openAppSettings();
-        return;
-      }
-      
-      if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission required')),
-        );
-        return;
-      }
+  void _stopListening() {
+    _speech.stop();
+    _listeningTimer?.cancel();
+    _countdownTimer?.cancel();
+    _silenceTimer?.cancel();
 
-      bool available = await _speech.initialize(
-        onStatus: (status) => setState(() => _isListening = status == 'listening'),
-        onError: (error) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${error.errorMsg}')),
-        ),
-      );
-      
-      if (!available) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Speech recognition not available')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
+    setState(() {
+      _isListening = false;
+      _secondsRemaining = 600;
+    });
 
-  void _startListening() async {
-    try {
-      _processedTexts.clear();
-      _secondsRemaining = 60;
-      _startCountdown();
-      
-      bool available = await _speech.initialize();
-      if (!available) return;
-
-      _listeningTimer = Timer(_listeningDuration, _stopListening);
-      
-      await _speech.listen(
-        onResult: (result) => _processDhikr(result.recognizedWords),
-        localeId: 'ar-SA',
-        listenFor: _listeningDuration,
-        pauseFor: Duration(seconds: 3),
-        partialResults: true,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+    _processedTexts.clear();
   }
 
   void _startCountdown() {
     _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _countdownTimer =
+        Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
         setState(() => _secondsRemaining--);
       } else {
@@ -215,80 +181,39 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
   }
 
   void _processDhikr(String text) {
-    String cleanedText = text.trim();
-    
-    if (_processedTexts.contains(cleanedText)) return;
-    
-    bool canCount = _lastDhikrTime == null || 
+    String cleaned = text.trim();
+
+    if (_processedTexts.contains(cleaned)) return;
+
+    bool canCount = _lastDhikrTime == null ||
         DateTime.now().difference(_lastDhikrTime!) > _cooldownPeriod;
 
-    bool isDhikr = _dhikrPhrases.any((phrase) => 
-        cleanedText.contains(phrase) && canCount);
+    bool isDhikr =
+        cleaned.contains(_selectedWerd) && canCount;
 
     if (isDhikr) {
-      _processedTexts.add(cleanedText);
+      _processedTexts.add(cleaned);
       _lastDhikrTime = DateTime.now();
       incrementCounter();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-          content: Center(
-            child: Text('تم تسجيل الذكر: ${_getMatchedPhrase(cleanedText)}',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),)),
-          duration: Duration(seconds: 1),
-        ),
-      );
     }
   }
 
-  String _getMatchedPhrase(String text) {
-    return _dhikrPhrases.firstWhere((phrase) => text.contains(phrase),
-        orElse: () => 'ذكر');
-  }
-
-  void _stopListening() {
-    try {
-      _speech.stop();
-      _listeningTimer?.cancel();
-      _countdownTimer?.cancel();
-      setState(() {
-        _isListening = false;
-        _secondsRemaining = 60;
-      });
-      _processedTexts.clear();
-    } catch (e) {
-      print('Error stopping: $e');
-    }
-  }
-
-  Future<void> _loadCounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      counter = prefs.getInt('counter') ?? 0;
-      tasabehcount = prefs.getInt('tasabehcount') ?? 0;
-    });
-  }
-
-  Future<void> _saveCounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('counter', counter);
-    await prefs.setInt('tasabehcount', tasabehcount);
-  }
-
-  Future<void> _playSound() async {
-    await player.play(AssetSource('audios/counter100.m4a'), volume: 100);
-  }
+  /// ================= COUNTER =================
 
   void incrementCounter() {
-    _animationController.forward().then((_) => _animationController.reverse());
-    
+    _animationController.forward().then((_) {
+      _animationController.reverse();
+    });
+
     setState(() {
       counter++;
-      if (counter % 100 == 0) {
-        _playSound();
+      if (counter == _targetCount) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('أحسنت! وصلت إلى $_targetCount')),
+        );
       }
     });
+
     _saveCounts();
   }
 
@@ -302,10 +227,31 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
 
   void clearAll() {
     setState(() {
-      tasabehcount = 0;
       counter = 0;
+      tasabehcount = 0;
     });
     _saveCounts();
+  }
+
+  /// ================= STORAGE =================
+
+  Future<void> _loadCounts() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      counter = prefs.getInt('counter') ?? 0;
+      tasabehcount = prefs.getInt('tasabehcount') ?? 0;
+      _targetCount = prefs.getInt('targetCount') ?? 100;
+      _selectedWerd =
+          prefs.getString('selectedWerd') ?? 'سبحان الله';
+    });
+  }
+
+  Future<void> _saveCounts() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('counter', counter);
+    await prefs.setInt('tasabehcount', tasabehcount);
+    await prefs.setInt('targetCount', _targetCount);
+    await prefs.setString('selectedWerd', _selectedWerd);
   }
 
   @override
@@ -315,39 +261,35 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
     _speech.stop();
     _listeningTimer?.cancel();
     _countdownTimer?.cancel();
+    _silenceTimer?.cancel();
     super.dispose();
   }
 
+  /// ================= UI =================
+
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final screen = MediaQuery.of(context).size;
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    double circleSize =
+        isPortrait ? screen.width * 0.5 : screen.height * 0.4;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded ,
-          color: Theme.of(context).colorScheme.primary,),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          
-          'المسبحة الالكترونية',
-          style: GoogleFonts.robotoSlab(fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary,),
-        ),
+        title: const Text('المسبحة الالكترونية'),
         actions: [
           if (_isListening)
             Padding(
-              padding: EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 20),
               child: Center(
                 child: Text(
                   '$_secondsRemaining',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(
+                      fontSize: screen.width * 0.045),
                 ),
               ),
             ),
@@ -357,152 +299,225 @@ class _MasbahaElcState extends State<MasbahaElc> with SingleTickerProviderStateM
         onPressed: _isListening ? _stopListening : _startListening,
         child: Icon(_isListening ? Icons.mic_off : Icons.mic),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 20),
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+
+            const SizedBox(height: 20),
+
+            /// Styled Selection Container
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screen.width * 0.08),
+              child: Container(
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Text(
-                  '$counter',
-                  style: GoogleFonts.electrolize(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-              
-              SizedBox(height: 30),
-              
-              ScaleTransition(
-                scale: _scaleAnimation,
-                child: GestureDetector(
-                  onTap: incrementCounter,
-                  child: Container(
-                    width: isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
-                    height: isPortrait ? screenSize.width * 0.5 : screenSize.height * 0.5,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                          offset: Offset(0, 5)),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'اضغط',
-                        style: GoogleFonts.robotoSlab(
-                          color: Theme.of(context).colorScheme.inversePrimary,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              
-              SizedBox(height: 40),
-              
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                     ElevatedButton(
-                            onPressed: clear,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(screenSize.width * 0.03),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenSize.width * 0.05,
-                                vertical: screenSize.height * 0.015,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.restart_alt_rounded, 
-                                  color: Theme.of(context).colorScheme.inversePrimary, 
-                                  size: screenSize.height * 0.02,
-                                ),
-                                SizedBox(width: screenSize.width * 0.02),
-                                Text(
-                                  'إعادة',
-                                  style: GoogleFonts.robotoSlab(
-                                    color: Theme.of(context).colorScheme.inversePrimary,
-                                    fontSize: screenSize.height * 0.018,
-                                  ),
-                                ),
-                              ],
+
+                    SizedBox(
+  width: double.infinity,
+  child: DropdownButtonFormField<String>(
+    isExpanded: true, // 🔥 VERY IMPORTANT
+    value: _selectedWerd,
+    decoration: InputDecoration(
+      labelText: 'الذكر الحالي',
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      filled: true,
+      fillColor: Theme.of(context)
+          .colorScheme
+          .surface
+          .withOpacity(0.3),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    ),
+    items: _dhikrPhrases
+        .map(
+          (phrase) => DropdownMenuItem<String>(
+            value: phrase,
+            child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                phrase,
+                overflow: TextOverflow.ellipsis,
+                textDirection: TextDirection.rtl,
+                maxLines: 1,
+              ),
+            ),
+          ),
+        )
+        .toList(),
+    onChanged: (v) {
+      if (v == null) return;
+      setState(() => _selectedWerd = v);
+      _saveCounts();
+    },
+  ),
+),
+const SizedBox(height: 20),
+
+Text(
+  _selectedWerd,
+  textAlign: TextAlign.center,
+  style: GoogleFonts.tajawal(
+    fontSize: MediaQuery.of(context).size.width * 0.05,
+    fontWeight: FontWeight.w700,
+    color: Theme.of(context).colorScheme.primary,
+  ),
+),
+                    const SizedBox(height: 10),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'الهدف: $_targetCount',
+                            style: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                    
-                    GestureDetector(
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("إعادة الضبط"),
-                          content: Text("هل تريد إعادة الضبط الكلي؟"),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("إلغاء")),
-                            TextButton(
-                              onPressed: () {
-                                clearAll();
-                                Navigator.pop(context);
-                              },
-                              child: Text("تأكيد", style: TextStyle(color: Colors.red))),
-                          ],
                         ),
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                        DropdownButton<int>(
+                          value: _targetCount,
+                          items: [33, 66, 100, 200, 500]
+                              .map((t) => DropdownMenuItem(
+                                    value: t,
+                                    child: Text('$t'),
+                                  ))
+                              .toList(),
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _targetCount = v);
+                            _saveCounts();
+                          },
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.calculate ,color: Theme.of(context).colorScheme.primary,),
-                            SizedBox(width: 8),
-                            Text('المجموع: $tasabehcount',style: TextStyle(color: Theme.of(context).colorScheme.primary,),),
-                          ],
-                        ),
-                      ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    LinearProgressIndicator(
+                      value: _targetCount == 0
+                          ? 0.0
+                          : (counter / _targetCount)
+                              .clamp(0.0, 1.0)
+                              .toDouble(),
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ],
                 ),
               ),
-              
-              if (_isListening)
-                Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text(
-                    'جاري الاستماع...',
-                    style: TextStyle(color: Colors.green, fontSize: 18),
+            ),
+
+            const SizedBox(height: 30),
+
+            /// Counter Capsule
+            Container(
+              margin: EdgeInsets.symmetric(vertical: screen.height * 0.02),
+              padding: EdgeInsets.symmetric(
+                  horizontal: screen.width * 0.1,
+                  vertical: screen.height * 0.02),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.1),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Text(
+                '$counter',
+                style: GoogleFonts.electrolize(
+                  fontSize: screen.width * 0.1,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            /// Circle Button
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: GestureDetector(
+                onTap: incrementCounter,
+                child: Container(
+                  width: circleSize,
+                  height: circleSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.4),
+                        blurRadius: 15,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      'اضغط',
+                      style: TextStyle(
+                        fontSize: screen.width * 0.06,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .inversePrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            /// Responsive Buttons
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screen.width * 0.1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    child: ElevatedButton(
+                      onPressed: clear,
+                      child: const Text('إعادة'),
+                    ),
+                  ),
+                  Flexible(
+                    child: ElevatedButton(
+                      onPressed: clearAll,
+                      child: const Text('تصفير الكل'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            if (_isListening)
+              Text(
+                'جاري الاستماع...',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: screen.width * 0.045,
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -1,11 +1,12 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:athkary/pages/home_page.dart';
-import 'package:athkary/pages/masbahah_elc.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class Tasabeh extends StatefulWidget {
   @override
@@ -13,6 +14,13 @@ class Tasabeh extends StatefulWidget {
 }
 
 class _TasabehState extends State<Tasabeh> {
+
+  /// ------------------- VOICE SYSTEM -------------------
+  late stt.SpeechToText _speech;
+  bool isListening = false;
+  Timer? silenceTimer;
+  DateTime? lastSpeechTime;
+
   bool every30Min = false;
   bool every1Hour = false;
   bool every2Hours = false;
@@ -63,101 +71,76 @@ class _TasabehState extends State<Tasabeh> {
     10,  // الله أكبر كبيراً...
     10,  // الصلاة الإبراهيمية
   ];
-  int _notificationId = 100;
-
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
+  late List<int> _remainingTasbeehCounts;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
-    loadCustomNotifications();
-    loadSoundPreference();
+    _speech = stt.SpeechToText();
+    _remainingTasbeehCounts = List<int>.from(tasbeehTargetCounts);
   }
 
-  bool soundEnabled = true;
-
-Future<void> saveSoundPreference(bool enabled) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('soundEnabled', enabled);
-}
-
-Future<void> loadSoundPreference() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  soundEnabled = prefs.getBool('soundEnabled') ?? true;
-  setState(() {});
-}
-int _generateNotificationId() {
-  return DateTime.now().millisecondsSinceEpoch % 100000;
-}
-  Future<void> saveRecurringNotifications() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('every30Min', every30Min);
-  await prefs.setBool('every1Hour', every1Hour);
-  await prefs.setBool('every2Hours', every2Hours);
-}
-
-
-  Future<void> saveCustomNotifications() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> times = customNotifications.map((t) => "${t.hour}:${t.minute}").toList();
-  List<String> enabledList = isNotificationEnabled.map((e) => e.toString()).toList();
-
-  await prefs.setStringList('customNotifications', times);
-  await prefs.setStringList('isNotificationEnabled', enabledList);
-}
-
-
-Future<void> loadCustomNotifications() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  // Load custom notification times
-  List<String>? times = prefs.getStringList('customNotifications');
-  List<String>? enabledList = prefs.getStringList('isNotificationEnabled');
-
-  if (times != null && enabledList != null && times.length == enabledList.length) {
-    customNotifications = times.map((t) {
-      final parts = t.split(':');
-      return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-    }).toList();
-
-    isNotificationEnabled = enabledList.map((e) => e == 'true').toList();
-  } else {
-    // fallback in case something goes wrong
-    customNotifications = [];
-    isNotificationEnabled = [];
+  @override
+  void dispose() {
+    silenceTimer?.cancel();
+    super.dispose();
   }
 
-  // ✅ Load recurring switches
-  every30Min = prefs.getBool('every30Min') ?? false;
-  every1Hour = prefs.getBool('every1Hour') ?? false;
-  every2Hours = prefs.getBool('every2Hours') ?? false;
+  /// ------------------- VOICE FUNCTIONS -------------------
 
-  // ✅ update UI
-  if (mounted) {
-    setState(() {});
+  Future<void> startListening() async {
+    bool available = await _speech.initialize();
+    if (!available) return;
+
+    setState(() => isListening = true);
+    lastSpeechTime = DateTime.now();
+
+    _speech.listen(
+      listenFor: const Duration(minutes: 10), // Increased listening time
+      pauseFor: const Duration(minutes: 5),    // Auto pause if silence
+      onResult: (result) {
+        lastSpeechTime = DateTime.now();
+      },
+    );
+
+    silenceTimer?.cancel();
+    silenceTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (lastSpeechTime != null &&
+          DateTime.now().difference(lastSpeechTime!).inMinutes >= 5) {
+        stopListening();
+      }
+    });
   }
-}
 
+  void stopListening() {
+    silenceTimer?.cancel();
+    _speech.stop();
+    setState(() => isListening = false);
+  }
 
+  /// ------------------- TASBEEH LOGIC -------------------
 
-
-  void _animateItems() async {
-    for (int i = 0; i < theker1.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-      // await _scrollController.animateTo(
-      //   _scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 300),
-      //   curve: Curves.easeOut,
-      // );
+  void _decrementTasbeeh(int index) {
+    if (_remainingTasbeehCounts[index] > 0) {
+      setState(() {
+        _remainingTasbeehCounts[index]--;
+      });
     }
   }
-   @override
+
+  void _resetAllTasbeehCounts() {
+    setState(() {
+      _remainingTasbeehCounts = List<int>.from(tasbeehTargetCounts);
+    });
+  }
+
+  /// ------------------- UI -------------------
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -165,480 +148,137 @@ Future<void> loadCustomNotifications() async {
         title: Text(
           "تسابيح",
           style: GoogleFonts.tajawal(
-            fontSize: 24,
+            fontSize: width * 0.06,
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.primary,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color:theme.colorScheme.primary,
-          ),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: ((context) => HomePage())),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(notificationsEnabled
-                ? Icons.notifications_active
-                : Icons.notifications_off_outlined,
-                color: Theme.of(context).colorScheme.primary,),
-            onPressed: _showNotificationSettings,
-          ),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: AnimatedList(
-                key: _listKey,
-                controller: _scrollController,
-                initialItemCount: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                itemBuilder: (context, index, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.5),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutQuart,
-                      )),
-                      child: _buildThikrCard(context, index),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-          ],
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: theme.colorScheme.primary),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => HomePage()));
+          },
         ),
       ),
-    );
-  }
 
-  Widget _buildThikrCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-    final targetCount =
-        index < tasbeehTargetCounts.length ? tasbeehTargetCounts[index] : 100;
+      /// -------- BODY --------
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: theker1.length,
+        itemBuilder: (context, index) {
+          final target = tasbeehTargetCounts[index];
+          final remaining = _remainingTasbeehCounts[index];
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: ((context) => MasbahaElc())),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? const LinearGradient(
-                  colors: [Color(0xFF2E2E2E), Color(0xFF1C1C1C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : const LinearGradient(
-                  colors: [Color(0xFFEAF2F8), Color(0xFFDFECF2)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    Icons.self_improvement_rounded,
-                    color: isDarkMode
-                        ? theme.colorScheme.primary.withOpacity(0.65)
-                        : theme.colorScheme.surface,
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.65),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'العدد: $targetCount',
-                      style: GoogleFonts.tajawal(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.inversePrimary,
+          return GestureDetector(
+            onTap: () => _decrementTasbeeh(index),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: isDark
+                    ? const LinearGradient(
+                        colors: [Color(0xFF2E2E2E), Color(0xFF1C1C1C)],
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFFEAF2F8), Color(0xFFDFECF2)],
                       ),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 8,
+                    color: Colors.black12,
+                    offset: Offset(0, 4),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// Responsive header
+                  Row(
+                    children: [
+                      Icon(Icons.self_improvement_rounded,
+                          color: theme.colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color:
+                                theme.colorScheme.primary.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              remaining == 0
+                                  ? 'تم ✓'
+                                  : 'المتبقي: $remaining / $target',
+                              style: GoogleFonts.tajawal(
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  /// Responsive thikr text
+                  Text(
+                    theker1[index],
+                    textAlign: TextAlign.right,
+                    style: GoogleFonts.tajawal(
+                      fontSize: width * 0.05,
+                      height: 1.8,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    thekinfo1[index],
+                    textAlign: TextAlign.right,
+                    style: GoogleFonts.tajawal(
+                      fontSize: width * 0.038,
+                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                theker1[index],
-                textAlign: TextAlign.right,
-                style: GoogleFonts.tajawal(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  height: 1.8,
-                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                thekinfo1[index],
-                textAlign: TextAlign.right,
-                style: GoogleFonts.tajawal(
-                  fontSize: 14,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
-                ),
-              ),
-              Divider(
-                height: 20,
-                color: theme.colorScheme.primary.withOpacity(0.2),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'تسبيحة رقم ${index + 1}',
-                    style: GoogleFonts.tajawal(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
-
-  void _showNotificationSettings() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setModalState) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-            ),
-            padding: EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "إعدادات الإشعارات",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  _buildToggle(
-                     title: "تشغيل صوت الإشعارات",
-                     value: soundEnabled, onChanged: (value) {
-                     setModalState(() => soundEnabled = value);
-                     saveSoundPreference(value);
-                   },),
-
-
-                  // Recurring notification toggles
-                  _buildToggle(
-                    title: "كل نصف ساعة",
-                    value: every30Min,
-                    onChanged: (value) {
-                      setModalState(() => every30Min = value);
-                      _toggleRecurringNotification("30min", value, 30);
-                      saveRecurringNotifications();
-                    },
-                  ),
-                  _buildToggle(
-                    title: "كل ساعة",
-                    value: every1Hour,
-                    onChanged: (value) {
-                      setModalState(() => every1Hour = value);
-                      _toggleRecurringNotification("1hour", value, 60);
-                      saveRecurringNotifications();
-                    },
-                  ),
-                  _buildToggle(
-                    title: "كل ساعتين",
-                    value: every2Hours,
-                    onChanged: (value) {
-                      setModalState(() => every2Hours = value);
-                      _toggleRecurringNotification("2hours", value, 120);
-                      saveRecurringNotifications();
-                    },
-                  ),
-
-                  SizedBox(height: 20),
-
-                  // Custom notification toggles
-                  ...List.generate(customNotifications.length, (i) {
-                    return Container(
-                     margin: EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            " ${_formatTime(customNotifications[i])}",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-
-                          Row(
-                            children: [
-                              Switch(
-                                activeColor: Colors.green,
-                                inactiveTrackColor: Theme.of(context).colorScheme.primary,
-                                thumbColor: WidgetStateProperty.all(Colors.white),
-                                value: isNotificationEnabled[i],
-                                onChanged: (value) {
-                                  setModalState(() {
-                                    isNotificationEnabled[i] = value;
-                                  });
-                                  if (value) {
-                                    scheduleCustomNotification(
-                                      customNotifications[i],
-                                      _notificationId + i,
-                                    );
-                                  } else {
-                                    cancelNotification(_notificationId + i);
-                                  }
-                                  saveCustomNotifications(); // Save change
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  cancelNotification(_notificationId + i);
-                                  setModalState(() {
-                                    customNotifications.removeAt(i);
-                                    isNotificationEnabled.removeAt(i);
-                                  });
-                                  saveCustomNotifications(); // Save after delete
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-
-                  SizedBox(height: 20),
-
-                  // Add new custom time
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      TimeOfDay? picked = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
-                      if (picked != null &&
-                          !customNotifications.contains(picked)) {
-                        setModalState(() {
-                          customNotifications.add(picked);
-                          isNotificationEnabled.add(true);
-                        });
-                        scheduleCustomNotification(
-                          picked,
-                          _notificationId + customNotifications.length - 1,
-                        );
-                        saveCustomNotifications(); // Save after add
-                      }
-                    },
-                    icon: Icon(Icons.add),
-                    label: Text("إضافة وقت إشعار مخصص"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                SizedBox(height: 25,),
-                 SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-            "تم",
-            style: GoogleFonts.tajawal(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-                    ),
-                  ),
-                ),
-                 ],
-              ),
             ),
           );
         },
-      );
-    },
-  );
-}
-
-
-
-
-  Widget _buildToggle({
-    required String title,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title,
-              style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.primary)),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: Colors.green,
-            inactiveTrackColor: Theme.of(context).colorScheme.primary,
-            thumbColor: WidgetStateProperty.all(Colors.white),
-          ),
-        ],
+
+      /// -------- RESET BUTTON --------
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ElevatedButton.icon(
+          onPressed: _resetAllTasbeehCounts,
+          icon: const Icon(Icons.restart_alt),
+          label: const Text('إعادة تعيين'),
+        ),
+      ),
+
+      /// -------- VOICE BUTTON --------
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: isListening ? Colors.red : theme.colorScheme.primary,
+        onPressed: isListening ? stopListening : startListening,
+        child: Icon(isListening ? Icons.stop : Icons.mic),
       ),
     );
-  }
-
-  String _formatTime(TimeOfDay time) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    return DateFormat.jm().format(dt);
-  }
-
-  void _toggleRecurringNotification(
-      String tag, bool enable, int intervalMinutes) {
-    if (enable) {
-      AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: tag.hashCode,
-          channelKey: soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
-          title: getRandomThekrTitle(),
-          body: getRandomThekrBody(),
-          notificationLayout: NotificationLayout.Default,
-
-        ),
-        schedule: NotificationInterval(
-          interval: Duration(minutes: intervalMinutes),
-          timeZone: 'Asia/Amman',
-          repeats: true,
-        ),
-      );
-    } else {
-      AwesomeNotifications().cancel(tag.hashCode);
-    }
-  }
-
-  void scheduleCustomNotification(TimeOfDay time, int id) {
-    final now = DateTime.now();
-    final scheduledTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    final i = Random().nextInt(theker1.length);
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: id,
-        channelKey: soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
-        title: theker1[i],
-        body: thekinfo1[i],
-        notificationLayout: NotificationLayout.Default,
-      ),
-      schedule: NotificationCalendar(
-        hour: time.hour,
-        minute: time.minute,
-        second: 0,
-        millisecond: 0,
-        repeats: true,
-        timeZone: 'Asia/Amman',
-      ),
-    );
-  }
-
-  void cancelNotification(int id) {
-    AwesomeNotifications().cancel(id);
-  }
-
-  String getRandomThekrTitle() {
-    final i = Random().nextInt(theker1.length);
-    return theker1[i];
-  }
-
-  String getRandomThekrBody() {
-    final i = Random().nextInt(thekinfo1.length);
-    return thekinfo1[i];
   }
 }

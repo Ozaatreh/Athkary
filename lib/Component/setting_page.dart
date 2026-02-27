@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final sleepStart = TimeOfDay(hour: 22, minute: 0);
   final sleepEnd = TimeOfDay(hour: 6, minute: 0);
 
-  
+
   @override
 void initState() {
   super.initState();
@@ -72,7 +72,7 @@ void _loadSettings() async {
     _eveningTime = TimeOfDay(hour: eveningHour, minute: eveningMinute);
   });
 }
- 
+
  void scheduleSilentModeSwitches() {
   if (_enableSleepAthkar) {
     // At night (10 PM): switch to silent channels
@@ -170,7 +170,7 @@ void _shareAppLink() {
       appBar: AppBar(
         leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded)  ,
         color: Theme.of(context).colorScheme.primary, onPressed: () {
-          Navigator.pop(context); 
+          Navigator.pop(context);
            },),
         title:  Text('الاعدادات' ,
         style: TextStyle(
@@ -217,7 +217,7 @@ void _shareAppLink() {
               _cancelEveningNotification();
             }
           }),
-          
+
 
             // _buildSwitchTile('Enable Sleep Athkar', _enableSleepAthkar, (val) {
             //   setState(() =>{ });
@@ -337,16 +337,37 @@ void _shareAppLink() {
   }
 
   Widget _buildDropdownTile(String title, List<String> options, String selected, ValueChanged<String> onChanged) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: GoogleFonts.cairo(color: Theme.of(context).colorScheme.primary,)),
-        DropdownButton<String>(
+        Text(
+          title,
+          style: GoogleFonts.cairo(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
           value: selected,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+          icon: Icon(Icons.keyboard_arrow_down_rounded,
+              color: Theme.of(context).colorScheme.primary),
           items: options.map((String val) {
             return DropdownMenuItem<String>(
               value: val,
-              child: Text(val , style: TextStyle(color: Theme.of(context).colorScheme.primary,),),
+              child: Text(
+                val,
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              ),
             );
           }).toList(),
           onChanged: (String? newVal) {

@@ -35,103 +35,143 @@ class _QuranPagev2State extends State<QuranPagev2> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
-    final isDark = provider.isDarkMode;
-    final gold = isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Accent color (gold)
+    final gold = colors.secondary;
+
+    // Proper text color
+    final textColor = colors.onSurface;
 
     return Scaffold(
-      backgroundColor: isDark ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.inversePrimary,
-      appBar: _buildAppBar(context, provider, isDark, gold),
+      backgroundColor: colors.surface,
+      appBar: _buildAppBar(context, provider, isDark, gold, textColor),
       body: Stack(
         children: [
-          _buildPageView(provider, isDark, gold),
+          _buildPageView(provider, isDark, gold, textColor),
           if (provider.isPageLoading) _buildLoadingOverlay(),
-          _buildAudioBar(context, provider, isDark, gold),
+          _buildAudioBar(context, provider, isDark, gold, textColor),
         ],
       ),
     );
   }
 
-  AppBar _buildAppBar(BuildContext context, AppProvider provider, bool isDark, Color gold) {
+  AppBar _buildAppBar(
+      BuildContext context,
+      AppProvider provider,
+      bool isDark,
+      Color gold,
+      Color textColor) {
     final surahName = provider.currentPageAyahs.isNotEmpty
         ? provider.currentPageAyahs.first.surahName ?? ''
         : '';
 
     return AppBar(
-      backgroundColor: isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_rounded, color: gold),
+        icon: Icon(Icons.arrow_back_ios_rounded, color: textColor),
         onPressed: () => Navigator.pop(context),
       ),
       title: Column(
         children: [
           Text(
             surahName,
-            style: GoogleFonts.amiri(fontSize: 18, color: gold, fontWeight: FontWeight.bold),
+            style: GoogleFonts.amiri(
+              fontSize: 18,
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             'الصفحة ${provider.currentPage}',
-            style: GoogleFonts.cormorantGaramond(fontSize: 12, color: gold.withOpacity(0.7), letterSpacing: 1),
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: 12,
+              color: textColor.withOpacity(0.7),
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),
       actions: [
-        // Bookmark icon
         IconButton(
           icon: Icon(
             provider.isPageBookmarked(provider.currentPage)
                 ? Icons.bookmark_rounded
                 : Icons.bookmark_border_rounded,
-            color: gold,
+            color: textColor,
           ),
           onPressed: () {
             provider.bookmarkCurrentPage();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تم حفظ الصفحة ${provider.currentPage}', style: GoogleFonts.amiri()),
-                backgroundColor: Theme.of(context).colorScheme.primary,
+                content: Text(
+                  'تم حفظ الصفحة ${provider.currentPage}',
+                  style: GoogleFonts.amiri(),
+                ),
+                backgroundColor: gold,
                 duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             );
           },
         ),
-        // Scroll direction toggle
         IconButton(
-          icon: Icon(_isHorizontal ? Icons.swap_vert_rounded : Icons.swap_horiz_rounded, color: gold),
-          onPressed: () => setState(() => _isHorizontal = !_isHorizontal),
+          icon: Icon(
+            _isHorizontal
+                ? Icons.swap_vert_rounded
+                : Icons.swap_horiz_rounded,
+            color: textColor,
+          ),
+          onPressed: () =>
+              setState(() => _isHorizontal = !_isHorizontal),
           tooltip: 'تغيير اتجاه التمرير',
         ),
-        // Settings
         IconButton(
-          icon: Icon(Icons.settings_rounded, color: gold),
+          icon: Icon(Icons.settings_rounded, color: textColor),
           onPressed: () => showModalBottomSheet(
             context: context,
             backgroundColor: Colors.transparent,
             builder: (_) => const SettingsScreen(),
           ),
         ),
-        // Theme toggle
         IconButton(
-          icon: Icon(provider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded, color: gold),
+          icon: Icon(
+            provider.isDarkMode
+                ? Icons.light_mode_rounded
+                : Icons.dark_mode_rounded,
+            color: textColor,
+          ),
           onPressed: provider.toggleTheme,
         ),
       ],
     );
   }
 
-  Widget _buildPageView(AppProvider provider, bool isDark, Color gold) {
+  Widget _buildPageView(
+      AppProvider provider,
+      bool isDark,
+      Color gold,
+      Color textColor) {
     return GestureDetector(
       onHorizontalDragEnd: _isHorizontal
           ? (details) {
-              if (details.primaryVelocity! < -500) provider.goToNextPage();
-              if (details.primaryVelocity! > 500) provider.goToPreviousPage();
+              if (details.primaryVelocity! < -500)
+                provider.goToNextPage();
+              if (details.primaryVelocity! > 500)
+                provider.goToPreviousPage();
             }
           : null,
       onVerticalDragEnd: !_isHorizontal
           ? (details) {
-              if (details.primaryVelocity! < -500) provider.goToNextPage();
-              if (details.primaryVelocity! > 500) provider.goToPreviousPage();
+              if (details.primaryVelocity! < -500)
+                provider.goToNextPage();
+              if (details.primaryVelocity! > 500)
+                provider.goToPreviousPage();
             }
           : null,
       child: Container(
@@ -144,52 +184,59 @@ class _QuranPagev2State extends State<QuranPagev2> {
             opacity: 0.03,
           ),
         ),
-        child: _buildPageContent(provider, isDark, gold),
+        child: _buildPageContent(provider, isDark, gold, textColor),
       ),
     );
   }
 
-  Widget _buildPageContent(AppProvider provider, bool isDark, Color gold) {
-    if (provider.currentPageAyahs.isEmpty && !provider.isPageLoading) {
+  Widget _buildPageContent(
+      AppProvider provider,
+      bool isDark,
+      Color gold,
+      Color textColor) {
+    if (provider.currentPageAyahs.isEmpty &&
+        !provider.isPageLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline_rounded, color: gold, size: 48),
+            Icon(Icons.error_outline_rounded,
+                color: gold, size: 48),
             const SizedBox(height: 16),
             Text(
               provider.error ?? 'لم يتم تحميل البيانات',
-              style: GoogleFonts.amiri(color: gold, fontSize: 18),
+              style: GoogleFonts.amiri(
+                  color: textColor, fontSize: 18),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => provider.loadPage(provider.currentPage),
-              child: Text('إعادة المحاولة', style: GoogleFonts.amiri()),
+              onPressed: () =>
+                  provider.loadPage(provider.currentPage),
+              child:
+                  Text('إعادة المحاولة', style: GoogleFonts.amiri()),
             ),
           ],
         ),
       );
     }
 
-    // Group ayahs
     final ayahs = provider.currentPageAyahs;
-    final ayahsPerPage = provider.ayahsPerPage;
 
     return Column(
       children: [
-        // Page header ornament
-        _buildPageOrnament(provider.currentPage, gold, isDark),
-        // Ayahs content
+        _buildPageOrnament(provider.currentPage, gold),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+            padding:
+                const EdgeInsets.fromLTRB(16, 0, 16, 100),
             child: Column(
               children: [
-                // Bismillah if start of surah
-                if (ayahs.isNotEmpty && ayahs.first.numberInSurah == 1 && ayahs.first.surahNumber != 9)
-                  _buildBismillah(gold),
-                // Ayahs as flowing text with selectable spans
-                _buildAyahsText(ayahs, provider, isDark, gold),
+                if (ayahs.isNotEmpty &&
+                    ayahs.first.numberInSurah == 1 &&
+                    ayahs.first.surahNumber != 9)
+                  _buildBismillah(textColor),
+                _buildAyahsText(
+                    ayahs, provider, isDark, textColor),
               ],
             ),
           ),
@@ -198,7 +245,7 @@ class _QuranPagev2State extends State<QuranPagev2> {
     );
   }
 
-  Widget _buildPageOrnament(int page, Color gold, bool isDark) {
+  Widget _buildPageOrnament(int page, Color gold) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -207,14 +254,17 @@ class _QuranPagev2State extends State<QuranPagev2> {
           _ornamentLine(gold),
           const SizedBox(width: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              border: Border.all(color: gold.withOpacity(0.4)),
+              border:
+                  Border.all(color: gold.withOpacity(0.4)),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               '$page',
-              style: GoogleFonts.cormorantGaramond(color: gold, fontSize: 13, letterSpacing: 1),
+              style: GoogleFonts.cormorantGaramond(
+                  color: gold, fontSize: 13),
             ),
           ),
           const SizedBox(width: 12),
@@ -225,59 +275,54 @@ class _QuranPagev2State extends State<QuranPagev2> {
   }
 
   Widget _ornamentLine(Color gold) {
-    return Row(
-      children: [
-        Container(width: 40, height: 1, color: gold.withOpacity(0.3)),
-        const SizedBox(width: 4),
-        Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: gold.withOpacity(0.5))),
-        const SizedBox(width: 4),
-        Container(width: 20, height: 1, color: gold.withOpacity(0.3)),
-      ],
-    );
+    return Container(
+        width: 40,
+        height: 1,
+        color: gold.withOpacity(0.3));
   }
 
-  Widget _buildBismillah(Color gold) {
+  Widget _buildBismillah(Color textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        children: [
-          Text(
-            'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
-            style: GoogleFonts.amiri(
-              fontSize: 22,
-              color: gold,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-            textDirection: TextDirection.rtl,
-          ),
-          const SizedBox(height: 8),
-          Container(height: 1, color: gold.withOpacity(0.2)),
-        ],
+      child: Text(
+        'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
+        style: GoogleFonts.amiri(
+          fontSize: 19,
+          color: textColor,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.rtl,
       ),
     );
   }
 
-  Widget _buildAyahsText(List ayahs, AppProvider provider, bool isDark, Color gold) {
+  Widget _buildAyahsText(
+      List ayahs,
+      AppProvider provider,
+      bool isDark,
+      Color textColor) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Wrap(
         alignment: WrapAlignment.center,
-        children: ayahs.asMap().entries.map((entry) {
+        children:
+            ayahs.asMap().entries.map((entry) {
           final index = entry.key;
           final ayah = entry.value;
-          final isHighlighted = provider.currentAyahIndex == index;
-          final isSelected = provider.selectedAyahs.contains(index);
 
           return AyahWidget(
             ayah: ayah,
             index: index,
-            isHighlighted: isHighlighted,
-            isSelected: isSelected,
+            isHighlighted:
+                provider.currentAyahIndex == index,
+            isSelected:
+                provider.selectedAyahs.contains(index),
             fontSize: provider.ayahFontSize,
             isDark: isDark,
-            gold: gold,
-            onTap: () => provider.toggleAyahSelection(index),
+            gold: textColor,
+            onTap: () =>
+                provider.toggleAyahSelection(index),
           );
         }).toList(),
       ),
@@ -287,42 +332,57 @@ class _QuranPagev2State extends State<QuranPagev2> {
   Widget _buildLoadingOverlay() {
     return Container(
       color: Colors.black26,
-      child:  Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary)),
+      child: Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 
-  Widget _buildAudioBar(BuildContext context, AppProvider provider, bool isDark, Color gold) {
-    final hasSelection = provider.selectedAyahs.isNotEmpty;
-    
+  Widget _buildAudioBar(
+      BuildContext context,
+      AppProvider provider,
+      bool isDark,
+      Color gold,
+      Color textColor) {
+    final hasSelection =
+        provider.selectedAyahs.isNotEmpty;
+
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding:
+            const EdgeInsets.fromLTRB(16, 12, 16, 24),
         decoration: BoxDecoration(
-          color: (isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inversePrimary).withOpacity(0.95),
-          border: Border(top: BorderSide(color: gold.withOpacity(0.2))),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, -4)),
-          ],
+          color: Theme.of(context)
+              .colorScheme
+              .surface
+              .withOpacity(0.95),
+          border: Border(
+              top: BorderSide(
+                  color: gold.withOpacity(0.2))),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
           children: [
-            // Previous page
-            _navButton(Icons.skip_previous_rounded, provider.goToPreviousPage, gold),
-            // Selection info
+            _navButton(Icons.skip_previous_rounded,
+                provider.goToPreviousPage, textColor),
             if (hasSelection)
               TextButton.icon(
                 onPressed: provider.clearSelection,
-                icon: Icon(Icons.close_rounded, size: 16, color: gold.withOpacity(0.7)),
+                icon: Icon(Icons.close_rounded,
+                    size: 16,
+                    color: textColor.withOpacity(0.7)),
                 label: Text(
                   '${provider.selectedAyahs.length} آيات',
-                  style: GoogleFonts.amiri(color: gold),
+                  style: GoogleFonts.amiri(
+                      color: textColor),
                 ),
               ),
-            // Play/Stop button
             GestureDetector(
               onTap: provider.playSelectedOrAll,
               child: Container(
@@ -330,35 +390,29 @@ class _QuranPagev2State extends State<QuranPagev2> {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: provider.isPlaying
-                        ? [Theme.of(context).colorScheme.onPrimary, Theme.of(context).colorScheme.onPrimary.withOpacity(0.7)]
-                        : [gold, gold.withOpacity(0.7)],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (provider.isPlaying ? Theme.of(context).colorScheme.onPrimary : gold).withOpacity(0.4),
-                      blurRadius: 16,
-                      spreadRadius: 2,
-                    ),
-                  ],
+                  color: gold,
                 ),
                 child: Icon(
-                  provider.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                  color: isDark ? Theme.of(context).colorScheme.inversePrimary : Colors.white,
+                  provider.isPlaying
+                      ? Icons.stop_rounded
+                      : Icons.play_arrow_rounded,
+                  color: Colors.white,
                   size: 32,
                 ),
               ),
             ),
-            // Next page
-            _navButton(Icons.skip_next_rounded, provider.goToNextPage, gold),
+            _navButton(Icons.skip_next_rounded,
+                provider.goToNextPage, textColor),
           ],
         ),
       ),
     );
   }
 
-  Widget _navButton(IconData icon, VoidCallback onTap, Color gold) {
+  Widget _navButton(
+      IconData icon,
+      VoidCallback onTap,
+      Color textColor) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -366,9 +420,11 @@ class _QuranPagev2State extends State<QuranPagev2> {
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: gold.withOpacity(0.3)),
+          border: Border.all(
+              color: textColor.withOpacity(0.3)),
         ),
-        child: Icon(icon, color: gold, size: 22),
+        child: Icon(icon,
+            color: textColor, size: 22),
       ),
     );
   }

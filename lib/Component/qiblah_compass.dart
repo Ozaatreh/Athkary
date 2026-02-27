@@ -90,8 +90,7 @@ double _directionThreshold = 5.0;
       final position = await Geolocator.getCurrentPosition();
       if (!mounted) return;
       setState(() {
-        _locationText =
-            'الموقع الحالي: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+        _locationText = 'الموقع الحالي مفعل';
       });
     } catch (_) {
       if (!mounted) return;
