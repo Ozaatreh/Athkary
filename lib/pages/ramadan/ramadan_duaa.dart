@@ -1,16 +1,17 @@
-import 'package:athkary/pages/ramadan/ramadan_100duaa.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RamadanDuaa extends StatefulWidget {
+  const RamadanDuaa({super.key});
+
   @override
-  _RamadanDuaaState createState() => _RamadanDuaaState();
+  State<RamadanDuaa> createState() => _RamadanDuaaState();
 }
 
 class _RamadanDuaaState extends State<RamadanDuaa>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
 
   final List<Map<String, String>> duaas = [
     {
@@ -60,7 +61,62 @@ class _RamadanDuaaState extends State<RamadanDuaa>
     {
       "title": "استجلاب الرزق",
       "description": "اللهم إن كان رزقي في السماء فأهبطه وإن كان في الأرض فأظهره وإن كان بعيدا فقربه وإن كان قريبا فيسره وإن كان قليلا فكثره وبارك اللهم فيه"
-    }
+    },
+    {
+    "title": "دعاء عند الإفطار",
+    "description":
+        "ذهب الظمأ وابتلت العروق وثبت الأجر إن شاء الله."
+  },
+  {
+    "title": "طلب القبول في رمضان",
+    "description":
+        "اللهم تقبل منا صيامنا وقيامنا وصالح أعمالنا، واكتبنا من عتقائك من النار، واجعلنا من المقبولين."
+  },
+  {
+    "title": "دعاء ليلة القدر",
+    "description":
+        "اللهم إنك عفو كريم تحب العفو فاعفُ عني."
+  },
+  {
+    "title": "طلب الهداية والثبات",
+    "description":
+        "اللهم يا مقلب القلوب ثبت قلبي على دينك، اللهم اهدني وسددني، واجعلني من عبادك الصالحين."
+  },
+  {
+    "title": "دعاء تفريج الهم",
+    "description":
+        "اللهم إني عبدك ابن عبدك ابن أمتك، ناصيتي بيدك، ماضٍ فيّ حكمك، عدلٌ فيّ قضاؤك، أسألك بكل اسم هو لك أن تجعل القرآن ربيع قلبي ونور صدري وجلاء حزني وذهاب همي."
+  },
+  {
+    "title": "طلب حسن الخاتمة",
+    "description":
+        "اللهم أحسن خاتمتي في الأمور كلها، وأجرني من خزي الدنيا وعذاب الآخرة."
+  },
+  {
+    "title": "دعاء صلاح القلب",
+    "description":
+        "اللهم طهر قلبي من النفاق، وعملي من الرياء، ولساني من الكذب، وعيني من الخيانة، إنك تعلم خائنة الأعين وما تخفي الصدور."
+  },
+  {
+    "title": "طلب البركة في الوقت",
+    "description":
+        "اللهم بارك لي في وقتي، وأعني على ذكرك وشكرك وحسن عبادتك، واجعل أيامي شاهدة لي لا عليّ."
+  },
+  {
+    "title": "دعاء قضاء الدين",
+    "description":
+        "اللهم اكفني بحلالك عن حرامك، وأغنني بفضلك عمن سواك."
+  },
+  {
+    "title": "دعاء طلب الرحمة",
+    "description":
+        "رب اغفر لي وارحمني واهدني وعافني وارزقني، إنك أنت الغفور الرحيم."
+  },
+  {
+    "title": "دعاء السكينة",
+    "description":
+        "اللهم أنزل على قلبي سكينة من عندك، واملأ صدري طمأنينة ورضاً، واجعلني بك مطمئناً."
+  },
   ];
 
   @override
@@ -68,115 +124,167 @@ class _RamadanDuaaState extends State<RamadanDuaa>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 25,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.primary, );
-
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-            icon:  Icon(Icons.arrow_back_ios_new_rounded , color: Theme.of(context).colorScheme.primary,),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        title: Text("أدعية رمضان" , style: textStyle1,)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: duaas.length,
-                itemBuilder: (context, index) {
-                  return _buildExpansionTile(
-                    context,
-                    question: duaas[index]["title"]!,
-                    answer: duaas[index]["description"]!,
-                  );
-                },
-              ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
             ),
-          //   Card(
-          //   color: Theme.of(context).colorScheme.primary,
-          //   child: ListTile(
-          //     title: Center(
-          //       child: Text(
-          //         "١٠٠   دعاء",
-          //         style: GoogleFonts.amiri(fontSize: 18, fontWeight: FontWeight.bold
-          //         , color:Theme.of(context).colorScheme.inversePrimary),
-          //       ),
-          //     ),
-          //     onTap: () {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(builder: (context) => DuaaPdfViewerScreen(pdfPath: 'assets/pdfs/يا باغي الدعاء.pdf',)),
-          //       );
-          //     },
-          //   ),
-          // ),
-          ],
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+
+                /// ================= HEADER =================
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "أدعية رمضان",
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ================= LIST =================
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: duaas.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / duaas.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildExpansionTile(
+                            question:
+                                duaas[index]["title"]!,
+                            answer:
+                                duaas[index]["description"]!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildExpansionTile(BuildContext context,
-      {required String question, required String answer}) {
-    
-    final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 23,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        color: Theme.of(context).colorScheme.primary,
-        margin: const EdgeInsets.only(bottom: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+  Widget _buildExpansionTile({
+    required String question,
+    required String answer,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
-          iconColor: Theme.of(context).colorScheme.inversePrimary,
-          collapsedIconColor: Theme.of(context).colorScheme.inversePrimary ,
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
           title: Text(
             question,
-            style: textStyle2,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                answer,
-                style: textStyle3,
-                strutStyle: StrutStyle(height: 3),
-                textAlign: TextAlign.justify,
+            Text(
+              answer,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
               ),
+              textAlign: TextAlign.justify,
             ),
           ],
         ),

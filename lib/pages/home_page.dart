@@ -6,7 +6,9 @@ import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/pages/quranv2/quran_page_screen.dart';
 import 'package:athkary/pages/quranv2/quranv2hc.dart';
 import 'package:athkary/pages/ramadan/ramadan_navs.dart';
+import 'package:athkary/services/prayer_time_service.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -51,6 +53,8 @@ class _HomePageState extends State<HomePage> {
   Timer? _timer;
   String athanSound = 'audios/athan_islam_sobhi.mp3';
   Map<String, String> prayerTimes = {};
+  String _nextPrayerName = "";
+  Duration _timeLeft = Duration.zero;
   final List<Map<String, dynamic>> defaultFeatures = [
     {
       'title': 'القرآن الكريم',
@@ -142,19 +146,23 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _features = [];
 
   @override
-  void initState() {
-    super.initState();
-    _calculatePrayerTimes();
+void initState() {
+  super.initState();
+  _initializeHome();
+}
+  Future<void> _initializeHome() async {
+  await _calculatePrayerTimes();
+  _updateCurrentPrayer();
+  _loadUserFeatures();
+
+  _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    await _calculatePrayerTimes();
     _updateCurrentPrayer();
-    _loadUserFeatures();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      _calculatePrayerTimes();
-      _updateCurrentPrayer();
-      _checkAndLaunchAthan();
-      _checkForUpdate();
-    });
-  }
-  
+    _checkAndLaunchAthan();
+    _checkForUpdate();
+    _updateNextPrayer(); 
+  });
+}
   Future<void> _checkForUpdate() async {
   final remoteConfig = FirebaseRemoteConfig.instance;
   
@@ -254,54 +262,64 @@ void _showUpdateDialog(String updateUrl) {
     super.dispose();
   }
 
-  void _calculatePrayerTimes() {
-    final params = CalculationMethod.muslim_world_league.getParameters();
-    final coords = Coordinates(31.9539, 35.9106);
-    final today = DateTime.now();
-    final times = PrayerTimes(
-      coords,
-      DateComponents(today.year, today.month, today.day),
-      params,
-    );
+ Future<void> _calculatePrayerTimes() async {
+  final prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      _prayerTimes = {
-        "الفجر": DateFormat.jm().format(times.fajr),
-        "الشروق": DateFormat.jm().format(times.sunrise),
-        "الظهر": DateFormat.jm().format(times.dhuhr),
-        "العصر": DateFormat.jm().format(times.asr),
-        "المغرب":
-            DateFormat.jm().format(times.maghrib.add(Duration(minutes: 4))),
-        "العشاء": DateFormat.jm().format(times.isha.add(Duration(minutes: 5))),
-      };
-    });
-  }
+  final lat = prefs.getDouble('latitude') ?? 31.9539;
+  final lon = prefs.getDouble('longitude') ?? 35.9106;
 
-  void _updateNextPrayer() {
-    final now = DateTime.now();
-    final prayerKeys = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];
-    DateTime? nextPrayerDateTime;
-    String? nextPrayerName;
+  final rawTimes = PrayerTimeService.getPrayerTimes(
+    latitude: lat,
+    longitude: lon,
+  );
 
-    for (var prayer in prayerKeys) {
-      if (prayerTimes[prayer] != null) {
-        try {
-          DateTime prayerTime = DateFormat.jm().parse(prayerTimes[prayer]!);
-          prayerTime = DateTime(
-              now.year, now.month, now.day, prayerTime.hour, prayerTime.minute);
+  final formatted =
+      PrayerTimeService.formatPrayerTimes(rawTimes);
 
-          if (prayerTime.isAfter(now)) {
-            nextPrayerDateTime = prayerTime;
-            nextPrayerName = prayer;
-            break;
-          }
-        } catch (e) {
-          print(
-              "Error parsing prayer time for $prayer: ${prayerTimes[prayer]} - $e");
-        }
-      }
+  setState(() {
+    _prayerTimes = formatted;
+  });
+}
+void _updateNextPrayer() async {
+  final prefs = await SharedPreferences.getInstance();
+  final lat = prefs.getDouble('latitude') ?? 31.9539;
+  final lon = prefs.getDouble('longitude') ?? 35.9106;
+
+  final rawTimes = PrayerTimeService.getPrayerTimes(
+    latitude: lat,
+    longitude: lon,
+  );
+
+  final now = DateTime.now();
+
+  DateTime? nextPrayerTime;
+  String? nextName;
+
+  for (var entry in rawTimes.entries) {
+    if (entry.value.isAfter(now)) {
+      nextPrayerTime = entry.value;
+      nextName = entry.key;
+      break;
     }
   }
+
+  // If no prayer left today → tomorrow fajr
+  if (nextPrayerTime == null) {
+    final tomorrow = now.add(const Duration(days: 1));
+    final tomorrowTimes = PrayerTimeService.getPrayerTimes(
+      latitude: lat,
+      longitude: lon,
+      date: tomorrow,
+    );
+    nextPrayerTime = tomorrowTimes["الفجر"];
+    nextName = "الفجر";
+  }
+
+  setState(() {
+    _nextPrayerName = nextName!;
+    _timeLeft = nextPrayerTime!.difference(now);
+  });
+}
 
   void _updateCurrentPrayer() {
     final now = DateTime.now();
@@ -404,101 +422,146 @@ void _showUpdateDialog(String updateUrl) {
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, double screenWidth, double screenHeight) {
-    return Container(
-      height: screenHeight * 0.5,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
+  Widget _buildHeroSection(
+    BuildContext context,
+    double screenWidth,
+    double screenHeight) {
+
+  final cards = [
+    _buildImageCard(screenWidth, screenHeight),
+    _buildNextPrayerCard(screenWidth, screenHeight),
+  ];
+
+  return SizedBox(
+    height: screenHeight * 0.5,
+    child: CardSwiper(
+      cardsCount: cards.length,
+      cardBuilder: (context, index, _, __) => cards[index],
+    ),
+  );
+}
+ Widget _buildImageCard(double screenWidth, double screenHeight) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(20),
+    child: Image.asset(
+      'assets/images/athk_pic3.png',
+      fit: BoxFit.cover,
+    ),
+  );
+}
+Widget _buildNextPrayerCard(
+    double screenWidth,
+    double screenHeight) {
+
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(25),
+      gradient: const LinearGradient(
+        colors: [
+          Color(0xFF0E5A2F),
+          Color(0xFF145A32),
         ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: LiquidSwipe(
-          pages: [
-            // Image Page
-            Container(
-              width: screenWidth,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/athk_pic3.png'),
-                  fit: BoxFit.cover,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.25),
+          blurRadius: 15,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    ),
+    child: Stack(
+      children: [
+
+        /// Decorative moon circle
+        Positioned(
+          top: -40,
+          right: -40,
+          child: Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.05),
+            ),
+          ),
+        ),
+
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              Text(
+                "الصلاة القادمة",
+                style: GoogleFonts.tajawal(
+                  fontSize: screenWidth * 0.055,
+                  color: Colors.white70,
                 ),
               ),
-            ),
-            
-            // Prayer Times Page
-            Container(
-              color: Theme.of(context).colorScheme.primary ,
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'أوقات الصلاة',
-                    style: GoogleFonts.tajawal(
-                      fontSize: screenWidth * 0.06,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Expanded(
-                    child: ListView.separated(
-                      itemCount: _prayerTimes.length,
-                      separatorBuilder: (_, __) => Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final entry = _prayerTimes.entries.elementAt(index);
-                        final isCurrent = entry.key == _currentPrayer;
-                        return ListTile(
-                          leading: Icon(
-                            Icons.access_time,
-                            color: isCurrent 
-                                ? Theme.of(context).colorScheme.inversePrimary
-                                : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.6),
-                          ),
-                          title: Text(
-                            entry.key,
-                            style: GoogleFonts.tajawal(
-                              fontSize: screenWidth * 0.045,
-                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                              color: Theme.of(context).colorScheme.inversePrimary,
-                            ),
-                          ),
-                          trailing: Text(
-                            entry.value,
-                            style: GoogleFonts.tajawal(
-                              fontSize: screenWidth * 0.045,
-                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                              color: Theme.of(context).colorScheme.inversePrimary,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          fullTransitionValue: 700,
-          slideIconWidget: Icon(
-            Icons.swipe_left,
-            size: 16,
-            color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-          positionSlideIcon: 0.1,
-          waveType: WaveType.liquidReveal,
-        ),
-      ),
-    );
-  }
 
+              const SizedBox(height: 20),
+
+              /// Circular Highlight
+              Container(
+                width: screenWidth * 0.4,
+                height: screenWidth * 0.4,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3,
+                  ),
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.2),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    _nextPrayerName,
+                    style: GoogleFonts.tajawal(
+                      fontSize: screenWidth * 0.07,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              Text(
+                "${_timeLeft.inHours.toString().padLeft(2, '0')} : "
+                "${_timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0')} : "
+                "${_timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0')}",
+                style: GoogleFonts.tajawal(
+                  fontSize: screenWidth * 0.065,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                "متبقي على الأذان",
+                style: GoogleFonts.tajawal(
+                  fontSize: screenWidth * 0.04,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildFeaturesGrid(BuildContext context, double screenWidth, double screenHeight) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

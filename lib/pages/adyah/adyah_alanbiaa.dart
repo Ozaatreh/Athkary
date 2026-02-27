@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,9 @@ class AdyahAlanbiaa extends StatefulWidget {
   State<AdyahAlanbiaa> createState() => _AdyahAlanbiaaState();
 }
 
-class _AdyahAlanbiaaState extends State<AdyahAlanbiaa> {
-   
+class _AdyahAlanbiaaState extends State<AdyahAlanbiaa>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
    // List of Quranic verses
   List<Map<String, String>> adyahAlanbiaa = [
            {
@@ -109,166 +111,181 @@ class _AdyahAlanbiaaState extends State<AdyahAlanbiaa> {
     "reference": "[يوسف - 86]"
   },
   ];
-
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < adyahAlanbiaa.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-      // await _scrollController.animateTo(
-      //   _scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 300),
-      //   curve: Curves.easeOut,
-      // );
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          "أدعية الأنبياء",
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "أدعية الأنبياء",
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: adyahAlanbiaa.length,
+                    itemBuilder: (context, index) {
+                      final dua = adyahAlanbiaa[index];
+
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / adyahAlanbiaa.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildTile(dua),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            final dua = adyahAlanbiaa[index];
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildDuaCard(context, dua, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildDuaCard(BuildContext context, Map<String, String> dua, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildTile(Map<String, String> dua) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+        ),
       ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+      child: Theme(
+        data: ThemeData().copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                dua["name"] ?? "غير معروف",
+                style: GoogleFonts.amiri(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.right,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                dua["reference"] ?? "",
+                style: GoogleFonts.amiri(
+                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ],
+          ),
           children: [
             Text(
-              dua["name"] ?? "غير معروف",
-              textAlign: TextAlign.right,
-              style: GoogleFonts.tajawal(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : theme.colorScheme.surface,
+              dua["ayah"] ?? "لا يوجد دعاء",
+              style: GoogleFonts.amiri(
+                fontSize: 22,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              dua["reference"] ?? "",
-              textAlign: TextAlign.right,
-              style: GoogleFonts.tajawal(
-                fontSize: 14,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-              ),
+              textAlign: TextAlign.justify,
             ),
           ],
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                dua["ayah"] ?? "لا يوجد دعاء",
-                textAlign: TextAlign.justify,
-                style: GoogleFonts.tajawal(
-                  fontSize: 20,
-                  height: 1.6,
-                  color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-                ),
-              ),
-            ),
-          ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
       ),
     );
   }

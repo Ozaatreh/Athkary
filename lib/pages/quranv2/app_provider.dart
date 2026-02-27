@@ -118,73 +118,59 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSurahs() async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-      _surahs = await _quranService.getSurahs();
+  try {
+    _isLoading = true;
+    notifyListeners();
 
-      // Build static juz-surah mapping
-      _juzSurahMap = _buildJuzMap();
+    _surahs = await _quranService.getSurahs();
 
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
+    final juzMapNumbers =
+        await _quranService.getJuzSurahNumbers();
 
-  Map<int, List<Surah>> _buildJuzMap() {
-    // Static juz-surah mapping based on Quran structure
-    const juzSurahRanges = {
-      1: [1, 2], 2: [2, 3], 3: [3, 4], 4: [4, 5], 5: [5, 6],
-      6: [6, 7], 7: [7, 8, 9], 8: [9, 10], 9: [10, 11, 12],
-      10: [12, 13, 14, 15], 11: [15, 16, 17], 12: [17, 18, 19],
-      13: [19, 20, 21, 22], 14: [22, 23, 24, 25], 15: [25, 26, 27],
-      16: [27, 28, 29, 30, 31, 32, 33], 17: [33, 34, 35, 36, 37, 38, 39],
-      18: [39, 40, 41, 42, 43, 44, 45, 46], 19: [46, 47, 48, 49, 50, 51],
-      20: [51, 52, 53, 54, 55, 56, 57], 21: [57, 58, 59, 60, 61, 62, 63, 64, 65, 66],
-      22: [66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77],
-      23: [77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      24: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      25: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      26: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      27: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      28: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      29: [98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      30: [78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-    };
+    _juzSurahMap = {};
 
-    // Better approach: use proper juz-surah mapping
-    final Map<int, List<int>> properJuzMap = {
-      1: [1, 2], 2: [2, 3], 3: [3, 4], 4: [4, 5], 5: [5, 6],
-      6: [6, 7], 7: [7, 8, 9], 8: [9, 10], 9: [10, 11, 12],
-      10: [12, 13, 14, 15], 11: [15, 16, 17], 12: [17, 18, 19],
-      13: [19, 20, 21, 22], 14: [22, 23, 24, 25], 15: [25, 26, 27],
-      16: [27, 28, 29, 30, 31, 32, 33], 17: [33, 34, 35, 36, 37, 38, 39],
-      18: [39, 40, 41, 42, 43, 44, 45, 46], 19: [46, 47, 48, 49, 50, 51],
-      20: [51, 52, 53, 54, 55, 56, 57], 21: [57, 58, 59, 60, 61, 62, 63, 64, 65, 66],
-      22: [66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77],
-      23: [77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97],
-      24: [97, 98, 99, 100, 101, 102, 103, 104, 105, 106],
-      25: [106, 107, 108, 109, 110, 111, 112, 113, 114],
-      26: [107, 108, 109, 110, 111, 112, 113, 114],
-      27: [107, 108, 109, 110, 111, 112, 113, 114],
-      28: [107, 108, 109, 110, 111, 112, 113, 114],
-      29: [107, 108, 109, 110, 111, 112, 113, 114],
-      30: [78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-    };
-
-    Map<int, List<Surah>> result = {};
-    for (int juz = 1; juz <= 30; juz++) {
-      final surahNums = properJuzMap[juz] ?? [];
-      result[juz] = _surahs
-          .where((s) => surahNums.contains(s.number))
+    juzMapNumbers.forEach((juz, surahNumbers) {
+      _juzSurahMap[juz] = _surahs
+          .where((s) => surahNumbers.contains(s.number))
           .toList();
-    }
-    return result;
+    });
+
+    _isLoading = false;
+    notifyListeners();
+  } catch (e) {
+    _error = e.toString();
+    _isLoading = false;
+    notifyListeners();
   }
+}
+
+//  Future<Map<int, List<Surah>>> _buildJuzMapFromAyahs() async {
+//   final allAyahs = await _quranService.getAllAyahs();
+
+//   final Map<int, Set<int>> juzToSurahNumbers = {};
+
+//   for (var ayah in allAyahs) {
+//     final juz = ayah.juz;
+//     final surahNumber = ayah.surahNumber;
+
+//     if (!juzToSurahNumbers.containsKey(juz)) {
+//       juzToSurahNumbers[juz] = {};
+//     }
+
+//     juzToSurahNumbers[juz]!.add(surahNumber);
+//   }
+
+//   final Map<int, List<Surah>> result = {};
+
+//   for (int juz = 1; juz <= 30; juz++) {
+//     final numbers = juzToSurahNumbers[juz] ?? {};
+//     result[juz] = _surahs
+//         .where((s) => numbers.contains(s.number))
+//         .toList();
+//   }
+
+//   return result;
+// }
 
   Future<void> loadPage(int page) async {
     if (page < 1 || page > 604) return;
@@ -214,18 +200,10 @@ class AppProvider extends ChangeNotifier {
     if (_currentPage > 1) await loadPage(_currentPage - 1);
   }
 
-  Future<void> navigateToSurah(int surahNumber) async {
-    // Find the page of first ayah in this surah
-    try {
-      final detail = await _quranService.getSurahDetail(surahNumber);
-      if (detail.ayahs.isNotEmpty) {
-        await loadPage(detail.ayahs.first.page);
-      }
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-    }
-  }
+  Future<void> navigateToJuz(int juzNumber) async {
+  final page = await _quranService.getFirstPageOfJuz(juzNumber);
+  await loadPage(page);
+}
 
   void toggleAyahSelection(int index) {
     if (_selectedAyahs.contains(index)) {

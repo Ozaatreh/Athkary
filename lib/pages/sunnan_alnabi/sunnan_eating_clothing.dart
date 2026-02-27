@@ -10,199 +10,270 @@ class ClothingAndEatingSunnahsScreen extends StatefulWidget {
 }
 
 class _ClothingAndEatingSunnahsScreenState
-    extends State<ClothingAndEatingSunnahsScreen> {
-  final List<Map<String, String>> clothingAndEatingSunnahs = const [
-    {
-      'title': 'الدعاء عند لبس ثوب جديد',
-      'description':
-          'عن أبي سعيد الخدري ـ رضي الله عنه ـ قال: كان رسول الله ـ صلى الله عليه وسلم ـ إذا استجد ثوبا سماه باسمه : إما قميصا ، أو عمامة، ثم يقول: (( اللهم لك الحمد ، أنت كسوتنيه ، أسألك من خيره ، وخير ما صنع له ، وأعوذ بك من شره، وشر ما صنع له )) [ رواه أبو داود: 4020 ].',
-    },
-    {
-      'title': 'لبس النعل باليمين',
-      'description':
-          'عن أبي هريرة ـ رضي الله عنه ـ قـال: قـال رسـول الله صلى الله عليه وسلم : (( إذا انتعل أحدكم فليبدأ باليمنى ، وإذا خلع فليبدأ بالشمال، ولينعلهما جميعًا، أو ليخلعهما جميعًا )) [ متفق عليه:5855 - 5495 ].',
-    },
-    {
-      'title': 'التسمية عند الأكل',
-      'description':
-          'عن عمر بن أبي سلمة ـ رضي الله عنه ـ قال: كنت في حجر رسول الله ـ صلى الله عليه وسلم ـ وكانت يدي تطيش في الصحفة ، فقال لي: (( يا غلام سم الله ، وكل بيمينك، وكل مما يليك )) [ متفق عليه: 5376 - 5269 ].',
-    },
-    {
-      'title': 'حمد الله بعد الأكل والشرب',
-      'description':
-          'عن أنس بن مالك ـ رضي الله عنه ـ قال: قال رسول الله صلى الله عليه وسلم : (( إن الله ليرضى عن العبد أن يأكل الأكلة فيحمده عليها ، أو يشرب الشربة فيحمده عليها )) [ رواه مسلم: 6932 ].',
-    },
-    {
-      'title': 'الجلوس عند الشرب',
-      'description':
-          'عن أنس رضي الله عنه ، عن النبي صلى الله عليه وسلم : (( أنه نهى أن يشرب الرجل قائمًا )) [ رواه مسلم: 5275 ].',
-    },
-    {
-      'title': 'المضمضة من اللبن',
-      'description':
-          'عن ابن عباس رضي الله عنه ،أن رسول الله ـ صلى الله عليه وسلم ـ شرب لبنًا فمضمض، وقال: (( إن له دسمًا )) [ متفق عليه:798- 5609 ].',
-    },
-    {
-      'title': 'عدم عيب الطعام',
-      'description':
-          'عن أبي هريرة ـ رضي الله عنه ـ قال: (( ما عاب رسول الله ـ صلى الله عليه وسلم ـ طعامًا قط ، كان إذا اشتهاه أكله ، وإن كرهه تركه )) [ متفق عليه:5409 - 5380 ].',
-    },
-    {
-      'title': 'الأكل بثلاثة أصابع',
-      'description':
-          'عن كعب بن مال ـ رضي الله عنه ـ قال: (( كان رسول الله ـ صلى الله عليه وسلم ـ يأكل بثلاث أصابع ، ويلعق يده قبل أن يمسحها )) [ رواه مسلم: 5297 ].',
-    },
-    {
-      'title': 'الشرب والاستشفاء من ماء زمزم',
-      'description':
-          'عن أبي ذر ـ رضي الله عنه ـ قال: قال رسول الله ـ صلى الله عليه وسلم ـ عن ماء زمزم: (( إنها مباركة ، إنها طعام طُعم )) [ رواه مسلم: 6359 ] زاد الطيالسي: (( وشفاء سُقم )).',
-    },
-    {
-      'title': 'الأكل يوم عيد الفطر قبل الذهاب للمصلى',
-      'description':
-          'عن أنس بن مالك ـ رضي الله عنه ـ قال : (( كان رسول الله ـ صلى الله عليه وسلم ـ لا يغدو يوم الفطر حتى يأكل تمرات )) وفي رواية: (( ويأكلهن وترًا )) [ رواه البخاري: 953 ].',
-    },
-  ];
+    extends State<ClothingAndEatingSunnahsScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
 
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
+  final List<Map<String, String>> clothingAndEatingSunnahs = const [
+  {
+    'title': 'الدعاء عند لبس ثوب جديد',
+    'description':
+        'عن أبي سعيد الخدري رضي الله عنه قال: كان رسول الله ﷺ إذا استجد ثوبًا سماه باسمه، إما قميصًا أو عمامة، ثم يقول: "اللهم لك الحمد، أنت كسوتنيه، أسألك من خيره وخير ما صنع له، وأعوذ بك من شره وشر ما صنع له" [رواه أبو داود: 4020].',
+  },
+  {
+    'title': 'لبس الثوب باليمين',
+    'description':
+        'كان النبي ﷺ يحب التيامن في شأنه كله، في طهوره وترجله وتنعله [متفق عليه].',
+  },
+  {
+    'title': 'لبس النعل باليمين وخلعه بالشمال',
+    'description':
+        'قال رسول الله ﷺ: "إذا انتعل أحدكم فليبدأ باليمنى، وإذا خلع فليبدأ بالشمال، ولينعلهما جميعًا أو ليخلعهما جميعًا" [متفق عليه].',
+  },
+  {
+    'title': 'الدعاء عند خلع الثوب',
+    'description':
+        'كان من هدي النبي ﷺ ذكر الله عند كل حال، ويستحب أن يقول عند خلع الثوب: بسم الله، لما فيه من الستر عن الشيطان.',
+  },
+  {
+    'title': 'التسمية عند الأكل',
+    'description':
+        'قال رسول الله ﷺ: "يا غلام سم الله، وكل بيمينك، وكل مما يليك" [متفق عليه].',
+  },
+  {
+    'title': 'الأكل باليمين',
+    'description':
+        'قال رسول الله ﷺ: "إذا أكل أحدكم فليأكل بيمينه، وإذا شرب فليشرب بيمينه، فإن الشيطان يأكل بشماله ويشرب بشماله" [رواه مسلم].',
+  },
+  {
+    'title': 'الأكل مما يليه',
+    'description':
+        'قال النبي ﷺ: "وكل مما يليك" [متفق عليه].',
+  },
+  {
+    'title': 'حمد الله بعد الأكل والشرب',
+    'description':
+        'قال رسول الله ﷺ: "إن الله ليرضى عن العبد أن يأكل الأكلة فيحمده عليها، أو يشرب الشربة فيحمده عليها" [رواه مسلم].',
+  },
+  {
+    'title': 'الجلوس عند الشرب',
+    'description':
+        'نهى رسول الله ﷺ أن يشرب الرجل قائمًا [رواه مسلم].',
+  },
+  {
+    'title': 'الشرب على ثلاث دفعات',
+    'description':
+        'كان النبي ﷺ يتنفس في الشراب ثلاثًا، ويقول: "إنه أروى وأبرأ وأمرأ" [رواه مسلم].',
+  },
+  {
+    'title': 'عدم التنفس في الإناء',
+    'description':
+        'نهى رسول الله ﷺ أن يتنفس في الإناء أو ينفخ فيه [متفق عليه].',
+  },
+  {
+    'title': 'المضمضة من اللبن',
+    'description':
+        'شرب رسول الله ﷺ لبنًا فمضمض، وقال: "إن له دسمًا" [متفق عليه].',
+  },
+  {
+    'title': 'عدم عيب الطعام',
+    'description':
+        'ما عاب رسول الله ﷺ طعامًا قط، كان إذا اشتهاه أكله، وإن كرهه تركه [متفق عليه].',
+  },
+  {
+    'title': 'الأكل بثلاثة أصابع',
+    'description':
+        'كان رسول الله ﷺ يأكل بثلاث أصابع، ويلعق يده قبل أن يمسحها [رواه مسلم].',
+  },
+  {
+    'title': 'لعق الأصابع والصحفة',
+    'description':
+        'قال رسول الله ﷺ: "إذا أكل أحدكم فليلعق أصابعه، فإنه لا يدري في أي طعامه البركة" [رواه مسلم].',
+  },
+  {
+    'title': 'تغطية الإناء عند الليل',
+    'description':
+        'قال رسول الله ﷺ: "غطوا الإناء وأوكوا السقاء، فإن في السنة ليلة ينزل فيها وباء" [رواه مسلم].',
+  },
+  {
+    'title': 'الشرب من ماء زمزم بنية صالحة',
+    'description':
+        'قال رسول الله ﷺ: "ماء زمزم لما شرب له" [رواه ابن ماجه].',
+  },
+  {
+    'title': 'الأكل يوم عيد الفطر قبل الخروج',
+    'description':
+        'كان رسول الله ﷺ لا يغدو يوم الفطر حتى يأكل تمرات، ويأكلهن وترًا [رواه البخاري: 953].',
+  },
+];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < clothingAndEatingSunnahs.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'سنن اللباس والطعام',
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'سنن اللباس والطعام',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: clothingAndEatingSunnahs.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / clothingAndEatingSunnahs.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildTile(
+                            title: clothingAndEatingSunnahs[index]['title']!,
+                            description: clothingAndEatingSunnahs[index]
+                                ['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildSunnahCard(context, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildSunnahCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildTile({
+    required String title,
+    required String description,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          clothingAndEatingSunnahs[index]['title']!,
-          textAlign: TextAlign.right,
-          style: GoogleFonts.tajawal(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                clothingAndEatingSunnahs[index]['description']!,
-                textAlign: TextAlign.start,
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
       ),
     );
   }

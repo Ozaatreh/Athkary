@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 
-
 class LaylatAlQadrInfoScreen extends StatefulWidget {
   const LaylatAlQadrInfoScreen({super.key});
 
   @override
-  State<LaylatAlQadrInfoScreen> createState() => _LaylatAlQadrInfoScreenState();
+  State<LaylatAlQadrInfoScreen> createState() =>
+      _LaylatAlQadrInfoScreenState();
 }
 
 class _LaylatAlQadrInfoScreenState extends State<LaylatAlQadrInfoScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
 
   final List<Map<String, String>> laylatAlQadrInfo = const [
     {
@@ -90,11 +89,9 @@ class _LaylatAlQadrInfoScreenState extends State<LaylatAlQadrInfoScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
       vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _controller.forward();
+      duration: const Duration(milliseconds: 900),
+    )..forward();
   }
 
   @override
@@ -105,99 +102,162 @@ class _LaylatAlQadrInfoScreenState extends State<LaylatAlQadrInfoScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    
-     final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 23,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.primary, );
-   
-    return Scaffold(
-      
-      body: Column(
-        children: [
-           SizedBox(height: screenHeight * 0.04),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-            icon:   Icon(Icons.arrow_back_ios_new_rounded , color: Theme.of(context).colorScheme.primary,),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-                  Lottie.asset(
-                              'assets/animations/wired-lineal-1821-night-sky-moon-stars-hover-pinch.json', // Dark mode animation
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.fill,
-                              animate: true,
-                              repeat: true,
-                            ),
-                   Text('ليلة القدر' , style: textStyle1,),
-                ],
-              ),
-              Divider(),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: laylatAlQadrInfo.length,
-              itemBuilder: (context, index) {
-                return _buildExpansionTile(
-                  context,
-                  question: laylatAlQadrInfo[index]['title']!,
-                  answer: laylatAlQadrInfo[index]['description']!,
-                );
-              },
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
             ),
           ),
-        ],
+          child: SafeArea(
+            child: Column(
+              children: [
+
+                /// ================= HEADER =================
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Lottie.asset(
+                              'assets/animations/wired-lineal-1821-night-sky-moon-stars-hover-pinch.json',
+                              width: 55,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'ليلة القدر',
+                              style: GoogleFonts.amiri(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ================= CONTENT =================
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: laylatAlQadrInfo.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / laylatAlQadrInfo.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildExpansionTile(
+                            question:
+                                laylatAlQadrInfo[index]['title']!,
+                            answer:
+                                laylatAlQadrInfo[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-    Widget _buildExpansionTile(BuildContext context,
-      {required String question, required String answer}) {
-    
-      final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 19, fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );  
-     
-     final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19, fontWeight: FontWeight.w100,
-    color: Theme.of(context).colorScheme.inversePrimary, );  
-
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        color: Theme.of(context).colorScheme.primary,
-        margin: const EdgeInsets.only(bottom: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+  Widget _buildExpansionTile({
+    required String question,
+    required String answer,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
-          iconColor: Theme.of(context).colorScheme.inversePrimary,
-          collapsedIconColor: Theme.of(context).colorScheme.inversePrimary ,
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
           title: Text(
             question,
-            style: textStyle1
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                answer,
-                style: textStyle2,
-                textAlign: TextAlign.justify,
+            Text(
+              answer,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.8,
+                color: Colors.white.withOpacity(0.95),
               ),
+              textAlign: TextAlign.justify,
             ),
           ],
         ),

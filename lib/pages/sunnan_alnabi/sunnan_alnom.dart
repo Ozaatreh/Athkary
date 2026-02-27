@@ -8,181 +8,240 @@ class SleepSunnahsPage extends StatefulWidget {
   State<SleepSunnahsPage> createState() => _SleepSunnahsPageState();
 }
 
-class _SleepSunnahsPageState extends State<SleepSunnahsPage> {
-  
-  final List<Map<String, String>> sleepSunnahs = const [
-    {
-      'title': 'النوم على وضوء',
-      'description':
-          'قـال النبي ـ صلى الله عليه وسلم ـ للبراء بن عازب رضي الله عنه : (( إذا أتيت مضجعك ، فتوضأ وضوءك للصلاة ، ثم اضطجع على شقك الأيمن... الحديث )) [ متفق عليه:6311-6882].',
-    },
-    {
-      'title': 'قراءة سورة الإخلاص والمعوذتين قبل النوم',
-      'description':
-          'عن عائشة رضي الله عنها ، أن النبي ـ صلى الله عليه وسلم ـ كان إذا أوى إلى فراشه كل ليلة جمع كفيه ثم نفث فيهما ، فقرأ فيهما: (( قل هو الله أحد )) و (( قل أعوذ برب الفلق )) و (( قل أعوذ برب الناس )) ، ثم يمسح بهما ما استطاع من جسده ، يبدأ بهما على رأسه ووجهه ، وما أقبل من جسده ، يفعل ذلك ثلاث مرات. [ رواه البخاري: 5017].',
-    },
-    {
-      'title': 'التكبير والتسبيح عند المنام',
-      'description':
-          'عن علي رضي الله عنه ، أن رسول الله ـ صلى الله عليه وسلم ـ قال حين طلبت منه فاطمة ـ رضي الله عنها ـ خادمًا: (( ألا أدلكما على ما هو خير لكما من خادم ؟ إذا أويتما إلى فراشكما ، أو أخذتما مضاجعكما ، فكبرا أربعًا وثلاثين ، وسبحا ثلاثًا وثلاثين ، واحمدا ثلاثًا وثلاثين. فهذا خير لكما من خادم )) [متفق عليه: 6318 – 6915].',
-    },
-    {
-      'title': 'الدعاء حين الاستيقاظ أثناء النوم',
-      'description':
-          'عن عبادة بن الصامت رضي الله عنه ، عن النبي ـ صلى الله عليه وسلم ـ قال: (( من تعارَّ من الليل فقال: لا إله إلا الله وحده لا شريك له ، له الملك وله الحمد ، وهو على كل شيء قدير، الحمد لله ، وسبحان الله ، والله أكبر، ولا حول ولا قوة إلا بالله، ثم قال: اللهم اغفر لي، أو دعا ، استُجيب له ، فإنْ توضأ وصلى قُبِلت صلاته )) [ رواه البخاري: 1154].',
-    },
-    {
-      'title': 'الدعاء عند الاستيقاظ من النوم',
-      'description':
-          '(( الحمد لله الذي أحيانا بعدما أماتنا ، وإليه النشور )) [ رواه البخاري من حديث حذيفة بن اليمان رضي الله عنه : 6312 ].',
-    },
-  ];
+class _SleepSunnahsPageState extends State<SleepSunnahsPage>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
 
-
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
+ final List<Map<String, String>> sleepSunnahs = const [
+  {
+    'title': 'النوم على وضوء',
+    'description':
+        'قال النبي ﷺ للبراء بن عازب رضي الله عنه: "إذا أتيت مضجعك فتوضأ وضوءك للصلاة، ثم اضطجع على شقك الأيمن، ثم قل: اللهم أسلمت نفسي إليك، ووجهت وجهي إليك، وفوضت أمري إليك، وألجأت ظهري إليك، رغبة ورهبة إليك، لا ملجأ ولا منجا منك إلا إليك، آمنت بكتابك الذي أنزلت وبنبيك الذي أرسلت، فإن مت من ليلتك فأنت على الفطرة" [متفق عليه]',
+  },
+  {
+    'title': 'النوم على الشق الأيمن',
+    'description':
+        'كان النبي ﷺ إذا أوى إلى فراشه نام على شقه الأيمن، وكان يحب التيامن في شأنه كله. [رواه البخاري ومسلم]',
+  },
+  {
+    'title': 'قراءة آية الكرسي قبل النوم',
+    'description':
+        'قال ﷺ: "إذا أويت إلى فراشك فاقرأ آية الكرسي، فإنه لن يزال عليك من الله حافظ، ولا يقربك شيطان حتى تصبح" [رواه البخاري]',
+  },
+  {
+    'title': 'قراءة سورة الإخلاص والمعوذتين',
+    'description':
+        'عن عائشة رضي الله عنها أن النبي ﷺ كان إذا أوى إلى فراشه جمع كفيه ثم نفث فيهما، فقرأ فيهما: قل هو الله أحد، وقل أعوذ برب الفلق، وقل أعوذ برب الناس، ثم مسح بهما ما استطاع من جسده، يبدأ بهما على رأسه ووجهه وما أقبل من جسده، يفعل ذلك ثلاث مرات. [رواه البخاري]',
+  },
+  {
+    'title': 'قراءة آخر آيتين من سورة البقرة',
+    'description':
+        'قال رسول الله ﷺ: "من قرأ بالآيتين من آخر سورة البقرة في ليلة كفتاه" [متفق عليه]',
+  },
+  {
+    'title': 'التكبير والتسبيح والتحميد عند المنام',
+    'description':
+        'قال ﷺ لعلي وفاطمة رضي الله عنهما: "إذا أويتما إلى فراشكما فكبرا أربعًا وثلاثين، وسبحا ثلاثًا وثلاثين، واحمدا ثلاثًا وثلاثين، فهو خير لكما من خادم" [متفق عليه]',
+  },
+  {
+    'title': 'دعاء النوم',
+    'description':
+        'كان النبي ﷺ إذا أوى إلى فراشه قال: "باسمك اللهم أموت وأحيا" [رواه البخاري]',
+  },
+  {
+    'title': 'نفض الفراش قبل النوم',
+    'description':
+        'قال رسول الله ﷺ: "إذا أوى أحدكم إلى فراشه فلينفضه بداخلة إزاره، فإنه لا يدري ما خلفه عليه، ثم ليقل: باسمك ربي وضعت جنبي وبك أرفعه، إن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين" [متفق عليه]',
+  },
+  {
+    'title': 'الدعاء عند الاستيقاظ أثناء الليل',
+    'description':
+        'قال رسول الله ﷺ: "من تعارَّ من الليل فقال: لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، الحمد لله، وسبحان الله، ولا إله إلا الله، والله أكبر، ولا حول ولا قوة إلا بالله، ثم قال: اللهم اغفر لي، أو دعا؛ استجيب له، فإن توضأ وصلى قُبلت صلاته" [رواه البخاري]',
+  },
+  {
+    'title': 'الدعاء عند الاستيقاظ من النوم',
+    'description':
+        'كان النبي ﷺ إذا استيقظ قال: "الحمد لله الذي أحيانا بعدما أماتنا وإليه النشور" [رواه البخاري]',
+  },
+  {
+    'title': 'الدعاء عند رؤية رؤيا صالحة',
+    'description':
+        'قال رسول الله ﷺ: "الرؤيا الصالحة من الله، فإذا رأى أحدكم ما يحب فليحمد الله عليها وليحدث بها من يحب" [متفق عليه]',
+  },
+  {
+    'title': 'الاستعاذة عند رؤية رؤيا سيئة',
+    'description':
+        'قال رسول الله ﷺ: "وإذا رأى ما يكره فليتعوذ بالله من شرها ومن شر الشيطان، وليتفل عن يساره ثلاثًا، ولا يحدث بها أحدًا، فإنها لا تضره" [متفق عليه]',
+  },
+];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < sleepSunnahs.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-      // await _scrollController.animateTo(
-      //   _scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 300),
-      //   curve: Curves.easeOut,
-      // );
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'سنن النوم',
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'سنن النوم',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: sleepSunnahs.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / sleepSunnahs.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildSunnahTile(
+                            title: sleepSunnahs[index]['title']!,
+                            description:
+                                sleepSunnahs[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildSunnahCard(context, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildSunnahCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildSunnahTile({
+    required String title,
+    required String description,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          sleepSunnahs[index]['title']!,
-          textAlign: TextAlign.right,
-          style: GoogleFonts.tajawal(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                sleepSunnahs[index]['description']!,
-                textAlign: TextAlign.right,
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
       ),
     );
   }

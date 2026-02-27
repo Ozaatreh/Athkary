@@ -9,8 +9,12 @@ class WuduAndSalahSunnahsScreen extends StatefulWidget {
       _WuduAndSalahSunnahsScreenState();
 }
 
-class _WuduAndSalahSunnahsScreenState extends State<WuduAndSalahSunnahsScreen> {
-  final List<Map<String, String>> wuduAndSalahSunnahs = const [
+class _WuduAndSalahSunnahsScreenState
+    extends State<WuduAndSalahSunnahsScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+
+   final List<Map<String, String>> wuduAndSalahSunnahs = const [
     {
       'title': 'المضمضة والاستنشاق من غرفة واحدة',
       'description':
@@ -163,145 +167,173 @@ class _WuduAndSalahSunnahsScreenState extends State<WuduAndSalahSunnahsScreen> {
     },
   ];
 
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < wuduAndSalahSunnahs.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'سنن الوضوء والصلاة',
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'سنن الوضوء والصلاة',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: wuduAndSalahSunnahs.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / wuduAndSalahSunnahs.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildTile(
+                            title: wuduAndSalahSunnahs[index]['title']!,
+                            description:
+                                wuduAndSalahSunnahs[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildSunnahCard(context, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildSunnahCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildTile({
+    required String title,
+    required String description,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          wuduAndSalahSunnahs[index]['title']!,
-          textAlign: TextAlign.right,
-          style: GoogleFonts.tajawal(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                wuduAndSalahSunnahs[index]['description']!,
-                textAlign: TextAlign.justify,
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
       ),
     );
   }

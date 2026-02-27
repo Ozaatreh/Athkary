@@ -8,7 +8,7 @@ colorScheme: ColorScheme.dark(
   secondary:  const Color.fromARGB(255, 21, 21, 21),
   inversePrimary: const Color.fromARGB(255, 3, 3, 3),
   inverseSurface:  const Color.fromARGB(255, 62, 58, 58),
-  onPrimary: const Color.fromARGB(255, 57, 54, 54)
+  onPrimary: Color(0xFF2C3E50),
   ),
 
   textTheme: ThemeData.dark().textTheme.apply(

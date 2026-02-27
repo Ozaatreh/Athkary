@@ -1,6 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 class QuranCompletionMethodsScreen extends StatefulWidget {
   const QuranCompletionMethodsScreen({super.key});
@@ -11,47 +11,82 @@ class QuranCompletionMethodsScreen extends StatefulWidget {
 }
 
 class _QuranCompletionMethodsScreenState
-    extends State<QuranCompletionMethodsScreen> with SingleTickerProviderStateMixin {
+    extends State<QuranCompletionMethodsScreen>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+final List<Map<String, String>> quranCompletionMethods = const [
+  {
+    'title': 'الطريقة الأولى: ختم القرآن كل شهر',
+    'description':
+        'يتناسب عدد أجزاء القرآن الكريم الثلاثين مع عدد أيّام الشهر، بمُعدَّل جزء في كلّ يومٍ. يمكن تخصيص وقت مُحدَّد للقراءة في اليوم الواحد، مثل قراءة صفحتَين من القرآن الكريم عند كلّ صلاةٍ مفروضةٍ؛ أي ما يساوي أربعة أوجه. وبهذه الطريقة يُنهي المسلم قراءة جزء كامل في اليوم الواحد، وثلاثين جزءاً في الشهر.',
+  },
+  {
+    'title': 'الطريقة الثانية: ختم القرآن كل أسبوع',
+    'description':
+        'كان الصحابة -رضوان الله عليهم- يقسّمون القرآن الكريم إلى سبعة أحزاب، وهو ما يُسمّى (تحزيب القرآن الكريم). فيقرؤون كلّ يومٍ حِزباً منه. هذا التحزيب يعتمد على تقسيم القرآن إلى سبعة أقسام متوازنة، مما يساعد على المحافظة على السياق العام للآيات.',
+  },
+  {
+    'title': 'الطريقة الثالثة: ختم القرآن كل عشرة أيام',
+    'description':
+        'يمكن قراءة ثلاثة أجزاء يوميّاً (حوالي ساعة ونصف يومياً). ولمن أراد تسريع الختمة يمكن قراءة أربعة أجزاء يومياً لختمه في ثمانية أيام، أو ستة أجزاء يومياً لختمه في خمسة أيام.',
+  },
+  {
+    'title': 'الطريقة الرابعة: ختم القرآن كل ثلاثة أيام',
+    'description':
+        'تعتمد هذه الطريقة على القراءة السريعة مع مراعاة أحكام التلاوة. يتم قراءة عشرة أجزاء يومياً موزعة بعد الصلوات، وبذلك يُختم القرآن كاملاً خلال ثلاثة أيام.',
+  },
+  {
+    'title': 'الطريقة الخامسة: ختم القرآن في يوم واحد',
+    'description':
+        'يمكن تخصيص خمس إلى ست ساعات لقراءة القرآن قراءة حَدر، بمعدل عشرة إلى اثنتي عشرة دقيقة لكل جزء. هذه الطريقة تحتاج إلى تركيز عالٍ وتفرغ كامل.',
+  },
 
-  final List<Map<String, String>> quranCompletionMethods = const [
-    {
-      'title': 'الطريقة الأولى: ختم القرآن كل شهر',
-      'description':
-          'يتناسب عدد أجزاء القرآن الكريم الثلاثين مع عدد أيّام الشهر، بمُعدَّل جزء في كلّ يومٍ. يمكن تخصيص وقت مُحدَّد للقراءة في اليوم الواحد، مثل قراءة صفحتَين من القرآن الكريم عند كلّ صلاةٍ مفروضةٍ؛ أي ما يساوي أربعة أوجه. وبهذه الطريقة يُنهي المسلم قراءة جزء كامل في اليوم الواحد، وثلاثين جزءاً في الشهر',
-    },
-    {
-      'title': 'الطريقة الثانية: ختم القرآن كل أسبوع',
-      'description':
-          'كان الصحابة -رضوان الله عليهم- يقسّمون القرآن الكريم إلى سبعة أحزاب، وهو ما يُسمّى (تحزيب القرآن الكريم). فيقرؤون كلّ يومٍ حِزباً منه. هذا التحزيب يعتمد على تقسيم القرآن الكريم إلى سبعة أحزاب موضوعية، بحيث يبدأ كل حزب بفاتحة سورة جديدة. هذه الطريقة أفضل من التحزيب المتعارف عليه (30 جزءًا) لأنها تحافظ على السياق الموضوعي للآيات',
-    },
-    {
-      'title': 'الطريقة الثالثة: ختم القرآن كل عشرة أيام',
-      'description':
-          'تُقدَّر الفترة الزمنيّة لقراءة الجزء الواحد من عشرين دقيقة إلى نصف ساعة. لختم القرآن في عشرة أيام، يمكن قراءة ثلاثة أجزاء يوميّاً (ساعة ونصف يوميّاً). لختمه في ثمانية أيام، يمكن قراءة أربعة أجزاء يوميّاً (ساعتان يوميّاً). ولختمه في خمسة أيام، يمكن قراءة ستة أجزاء يوميّاً (ثلاث ساعات يوميّاً)',
-    },
-    {
-      'title': 'الطريقة الرابعة: ختم القرآن كل ثلاثة أيام',
-      'description':
-          'هذه الطريقة تتطلب قراءة الحَدر (القراءة السريعة مع مراعاة أحكام التلاوة). تستغرق قراءة الجزء الواحد نحو عشرين دقيقة. يمكن تقسيم الوقت كالتالي: جزء بعد أذان الفجر (20 دقيقة)، ثلاثة أجزاء بعد صلاة الفجر (ساعة)، جزأين بعد صلاة الظهر (40 دقيقة)، ثلاثة أجزاء بعد صلاة العصر (ساعة)، وجزء بعد صلاة العشاء (20 دقيقة). بهذا يتم ختم عشرة أجزاء يوميّاً، وختم القرآن كاملاً في ثلاثة أيام',
-    },
-    {
-      'title': 'الطريقة الخامسة: ختم القرآن في يوم واحد',
-      'description':
-          'يمكن ختم القرآن الكريم كاملاً في يوم واحد بتخصيص خمس إلى ست ساعات يوميّاً لقراءة القرآن قراءة حَدر. يمكن تقسيم الوقت على اليوم كاملاً، بحيث يتم قراءة الجزء الواحد في عشر إلى اثنتَي عشرة دقيقة. هذه الطريقة تتطلب جهدًا كبيرًا وتركيزًا عاليًا',
-    },
-  ];
+  // ✨ إضافات جديدة
+
+  {
+    'title': 'الطريقة السادسة: صفحة بعد كل صلاة',
+    'description':
+        'قراءة أربع صفحات بعد كل صلاة مفروضة (20 صفحة يومياً) تعني ختم القرآن كاملاً في شهر تقريباً دون شعور بضغط أو إرهاق.',
+  },
+  {
+    'title': 'الطريقة السابعة: نصف جزء يومياً',
+    'description':
+        'قراءة نصف جزء يومياً (10 صفحات تقريباً) تساعد على ختم القرآن خلال شهرين، وهي مناسبة للمبتدئين أو أصحاب الانشغال الكبير.',
+  },
+  {
+    'title': 'الطريقة الثامنة: قراءة ثابتة بعد الفجر',
+    'description':
+        'تخصيص 20 إلى 30 دقيقة بعد صلاة الفجر يومياً لقراءة جزء كامل يسهّل ختم القرآن في شهر، مع بركة الوقت في ساعات الصباح.',
+  },
+  {
+    'title': 'الطريقة التاسعة: تقسيم الجزء على مدار اليوم',
+    'description':
+        'تقسيم الجزء الواحد إلى أربعة أقسام صغيرة تُقرأ في أوقات متفرقة (بعد الفجر، الظهر، العصر، العشاء)، مما يجعل الالتزام أسهل وأكثر انتظاماً.',
+  },
+  {
+    'title': 'الطريقة العاشرة: ختمة تدبر',
+    'description':
+        'يمكن قراءة نصف جزء يومياً مع تخصيص وقت للتفسير والتأمل، مما يؤدي إلى ختم القرآن في شهرين تقريباً مع فهم أعمق للمعاني.',
+  },
+  {
+    'title': 'الطريقة الحادية عشرة: ختمة سماع',
+    'description':
+        'الاستماع إلى جزء يومياً عبر تلاوات مسجلة أثناء القيادة أو المشي يساعد على إتمام ختمة كاملة خلال شهر مع تعزيز الحفظ والتركيز.',
+  },
+  {
+    'title': 'الطريقة الثانية عشرة: ختمة العشر الأواخر',
+    'description':
+        'يمكن تكثيف القراءة في العشر الأواخر بقراءة ثلاثة أجزاء يومياً لإتمام ختمة كاملة خلال هذه الأيام المباركة.',
+  },
+];
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
       vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _controller.forward();
+      duration: const Duration(milliseconds: 900),
+    )..forward();
   }
 
   @override
@@ -62,83 +97,155 @@ class _QuranCompletionMethodsScreenState
 
   @override
   Widget build(BuildContext context) {
-
-    final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 23,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            icon:  Icon(Icons.arrow_back_ios_new_rounded , color: Theme.of(context).colorScheme.primary,),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
           ),
-        title:  Text('كيفية ختم القرآن الكريم' , style: textStyle1,),
-        centerTitle: true,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: quranCompletionMethods.length,
-        itemBuilder: (context, index) {
-          return _buildExpansionTile(
-            context,
-            question: quranCompletionMethods[index]['title']!,
-            answer: quranCompletionMethods[index]['description']!,
-          );
-        },
+          child: SafeArea(
+            child: Column(
+              children: [
+
+                /// ========= HEADER =========
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'كيفية ختم القرآن الكريم',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ========= CONTENT =========
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: quranCompletionMethods.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / quranCompletionMethods.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildExpansionTile(
+                            title:
+                                quranCompletionMethods[index]['title']!,
+                            description:
+                                quranCompletionMethods[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildExpansionTile(BuildContext context,
-      {required String question, required String answer}) {
-        final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
-
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 23,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.primary, );
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        color: Theme.of(context).colorScheme.primary,
-        margin: const EdgeInsets.only(bottom: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+  Widget _buildExpansionTile({
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
-          iconColor: Theme.of(context).colorScheme.inversePrimary,
-          collapsedIconColor: Theme.of(context).colorScheme.inversePrimary ,
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
           title: Text(
-            question,
-            style:textStyle2 ,
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                answer,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                textAlign: TextAlign.justify,
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
               ),
+              textAlign: TextAlign.justify,
             ),
           ],
         ),

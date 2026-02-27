@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:athkary/pages/home_page.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +17,6 @@ class MasbahaElc extends StatefulWidget {
 
 class _MasbahaElcState extends State<MasbahaElc>
     with SingleTickerProviderStateMixin {
-
   int counter = 0;
   int tasabehcount = 0;
   int _targetCount = 100;
@@ -170,8 +170,7 @@ class _MasbahaElcState extends State<MasbahaElc>
 
   void _startCountdown() {
     _countdownTimer?.cancel();
-    _countdownTimer =
-        Timer.periodic(const Duration(seconds: 1), (timer) {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
         setState(() => _secondsRemaining--);
       } else {
@@ -188,8 +187,7 @@ class _MasbahaElcState extends State<MasbahaElc>
     bool canCount = _lastDhikrTime == null ||
         DateTime.now().difference(_lastDhikrTime!) > _cooldownPeriod;
 
-    bool isDhikr =
-        cleaned.contains(_selectedWerd) && canCount;
+    bool isDhikr = cleaned.contains(_selectedWerd) && canCount;
 
     if (isDhikr) {
       _processedTexts.add(cleaned);
@@ -209,7 +207,7 @@ class _MasbahaElcState extends State<MasbahaElc>
       counter++;
       if (counter == _targetCount) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('أحسنت! وصلت إلى $_targetCount')),
+          SnackBar(content: Text('أحسنت! وصلت إلى $_targetCount',style: TextStyle(color:Theme.of(context).colorScheme.inversePrimary,),)),
         );
       }
     });
@@ -241,8 +239,7 @@ class _MasbahaElcState extends State<MasbahaElc>
       counter = prefs.getInt('counter') ?? 0;
       tasabehcount = prefs.getInt('tasabehcount') ?? 0;
       _targetCount = prefs.getInt('targetCount') ?? 100;
-      _selectedWerd =
-          prefs.getString('selectedWerd') ?? 'سبحان الله';
+      _selectedWerd = prefs.getString('selectedWerd') ?? 'سبحان الله';
     });
   }
 
@@ -273,14 +270,13 @@ class _MasbahaElcState extends State<MasbahaElc>
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
-    double circleSize =
-        isPortrait ? screen.width * 0.5 : screen.height * 0.4;
+    double circleSize = isPortrait ? screen.width * 0.5 : screen.height * 0.4;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('المسبحة الالكترونية'),
+        title:  Text('المسبحة الالكترونية' ,style: TextStyle(color:Theme.of(context).colorScheme.primary,),),
         actions: [
           if (_isListening)
             Padding(
@@ -288,12 +284,19 @@ class _MasbahaElcState extends State<MasbahaElc>
               child: Center(
                 child: Text(
                   '$_secondsRemaining',
-                  style: TextStyle(
-                      fontSize: screen.width * 0.045),
+                  style: TextStyle(fontSize: screen.width * 0.045),
                 ),
               ),
             ),
         ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: Theme.of(context).colorScheme.primary),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => HomePage()));
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isListening ? _stopListening : _startListening,
@@ -302,7 +305,6 @@ class _MasbahaElcState extends State<MasbahaElc>
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             const SizedBox(height: 20),
 
             /// Styled Selection Container
@@ -311,70 +313,67 @@ class _MasbahaElcState extends State<MasbahaElc>
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withOpacity(0.08),
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
                   children: [
-
                     SizedBox(
-  width: double.infinity,
-  child: DropdownButtonFormField<String>(
-    isExpanded: true, // 🔥 VERY IMPORTANT
-    value: _selectedWerd,
-    decoration: InputDecoration(
-      labelText: 'الذكر الحالي',
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      filled: true,
-      fillColor: Theme.of(context)
-          .colorScheme
-          .surface
-          .withOpacity(0.3),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-    ),
-    items: _dhikrPhrases
-        .map(
-          (phrase) => DropdownMenuItem<String>(
-            value: phrase,
-            child: SizedBox(
-              width: double.infinity,
-              child: Text(
-                phrase,
-                overflow: TextOverflow.ellipsis,
-                textDirection: TextDirection.rtl,
-                maxLines: 1,
-              ),
-            ),
-          ),
-        )
-        .toList(),
-    onChanged: (v) {
-      if (v == null) return;
-      setState(() => _selectedWerd = v);
-      _saveCounts();
-    },
-  ),
-),
-const SizedBox(height: 20),
-
-Text(
-  _selectedWerd,
-  textAlign: TextAlign.center,
-  style: GoogleFonts.tajawal(
-    fontSize: MediaQuery.of(context).size.width * 0.05,
-    fontWeight: FontWeight.w700,
-    color: Theme.of(context).colorScheme.primary,
-  ),
-),
+                      width: double.infinity,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true, // 🔥 VERY IMPORTANT
+                        value: _selectedWerd,
+                        decoration: InputDecoration(
+                          labelText: 'الذكر الحالي',labelStyle: TextStyle(
+                            color:Theme.of(context).colorScheme.primary,),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.3),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                        ),
+                        items: _dhikrPhrases
+                            .map(
+                              (phrase) => DropdownMenuItem<String>(
+                                value: phrase,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    style: TextStyle(color:Theme.of(context).colorScheme.primary,),
+                                    phrase,
+                                    overflow: TextOverflow.ellipsis,
+                                    textDirection: TextDirection.rtl,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) {
+                          if (v == null) return;
+                          setState(() => _selectedWerd = v);
+                          _saveCounts();
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      _selectedWerd,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.tajawal(
+                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                     const SizedBox(height: 10),
-
                     Row(
                       children: [
                         Expanded(
@@ -382,6 +381,8 @@ Text(
                             'الهدف: $_targetCount',
                             style: GoogleFonts.tajawal(
                               fontWeight: FontWeight.w700,
+                              color:
+                                  Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
@@ -401,15 +402,11 @@ Text(
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
-
                     LinearProgressIndicator(
                       value: _targetCount == 0
                           ? 0.0
-                          : (counter / _targetCount)
-                              .clamp(0.0, 1.0)
-                              .toDouble(),
+                          : (counter / _targetCount).clamp(0.0, 1.0).toDouble(),
                       minHeight: 8,
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -427,15 +424,13 @@ Text(
                   horizontal: screen.width * 0.1,
                   vertical: screen.height * 0.02),
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
                 '$counter',
                 style: GoogleFonts.electrolize(
+                  color:Theme.of(context).colorScheme.primary,
                   fontSize: screen.width * 0.1,
                   fontWeight: FontWeight.bold,
                 ),
@@ -452,9 +447,7 @@ Text(
                   height: circleSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary,
+                    color: Theme.of(context).colorScheme.primary,
                     boxShadow: [
                       BoxShadow(
                         color: Theme.of(context)
@@ -472,9 +465,7 @@ Text(
                       'اضغط',
                       style: TextStyle(
                         fontSize: screen.width * 0.06,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .inversePrimary,
+                        color: Theme.of(context).colorScheme.inversePrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -483,24 +474,92 @@ Text(
               ),
             ),
 
-            const SizedBox(height: 40),
-
-            /// Responsive Buttons
+            SizedBox(height: 40),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screen.width * 0.1),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: ElevatedButton(
-                      onPressed: clear,
-                      child: const Text('إعادة'),
+                  ElevatedButton(
+                    onPressed: clear,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(screen.width * 0.03),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screen.width * 0.05,
+                        vertical: screen.height * 0.015,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.restart_alt_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: screen.height * 0.02,
+                        ),
+                        SizedBox(width: screen.width * 0.02),
+                        Text(
+                          'إعادة',
+                          style: GoogleFonts.robotoSlab(
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                            fontSize: screen.height * 0.018,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Flexible(
-                    child: ElevatedButton(
-                      onPressed: clearAll,
-                      child: const Text('تصفير الكل'),
+                  GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("إعادة الضبط"),
+                        content: Text("هل تريد إعادة الضبط الكلي؟"),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("إلغاء")),
+                          TextButton(
+                              onPressed: () {
+                                clearAll();
+                                Navigator.pop(context);
+                              },
+                              child: Text("تأكيد",
+                                  style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    ),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.calculate,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'المجموع: $tasabehcount',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -9,235 +9,266 @@ class ThikrAndDuaSunnahsScreen extends StatefulWidget {
       _ThikrAndDuaSunnahsScreenState();
 }
 
-class _ThikrAndDuaSunnahsScreenState extends State<ThikrAndDuaSunnahsScreen> {
-  
-   final List<Map<String, String>> dhikrAndDuaSunnahs = const [
-    {
-      'title': 'الإكثار من قراءة القرآن',
-      'description':
-          'عن أبي أمامة الباهلي ـ رضي الله عنه ـ قال: سمعت رسول الله ـ صلى الله عليه وسلم ـ يقول: (( اقرؤوا القرآن ، فإنه يأتي يوم القيامة شفيعًا لأصحابه )) [ رواه مسلم: 1874 ].',
-    },
-    {
-      'title': 'تحسين الصوت بقراءة القرآن',
-      'description':
-          'عن أبي هريرة رضي الله عنه ، أنه سمع رسول الله ـ صلى الله عليه وسلم ـ يقول: (( ما أَذِنَ الله لشيء ما أَذِنَ لنبي حسن الصوت ، يتغنى بالقرآن يجهر به )) [ متفق عليه:5024 - 1847 ].',
-    },
-    {
-      'title': 'ذكر الله على كل حال',
-      'description':
-          'عن عائشة ـ رضي الله عنها ـ قالت: (( كان رسول الله ـ صلى الله عليه وسلم ـ يذكر الله على كل أحيانه )) [ رواه مسلم: 826 ].',
-    },
-    {
-      'title': 'التسبيح',
-      'description':
-          'عن جويرية رضي الله عنها ، أن رسول الله ـ صلى الله عليه وسلم ـ خرج من عندها بُكرة حين صلى الصبح، وهي في مسجدها، ثم رجع بعد أنْ أضحى ، وهي جالسة ، فقال: (( ما زلتِ على الحال التي فارقتك عليها ؟ )) قالت: نعم ، قال النبي صلى الله عليه وسلم : (( لقد قُلتُ بعدك أربَعَ كلماتٍ ، ثلاث مراتٍ ، لو وُزِنَت بما قلتِ مُنذ اليوم لَوَزَنتهُن: سبحان الله وبحمده ، عدد خلقه، ورضا نفسهِ ، وزِنةَ عرشهِ ، ومِدادَ كلماته )) [رواه مسلم: 2726].',
-    },
-    {
-      'title': 'تشميت العاطس',
-      'description':
-          'عن أبي هريرة رضي الله عنه ، عن النبي ـ صلى الله عليه وسلم ـ قال: (( إذا عطس أحدُكُم فليقل: الحمد لله ، وليقل له أخوه أو صاحبه : يرحمك الله. فإذا قال له: يرحمك الله ، فليقل: يهديكم اللهُ ويُصْلِحُ بالكم )) [ رواه البخاري: 6224 ].',
-    },
-    {
-      'title': 'الدعاء للمريض',
-      'description':
-          'عن ابن عباس رضي الله عنهما، أن رسول الله ـ صلى الله عليه وسلم ـ دخل على رجل يعوده ، فقال صلى الله عليه وسلم : (( لا بأس طهور ، إن شاء الله )) [ رواه البخاري: 5662].',
-    },
-    {
-      'title': 'وضع اليد على موضع الألم ، مع الدعاء',
-      'description':
-          'عن عثمان بن أبي العاص رضي الله عنه ، أنه شكا إلى رسول الله ـ صلى الله عليه وسلم ـ وجعًا، يجده في جسده مُنذ أسلم ، فقال له رسول الله صلى الله عليه وسلم : (( ضع يدك على الذي يألم من جسدك، وقل: باسم الله ، ثلاثًا ، وقل سبع مرات: أعوذُ بالله وقدرتهِ من شَر ما أجد وأُحَاذر )) [ رواه مسلم: 5737 ].',
-    },
-    {
-      'title': 'الدعاء عند سماع صياح الديك ، والتعوذ عند سماع نهيق الحمار',
-      'description':
-          'عن أبي هريرة رضي الله عنه ، أن النبي ـ صلى الله عليه وسلم ـ قال: (( إذا سمعتم صياح الديكة فاسألوا الله من فضله، فإنها رأت مَلَكًا ، وإذا سمعتم نهيق الحمار فتعوذوا بالله من الشيطان ، فإنها رأت شيطانًا )) [ متفق عليه:3303 - 6920 ].',
-    },
-    {
-      'title': 'الدعاء عند نزول المطر',
-      'description':
-          'عن عـائشة رضي الله عنها ، أن رسول الله ـ صلى الله عليه وسلم ـ كان إذا رأى المطر قال: (( اللهم صيبًا نافعًا )) [ رواه البخاري: 1032 ].',
-    },
-    {
-      'title': 'ذكر الله عند دخول المنزل',
-      'description':
-          'عن جابر بن عبدالله ـ رضي الله عنه ـ قال : سمعت النبي ـ صلى الله عليه وسلم ـ يقول: (( إذا دخل الرجل بيته فذكر الله ـ عز وجل ـ عند دخوله ، وعند طعامه، قال الشيطان : لا مبيت لكم ولا عشاء. وإذا دخل فلم يذكر الله عند دخوله ، قال الشيطان : أدركتم المبيت، وإذا لم يذكر الله عند طعامه ، قال : أدركتم المبيت والعشاء)) [ رواه مسلم: 5262 ].',
-    },
-    {
-      'title': 'ذكر الله في المجلس',
-      'description':
-          'عن أبي هريرة رضي الله عنه ، عن النبي ـ صلى الله عليه وسلم ـ قال: (( ما جلس قوم مجلسًا لم يذكروا الله فيه ، ولم يُصَلوا على نبيهم،إلا كان عليهم تِرَة (أي: حسرة) فإن شاء عذبهم، وإن شاء غفر لهم )) [ رواه الترمذي: 3380 ].',
-    },
-    {
-      'title': 'الدعاء عند دخول الخلاء',
-      'description':
-          'عن أنس بن مالك ـ رضي الله عنه ـ قال: كان النبي ـ صلى الله عليه وسلم ـ إذا دخل (أي: أراد دخول) الخلاء قال: (( اللهم إني أعوذ بك من الخبث والخبائث )) [متفق عليه: 6322-831].',
-    },
-    {
-      'title': 'الدعاء عندما تعصف الريح',
-      'description':
-          'عن عائشة ـ رضي الله عنه ـ قالت: كان النبي ـ صلى الله عليه وسلم ـ إذا عصفت الريح قال: (( اللهم إني أسألك خيرها ، وخير ما فيها ، وخير ما أُرسلت به، وأعوذ بك من شرها ، وشر ما فيها ، وشر ما أُرسلت به )) [ رواه مسلم: 2085 ].',
-    },
-    {
-      'title': 'الدعاء للمسلمين بظهر الغيب',
-      'description':
-          'عن أبي الدرداء رضي الله عنه ، أنه سمع رسول الله ـ صلى الله عليه وسلم ـ يقول: (( من دعا لأخيه بظهر الغيب، قال المَلَكُ المُوَكَّلُ به: آمين ، ولك بمثل)) [ رواه مسلم: 6928 ].',
-    },
-    {
-      'title': 'الدعاء عند المصيبة',
-      'description':
-          'عن أم سلمة ـ رضي الله عنها ـ أنها قالت ، سمعت رسول الله ـ صلى الله عليه وسلم ـ يقول: (( ما من مسلم تصيبه مصيبة فيقول ما أمره الله: إنا لله وإنا إليه راجعون ، اللهم أُجُرني في مُصيبتي وأَخلِف لي خيرًا منها ـ إلا أخلف الله له خيرًا منها )) [ رواه مسلم: 2126].',
-    },
-    {
-      'title': 'إفشاء السلام',
-      'description':
-          'عن البَراءِ بن عازِب ـ رضي الله عنه ـ قال: (( أمَرنا النبي ـ صلى الله عليه وسلم ـ بسبع ، ونهانا عن سَبع: أمرنا بعِيادة المريض، ... وإفشَاء السلام ،... الحديث )) [ متفق عليه: 5175 - 5388 ].',
-    },
-  ];
+class _ThikrAndDuaSunnahsScreenState
+    extends State<ThikrAndDuaSunnahsScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
 
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
+ final List<Map<String, String>> dhikrAndDuaSunnahs = const [
+  {
+    'title': 'الإكثار من قراءة القرآن',
+    'description':
+        'قال رسول الله ﷺ: "اقرؤوا القرآن فإنه يأتي يوم القيامة شفيعًا لأصحابه" [رواه مسلم].',
+  },
+  {
+    'title': 'ذكر الله على كل حال',
+    'description':
+        'كان رسول الله ﷺ يذكر الله على كل أحيانه [رواه مسلم].',
+  },
+  {
+    'title': 'التسبيح والتحميد والتكبير بعد الصلاة',
+    'description':
+        'قال رسول الله ﷺ: "من سبح الله دبر كل صلاة ثلاثًا وثلاثين، وحمد الله ثلاثًا وثلاثين، وكبر الله ثلاثًا وثلاثين، فتلك تسعة وتسعون، وقال تمام المائة: لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، غفرت خطاياه وإن كانت مثل زبد البحر" [رواه مسلم].',
+  },
+  {
+    'title': 'سيد الاستغفار',
+    'description':
+        'قال رسول الله ﷺ: "سيد الاستغفار أن تقول: اللهم أنت ربي لا إله إلا أنت خلقتني وأنا عبدك... من قالها موقنًا بها حين يمسي فمات دخل الجنة، وكذلك إذا أصبح" [رواه البخاري].',
+  },
+  {
+    'title': 'التسبيح العظيم',
+    'description':
+        'قال رسول الله ﷺ: "كلمتان خفيفتان على اللسان، ثقيلتان في الميزان، حبيبتان إلى الرحمن: سبحان الله وبحمده، سبحان الله العظيم" [متفق عليه].',
+  },
+  {
+    'title': 'الدعاء عند نزول المطر',
+    'description':
+        'كان رسول الله ﷺ إذا رأى المطر قال: "اللهم صيبًا نافعًا" [رواه البخاري].',
+  },
+  {
+    'title': 'الدعاء عند سماع الأذان',
+    'description':
+        'قال رسول الله ﷺ: "إذا سمعتم المؤذن فقولوا مثل ما يقول، ثم صلوا عليّ، فإنه من صلى عليّ صلاة صلى الله عليه بها عشرًا" [رواه مسلم].',
+  },
+  {
+    'title': 'الدعاء بعد الأذان',
+    'description':
+        'قال رسول الله ﷺ: "من قال حين يسمع النداء: اللهم رب هذه الدعوة التامة والصلاة القائمة آت محمدًا الوسيلة والفضيلة وابعثه مقامًا محمودًا الذي وعدته، حلت له شفاعتي يوم القيامة" [رواه البخاري].',
+  },
+  {
+    'title': 'الدعاء عند دخول المنزل',
+    'description':
+        'قال رسول الله ﷺ: "إذا دخل الرجل بيته فذكر الله عند دخوله وعند طعامه قال الشيطان: لا مبيت لكم ولا عشاء" [رواه مسلم].',
+  },
+  {
+    'title': 'الدعاء عند الخروج من المنزل',
+    'description':
+        'قال رسول الله ﷺ: "من قال إذا خرج من بيته: بسم الله، توكلت على الله، لا حول ولا قوة إلا بالله، يقال له: كفيت ووقيت وهديت وتنحى عنه الشيطان" [رواه أبو داود والترمذي].',
+  },
+  {
+    'title': 'الدعاء عند الكرب',
+    'description':
+        'كان رسول الله ﷺ إذا حزبه أمر قال: "لا إله إلا الله العظيم الحليم، لا إله إلا الله رب العرش العظيم، لا إله إلا الله رب السماوات ورب الأرض ورب العرش الكريم" [متفق عليه].',
+  },
+  {
+    'title': 'الدعاء عند المصيبة',
+    'description':
+        'قال رسول الله ﷺ: "ما من مسلم تصيبه مصيبة فيقول: إنا لله وإنا إليه راجعون، اللهم أجرني في مصيبتي وأخلف لي خيرًا منها، إلا أجره الله في مصيبته وأخلف له خيرًا منها" [رواه مسلم].',
+  },
+  {
+    'title': 'إفشاء السلام',
+    'description':
+        'قال رسول الله ﷺ: "أفشوا السلام بينكم" [رواه مسلم].',
+  },
+  {
+    'title': 'الصلاة على النبي ﷺ',
+    'description':
+        'قال رسول الله ﷺ: "من صلى عليّ صلاة صلى الله عليه بها عشرًا" [رواه مسلم].',
+  },
+  {
+    'title': 'الدعاء بين الأذان والإقامة',
+    'description':
+        'قال رسول الله ﷺ: "الدعاء بين الأذان والإقامة لا يرد" [رواه أبو داود والترمذي].',
+  },
+  {
+    'title': 'الإكثار من لا حول ولا قوة إلا بالله',
+    'description':
+        'قال رسول الله ﷺ: "ألا أدلك على كنز من كنوز الجنة؟ لا حول ولا قوة إلا بالله" [متفق عليه].',
+  },
+  {
+    'title': 'الإكثار من قول لا إله إلا الله وحده لا شريك له',
+    'description':
+        'قال رسول الله ﷺ: "من قال لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، في يوم مائة مرة، كانت له عدل عشر رقاب، وكتبت له مائة حسنة..." [متفق عليه].',
+  },
+];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < dhikrAndDuaSunnahs.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-      // await _scrollController.animateTo(
-      //   _scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 300),
-      //   curve: Curves.easeOut,
-      // );
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'الذكر والدعاء',
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'الذكر والدعاء',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: dhikrAndDuaSunnahs.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / dhikrAndDuaSunnahs.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildTile(
+                            title: dhikrAndDuaSunnahs[index]['title']!,
+                            description:
+                                dhikrAndDuaSunnahs[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildSunnahCard(context, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildSunnahCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildTile({
+    required String title,
+    required String description,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          dhikrAndDuaSunnahs[index]['title']!,
-          textAlign: TextAlign.right,
-          style: GoogleFonts.tajawal(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                dhikrAndDuaSunnahs[index]['description']!,
-                textAlign: TextAlign.start,
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
       ),
     );
   }

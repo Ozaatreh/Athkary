@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -57,7 +58,6 @@ class _AdyahAlnabiState extends State<AdyahAlnabi> {
     "reference": "رواه الحاكم في المستدرك (1/521) عن عبد الله بن عمر، وصححه الألباني."
   }
 ];
-
 
 
 

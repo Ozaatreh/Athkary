@@ -1,9 +1,6 @@
-// lib/widgets/ayah_widget.dart
-import 'package:athkary/pages/quranv2/app_theme.dart';
 import 'package:athkary/pages/quranv2/quran_models.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 class AyahWidget extends StatelessWidget {
   final Ayah ayah;
@@ -11,7 +8,6 @@ class AyahWidget extends StatelessWidget {
   final bool isHighlighted;
   final bool isSelected;
   final double fontSize;
-  final bool isDark;
   final Color gold;
   final VoidCallback onTap;
 
@@ -22,7 +18,6 @@ class AyahWidget extends StatelessWidget {
     required this.isHighlighted,
     required this.isSelected,
     required this.fontSize,
-    required this.isDark,
     required this.gold,
     required this.onTap,
   });
@@ -30,26 +25,29 @@ class AyahWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color bgColor = Colors.transparent;
+    Color borderColor = Colors.transparent;
+
     if (isHighlighted) {
-      bgColor = const Color(0xFF66BB6A).withOpacity(0.25);
+      bgColor = Colors.white.withOpacity(0.12);
+      borderColor = gold.withOpacity(0.5);
     } else if (isSelected) {
-      bgColor = gold.withOpacity(0.15);
+      bgColor = gold.withOpacity(0.12);
+      borderColor = gold.withOpacity(0.4);
     }
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(color: gold.withOpacity(0.4), width: 1)
-              : isHighlighted
-                   ? Border.all(color: const Color(0xFF66BB6A).withOpacity(0.6), width: 1)
-                  : null,
+          borderRadius: BorderRadius.circular(10),
+          border: borderColor == Colors.transparent
+              ? null
+              : Border.all(color: borderColor, width: 1),
         ),
         child: RichText(
           textDirection: TextDirection.rtl,
@@ -59,18 +57,19 @@ class AyahWidget extends StatelessWidget {
                 text: ayah.text,
                 style: GoogleFonts.amiri(
                   fontSize: fontSize,
-                  color: isHighlighted
-                      ? const Color(0xFF81C784)
-                      : isDark
-                          ? const Color(0xFFEAE0C8)
-                          : const Color(0xFF2C1810),
-                  height: 2.0,
+                  color: Colors.white.withOpacity(0.95),
+                  height: 2.1,
                 ),
               ),
               WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: _AyahNumberBadge(number: ayah.numberInSurah, gold: gold, isDark: isDark),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6),
+                  child: _AyahNumberBadge(
+                    number: ayah.numberInSurah,
+                    gold: gold,
+                  ),
                 ),
               ),
             ],
@@ -84,26 +83,30 @@ class AyahWidget extends StatelessWidget {
 class _AyahNumberBadge extends StatelessWidget {
   final int number;
   final Color gold;
-  final bool isDark;
 
-  const _AyahNumberBadge({required this.number, required this.gold, required this.isDark});
+  const _AyahNumberBadge({
+    required this.number,
+    required this.gold,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 28,
-      height: 28,
+      width: 30,
+      height: 30,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: gold.withOpacity(0.5), width: 1),
+        border: Border.all(
+          color: gold.withOpacity(0.7),
+          width: 1.2,
+        ),
       ),
       child: Center(
         child: Text(
           _toArabicNumber(number),
-          style: TextStyle(
-            fontSize: 10,
+          style: GoogleFonts.amiri(
+            fontSize: 12,
             color: gold,
-            fontFamily: 'Amiri',
           ),
         ),
       ),
@@ -111,7 +114,14 @@ class _AyahNumberBadge extends StatelessWidget {
   }
 
   String _toArabicNumber(int n) {
-    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return n.toString().split('').map((d) => arabicDigits[int.parse(d)]).join();
+    const arabicDigits = [
+      '٠', '١', '٢', '٣', '٤',
+      '٥', '٦', '٧', '٨', '٩'
+    ];
+    return n
+        .toString()
+        .split('')
+        .map((d) => arabicDigits[int.parse(d)])
+        .join();
   }
 }

@@ -88,7 +88,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                     Text(
                       '﷽',
                       style: GoogleFonts.amiri(
-                        fontSize: 36,
+                        fontSize: 25,
                         color: gold,
                         height: 1.8,
                       ),
@@ -173,7 +173,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
                       Text(
                         'الصفحة ${provider.currentPage}',
                         style: GoogleFonts.amiri(
-                          color: isDark ? Colors.white : Theme.of(context).colorScheme.surface,
+                          color: Colors.white ,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -304,9 +304,19 @@ class _Quranv2hcState extends State<Quranv2hc> {
                   final surah = surahs[i];
                   return ListTile(
                     onTap: () async {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const QuranPagev2()));
-                      await provider.navigateToSurah(surah.number);
-                    },
+                    if (isExpanded) {
+                      setState(() => _expandedJuz = null);
+                    } else {
+                      await provider.navigateToJuz(juzNumber);
+                  
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const QuranPagev2()),
+                        );
+                      }
+                    }
+                  },
                     leading: Container(
                       width: 32,
                       height: 32,

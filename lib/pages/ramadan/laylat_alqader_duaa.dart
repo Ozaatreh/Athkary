@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 
-
-
 class LaylatAlQadrDuaScreen extends StatefulWidget {
   const LaylatAlQadrDuaScreen({super.key});
 
@@ -12,9 +10,8 @@ class LaylatAlQadrDuaScreen extends StatefulWidget {
 }
 
 class _LaylatAlQadrDuaScreenState extends State<LaylatAlQadrDuaScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
 
   
   final List<String> laylatAlQadrDuas = const [
@@ -38,17 +35,13 @@ class _LaylatAlQadrDuaScreenState extends State<LaylatAlQadrDuaScreen>
     'اللّهم أوردنا حوض نبيّك سيّدنا محمد صلّى الله عليه وسلّم، واجعله لنا شفيعاً، واسقنا من يده الشريفة شربة لا نظمأ بعدها أبداً، ربنا قِنا عذاب النار، ربنا إننا سمعنا منادياً ينادي للإيمان أن آمنوا بربكم فآمنا، ربنا فاغفر لنا ذنوبنا وكفّر عنا سيئاتنا وتوفّنا مع الأبرار، ربنا وآتنا ما وعدتنا على رُسُلك ولا تخزنا يوم القيامة إنك لا تخلف الميعاد، اللّهم اغفر للمؤمنين والمؤمنات، والمسلّمين والمسلّمات، الأحياء منهم والأموات، إنك سميع قريب مجيب الدعوات يا رب العالمين',
     'اللّهم أصلح لنا ديننا الذي هو عصمة أمرنا، وأصلح لنا دنيانا التي فيها معاشنا. اللهم أصلح لنا آخرتنا التي فيها معادنا، واجعل الحياة زيادة لنا في كل خير، واجعل الموت راحة لنا من كل شر. اللّهم لك الحمد كما هديتنا للإسلام، وعلمتنا الحكمة والقرآن، اللّهم اجعلنا لكتابك من التّالين، ولك به من العاملين، وبالأعمال مخلصين، وبالقسط قائمين، وعن النار مزحزحين، وبالجنات منعمين، وإلى وجهك ناظرين',
   ];
-
-
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 900),
       vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _controller.forward();
+    )..forward();
   }
 
   @override
@@ -59,91 +52,146 @@ class _LaylatAlQadrDuaScreenState extends State<LaylatAlQadrDuaScreen>
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    
-    final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19 ,fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );
+    final size = MediaQuery.of(context).size;
 
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 23,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    final TextStyle textStyle3 = GoogleFonts.amiri(
-    fontSize: 17,
-    color: Theme.of(context).colorScheme.primary, );
-    
-    
-    return Scaffold(
-      
-      body: Column(
-        children: [
-          SizedBox(height: screenHeight * 0.04),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-            icon:   Icon(Icons.arrow_back_ios_new_rounded , color: Theme.of(context).colorScheme.primary,),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
           ),
-                  Lottie.asset(
-                              'assets/animations/wired-flat-1821-night-sky-moon-stars-hover-pinch.json', // Dark mode animation
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.fill,
-                              animate: true,
+          child: SafeArea(
+            child: Column(
+              children: [
+
+                /// ================= HEADER =================
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Lottie.asset(
+                              'assets/animations/wired-flat-1821-night-sky-moon-stars-hover-pinch.json',
+                              width: 55,
                               repeat: true,
                             ),
-                   Text('ليلة القدر' , style: textStyle1,),
-                ],
-              ),
-              Divider(),
-          Expanded(
-            child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: laylatAlQadrDuas.length,
-        itemBuilder: (context, index) {
-          return _buildDuaCard(
-            context,
-            dua: laylatAlQadrDuas[index],
-          );
-        },
-      ),
-    )
-        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              'ليلة القدر',
+                              style: GoogleFonts.amiri(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 40), // balance layout
+                    ],
+                  ),
+                ),
+
+                /// Divider with elegance
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ================= LIST =================
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: laylatAlQadrDuas.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / laylatAlQadrDuas.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildDuaCard(
+                            context,
+                            laylatAlQadrDuas[index],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildDuaCard(BuildContext context, {required String dua}) {
-    
-    final TextStyle textStyle1 = GoogleFonts.amiri(
-    fontSize: 19, fontWeight: FontWeight.bold,
-    color: Theme.of(context).colorScheme.inversePrimary, );  
-     
-     final TextStyle textStyle2 = GoogleFonts.amiri(
-    fontSize: 19, fontWeight: FontWeight.w100,
-    color: Theme.of(context).colorScheme.inversePrimary, );  
-    
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Card(
-        color: Theme.of(context).colorScheme.primary,
-        margin: const EdgeInsets.only(bottom: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+  Widget _buildDuaCard(BuildContext context, String dua) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            dua,
-            style: textStyle2,
-            textAlign: TextAlign.justify,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 22,
+        ),
+        child: Text(
+          dua,
+          style: GoogleFonts.amiri(
+            fontSize: 20,
+            height: 1.9,
+            color: Colors.white.withOpacity(0.95),
           ),
+          textAlign: TextAlign.justify,
         ),
       ),
     );

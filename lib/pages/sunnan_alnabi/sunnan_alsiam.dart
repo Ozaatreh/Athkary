@@ -8,197 +8,271 @@ class FastingSunnahsPage extends StatefulWidget {
   State<FastingSunnahsPage> createState() => _FastingSunnahsPageState();
 }
 
-class _FastingSunnahsPageState extends State<FastingSunnahsPage> {
-  
-   final List<Map<String, String>> fastingSunnahs = const [
-    {
-      'title': 'السحور',
-      'description':
-          'عن أنس ـ رضي الله عنه ـ قال : قال رسول الله صلى الله عليه وسلم : (( تسحروا ؛ فإن في السحور بركة )) [ متفق عليه: 1923 - 2549 ].',
-    },
-    {
-      'title': 'تعجيل الفطر',
-      'description':
-          'عن سهل بن سعد ـ رضي الله عنه ـ قال: قال رسول الله صلى الله عليه وسلم : (( لا يزال الناس بخير ما عجلوا الفطر )) [ متفق عليه: 1957 - 2554 ].',
-    },
-    {
-      'title': 'قيام رمضان',
-      'description':
-          'عن أبي هريرة رضي الله عنه ، أن رسول الله ـ صلى الله عليه وسلم ـ قال : (( من قام رمضان إيمانًا واحتسابًا غُفر له ما تقدم من ذنبه )) [ متفق عليه: 37-1779 ].',
-    },
-    {
-      'title': 'الاعتكاف في رمضان',
-      'description':
-          'عن ابن عمر ـ رضي الله عنهما ـ قال: (( كان رسول الله ـ صلى الله عليه وسلم ـ يعتكف العشر الآواخر من رمضان )) [ رواه البخاري: 2025 ].',
-    },
-    {
-      'title': 'صوم ستة أيام من شوال',
-      'description':
-          'عن أبي أيوب الأنصاري رضي الله عنه ، أن رسول الله ـ صلى الله عليه وسلم ـ قال: (( من صام رمضان ، ثم أتبعه ستًا من شوال ،كان كصيام الدهر )) [ رواه مسلم: 2758 ].',
-    },
-    {
-      'title': 'صوم ثلاثة أيام من كل شهر',
-      'description':
-          'عن أبي هريرة ـ رضي الله عنه ـ قال: (( أوصاني خليلي بثلاث ، لا أدعهن حتى أموت: صوم ثلاثة أيام من كل شهر ، وصلاة الضحى ، ونوم على وتر )) [ متفق عليه: 1178-1672 ].',
-    },
-    {
-      'title': 'صوم يوم عرفة',
-      'description':
-          'عن أبي قتادة رضي الله عنه ، أن رسول الله ـ صلى الله عليه وسلم ـ قال: (( صيام يوم عرفة، أحتسب على الله أن يكفر السنة التي قبلة، والسنة التي بعده )) [ رواه مسلم: 3746 ].',
-    },
-    {
-      'title': 'صوم يوم عاشوراء',
-      'description':
-          'عن أبي قتادة ـ رضي الله عنه ـ قال: قال رسول الله صلى الله عليه وسلم : (( صيام يوم عاشوراء ، أحتسب على الله أن يكفر السنة التي قبله )) [ رواه مسلم: 3746 ].',
-    },
-  ];
-  
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final ScrollController _scrollController = ScrollController();
+class _FastingSunnahsPageState extends State<FastingSunnahsPage>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+
+  final List<Map<String, String>> fastingSunnahs = const [
+  {
+    'title': 'السحور',
+    'description':
+        'قال رسول الله ﷺ: "تسحروا فإن في السحور بركة" [متفق عليه].',
+  },
+  {
+    'title': 'تأخير السحور',
+    'description':
+        'كان بين سحور النبي ﷺ وصلاته قدر خمسين آية، مما يدل على استحباب تأخير السحور إلى قبيل الفجر [متفق عليه].',
+  },
+  {
+    'title': 'تعجيل الفطر',
+    'description':
+        'قال رسول الله ﷺ: "لا يزال الناس بخير ما عجلوا الفطر" [متفق عليه].',
+  },
+  {
+    'title': 'الفطر على تمر أو ماء',
+    'description':
+        'كان رسول الله ﷺ يفطر قبل أن يصلي على رطبات، فإن لم تكن رطبات فتمرات، فإن لم تكن تمرات حسا حسوات من ماء [رواه أبو داود والترمذي].',
+  },
+  {
+    'title': 'الدعاء عند الإفطار',
+    'description':
+        'كان النبي ﷺ إذا أفطر قال: "ذهب الظمأ وابتلت العروق وثبت الأجر إن شاء الله" [رواه أبو داود].',
+  },
+  {
+    'title': 'حفظ اللسان والجوارح',
+    'description':
+        'قال رسول الله ﷺ: "إذا كان يوم صوم أحدكم فلا يرفث ولا يصخب، فإن سابه أحد أو قاتله فليقل إني صائم" [متفق عليه].',
+  },
+  {
+    'title': 'قيام رمضان',
+    'description':
+        'قال رسول الله ﷺ: "من قام رمضان إيمانًا واحتسابًا غفر له ما تقدم من ذنبه" [متفق عليه].',
+  },
+  {
+    'title': 'الاجتهاد في العشر الأواخر',
+    'description':
+        'كان النبي ﷺ إذا دخلت العشر الأواخر شد مئزره وأحيا ليله وأيقظ أهله [متفق عليه].',
+  },
+  {
+    'title': 'الاعتكاف في رمضان',
+    'description':
+        'كان رسول الله ﷺ يعتكف العشر الأواخر من رمضان حتى توفاه الله [رواه البخاري].',
+  },
+  {
+    'title': 'تحري ليلة القدر',
+    'description':
+        'قال رسول الله ﷺ: "تحروا ليلة القدر في العشر الأواخر من رمضان" [متفق عليه].',
+  },
+  {
+    'title': 'صوم ستة أيام من شوال',
+    'description':
+        'قال رسول الله ﷺ: "من صام رمضان ثم أتبعه ستًا من شوال كان كصيام الدهر" [رواه مسلم].',
+  },
+  {
+    'title': 'صوم ثلاثة أيام من كل شهر',
+    'description':
+        'أوصى النبي ﷺ أبا هريرة رضي الله عنه بصيام ثلاثة أيام من كل شهر [متفق عليه].',
+  },
+  {
+    'title': 'صوم يومي الاثنين والخميس',
+    'description':
+        'كان النبي ﷺ يتحرى صيام يومي الاثنين والخميس، وقال: "تعرض الأعمال يوم الاثنين والخميس فأحب أن يعرض عملي وأنا صائم" [رواه الترمذي].',
+  },
+  {
+    'title': 'صوم يوم عرفة',
+    'description':
+        'قال رسول الله ﷺ: "صيام يوم عرفة أحتسب على الله أن يكفر السنة التي قبله والسنة التي بعده" [رواه مسلم].',
+  },
+  {
+    'title': 'صوم يوم عاشوراء',
+    'description':
+        'قال رسول الله ﷺ: "صيام يوم عاشوراء أحتسب على الله أن يكفر السنة التي قبله" [رواه مسلم].',
+  },
+  {
+    'title': 'صوم يوم قبله أو بعده مع عاشوراء',
+    'description':
+        'قال رسول الله ﷺ: "لئن بقيت إلى قابل لأصومن التاسع" [رواه مسلم]، استحبابًا لمخالفة اليهود.',
+  },
+  {
+    'title': 'الإكثار من الصدقة في رمضان',
+    'description':
+        'كان رسول الله ﷺ أجود الناس، وكان أجود ما يكون في رمضان حين يلقاه جبريل [متفق عليه].',
+  },
+  {
+    'title': 'الإكثار من تلاوة القرآن في رمضان',
+    'description':
+        'كان جبريل عليه السلام يدارس النبي ﷺ القرآن في رمضان، مما يدل على استحباب الإكثار من تلاوته في هذا الشهر [متفق عليه].',
+  },
+];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateItems());
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+          ..forward();
   }
 
-  void _animateItems() async {
-    for (int i = 0; i < fastingSunnahs.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _listKey.currentState?.insertItem(i);
-      await _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0D1B2A),
+                Color(0xFF1B263B),
+                Color(0xFF2C3E50),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'سنن الصيام',
-          style: GoogleFonts.tajawal(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
+                /// ===== HEADER =====
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'سنن الصيام',
+                            style: GoogleFonts.amiri(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 40),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  color: Colors.white.withOpacity(0.1),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// ===== CONTENT =====
+                Expanded(
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: fastingSunnahs.length,
+                    itemBuilder: (context, index) {
+                      final animation = CurvedAnimation(
+                        parent: _controller,
+                        curve: Interval(
+                          (index / fastingSunnahs.length),
+                          1.0,
+                          curve: Curves.easeOut,
+                        ),
+                      );
+
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildTile(
+                            title: fastingSunnahs[index]['title']!,
+                            description:
+                                fastingSunnahs[index]['description']!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDarkMode ? Colors.white : theme.colorScheme.inversePrimary,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDarkMode
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.colorScheme.surface.withOpacity(0.8),
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface,
-                  ],
-                )
-              : null,
-          color: isDarkMode ? theme.colorScheme.surface : theme.colorScheme.surface,
-        ),
-        child: AnimatedList(
-          key: _listKey,
-          controller: _scrollController,
-          initialItemCount: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          itemBuilder: (context, index, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.5),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                )),
-                child: _buildSunnahCard(context, index),
-              ),
-            );
-          },
         ),
       ),
     );
   }
 
-  Widget _buildSunnahCard(BuildContext context, int index) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
+  Widget _buildTile({
+    required String title,
+    required String description,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color.fromARGB(255, 90, 90, 90) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: theme.colorScheme.primary,
-                  spreadRadius: 1,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          fastingSunnahs[index]['title']!,
-          textAlign: TextAlign.right,
-          style: GoogleFonts.tajawal(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : theme.colorScheme.surface,
-          ),
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withOpacity(0.08),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
         ),
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            indent: 16,
-            endIndent: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                fastingSunnahs[index]['description']!,
-                textAlign: TextAlign.right,
-                style: GoogleFonts.tajawal(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                ),
-              ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: GoogleFonts.amiri(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-        iconColor: theme.colorScheme.primary,
-        collapsedIconColor: theme.colorScheme.primary,
+          children: [
+            Text(
+              description,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                height: 1.9,
+                color: Colors.white.withOpacity(0.95),
+              ),
+              textAlign: TextAlign.justify,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
- 
