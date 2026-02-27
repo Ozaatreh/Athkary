@@ -304,19 +304,13 @@ class _Quranv2hcState extends State<Quranv2hc> {
                   final surah = surahs[i];
                   return ListTile(
                     onTap: () async {
-                    if (isExpanded) {
-                      setState(() => _expandedJuz = null);
-                    } else {
-                      await provider.navigateToJuz(juzNumber);
-                  
-                      if (context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const QuranPagev2()),
-                        );
-                      }
-                    }
-                  },
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const QuranPagev2()),
+  );
+
+  await provider.navigateToSurah(surah.number);
+},
                     leading: Container(
                       width: 32,
                       height: 32,

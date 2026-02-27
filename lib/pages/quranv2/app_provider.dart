@@ -200,9 +200,28 @@ class AppProvider extends ChangeNotifier {
     if (_currentPage > 1) await loadPage(_currentPage - 1);
   }
 
-  Future<void> navigateToJuz(int juzNumber) async {
-  final page = await _quranService.getFirstPageOfJuz(juzNumber);
-  await loadPage(page);
+ Future<void> navigateToSurah(int surahNumber) async {
+  try {
+    final page =
+        await _quranService.getFirstPageOfSurah(surahNumber);
+
+    await loadPage(page);
+  } catch (e) {
+    _error = e.toString();
+    notifyListeners();
+  }
+}
+
+Future<void> navigateToJuz(int juzNumber) async {
+  try {
+    final page =
+        await _quranService.getFirstPageOfJuz(juzNumber);
+
+    await loadPage(page);
+  } catch (e) {
+    _error = e.toString();
+    notifyListeners();
+  }
 }
 
   void toggleAyahSelection(int index) {
