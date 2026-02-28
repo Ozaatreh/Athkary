@@ -8,7 +8,6 @@ import 'package:athkary/pages/quranv2/quranv2hc.dart';
 import 'package:athkary/pages/ramadan/ramadan_navs.dart';
 import 'package:athkary/services/prayer_time_service.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -28,10 +27,10 @@ import 'package:athkary/pages/tasabeh.dart';
 import 'package:athkary/theme/dark_mode.dart';
 import 'package:athkary/theme/light_mode.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:lottie/lottie.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +45,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const MethodChannel _prayerWidgetChannel =
+      MethodChannel('athkary/prayer_widget');
+  late final PageController _heroPageController;
+  int _heroPageIndex = 0;
   Map<String, String> _prayerTimes = {};
   String _currentPrayer = "";
   String _currentPrayerTime = "";
@@ -148,6 +151,7 @@ class _HomePageState extends State<HomePage> {
   @override
 void initState() {
   super.initState();
+  _heroPageController = PageController();
   _initializeHome();
 }
   Future<void> _initializeHome() async {
@@ -160,26 +164,26 @@ void initState() {
     _updateCurrentPrayer();
     _checkAndLaunchAthan();
     _checkForUpdate();
-    _updateNextPrayer(); 
+    _updateNextPrayer();
   });
 }
   Future<void> _checkForUpdate() async {
   final remoteConfig = FirebaseRemoteConfig.instance;
-  
+
   try {
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 10),
       minimumFetchInterval: const Duration(hours: 1),
     ));
-    
+
     await remoteConfig.fetchAndActivate();
-    
+
     final minAppVersion = remoteConfig.getString('min_app_version');
     final updateUrl = remoteConfig.getString('update_url');
-    
+
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
-    
+
     if (_compareVersions(currentVersion, minAppVersion) < 0) {
       _showUpdateDialog(updateUrl);
     }
@@ -191,12 +195,12 @@ void initState() {
 int _compareVersions(String v1, String v2) {
   final v1Parts = v1.split('.').map(int.parse).toList();
   final v2Parts = v2.split('.').map(int.parse).toList();
-  
+
   for (var i = 0; i < v1Parts.length; i++) {
     if (v1Parts[i] > v2Parts[i]) return 1;
     if (v1Parts[i] < v2Parts[i]) return -1;
   }
-  
+
   return 0;
 }
 
@@ -259,6 +263,7 @@ void _showUpdateDialog(String updateUrl) {
   @override
   void dispose() {
     _timer?.cancel();
+    _heroPageController.dispose();
     super.dispose();
   }
 
@@ -279,7 +284,38 @@ void _showUpdateDialog(String updateUrl) {
   setState(() {
     _prayerTimes = formatted;
   });
+
+  await _syncPrayerWidgetFromHome(formatted, prefs, lat, lon);
 }
+
+ Future<void> _syncPrayerWidgetFromHome(
+   Map<String, String> formatted,
+   SharedPreferences prefs,
+   double lat,
+   double lon,
+ ) async {
+   const prayerKeys = ["الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء"];
+
+   for (final key in prayerKeys) {
+     await prefs.setString(key, formatted[key] ?? '--:--');
+   }
+
+   final existingLabel = prefs.getString('prayer_widget_location');
+   final fallbackLabel = '${lat.toStringAsFixed(3)}, ${lon.toStringAsFixed(3)}';
+   await prefs.setString('prayer_widget_location', existingLabel ?? fallbackLabel);
+
+   try {
+     await _prayerWidgetChannel.invokeMethod(
+       'refreshPrayerWidget',
+       {
+         'times': formatted,
+         'location': existingLabel ?? fallbackLabel,
+       },
+     );
+   } catch (_) {
+     // Ignore widget refresh failures to avoid affecting home rendering.
+   }
+ }
 void _updateNextPrayer() async {
   final prefs = await SharedPreferences.getInstance();
   final lat = prefs.getDouble('latitude') ?? 31.9539;
@@ -433,19 +469,90 @@ void _updateNextPrayer() async {
   ];
 
   return SizedBox(
-    height: screenHeight * 0.5,
-    child: CardSwiper(
-      cardsCount: cards.length,
-      cardBuilder: (context, index, _, __) => cards[index],
+    height: screenHeight * 0.52,
+    child: Column(
+      children: [
+        Expanded(
+          child: PageView.builder(
+            controller: _heroPageController,
+            reverse: true,
+            itemCount: cards.length,
+            onPageChanged: (index) {
+              setState(() {
+                _heroPageIndex = index;
+              });
+            },
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: cards[index],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'اسحب يميناً للتالي ويساراً للسابق',
+          style: GoogleFonts.tajawal(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(cards.length, (index) {
+            final isActive = _heroPageIndex == index;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: isActive ? 18 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: isActive
+                    ? const Color(0xFF0E5A2F)
+                    : const Color(0xFF0E5A2F).withOpacity(0.3),
+              ),
+            );
+          }),
+        ),
+      ],
     ),
   );
 }
  Widget _buildImageCard(double screenWidth, double screenHeight) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(20),
-    child: Image.asset(
-      'assets/images/athk_pic3.png',
-      fit: BoxFit.cover,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          'assets/images/athk_pic3.png',
+          fit: BoxFit.cover,
+        ),
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [Colors.black54, Colors.transparent],
+            ),
+          ),
+        ),
+        Positioned(
+          right: 16,
+          left: 16,
+          bottom: 16,
+          child: Text(
+            'ذكرٌ يطمئن القلب ونورٌ في اليوم',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.tajawal(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: screenWidth * 0.05,
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }
@@ -458,11 +565,12 @@ Widget _buildNextPrayerCard(
       borderRadius: BorderRadius.circular(25),
       gradient: const LinearGradient(
         colors: [
+          Color(0xFF0C3B2E),
           Color(0xFF0E5A2F),
-          Color(0xFF145A32),
+          Color(0xFF157347),
         ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
       ),
       boxShadow: [
         BoxShadow(
@@ -478,13 +586,25 @@ Widget _buildNextPrayerCard(
         /// Decorative moon circle
         Positioned(
           top: -40,
-          right: -40,
+          left: -40,
           child: Container(
             width: 150,
             height: 150,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withOpacity(0.05),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: -35,
+          right: -20,
+          child: Container(
+            width: 110,
+            height: 110,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.08),
             ),
           ),
         ),
@@ -497,8 +617,9 @@ Widget _buildNextPrayerCard(
               Text(
                 "الصلاة القادمة",
                 style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.055,
-                  color: Colors.white70,
+                  fontSize: screenWidth * 0.05,
+                  color: Colors.white.withOpacity(0.88),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
 
@@ -511,19 +632,19 @@ Widget _buildNextPrayerCard(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.8),
                     width: 3,
                   ),
                   gradient: RadialGradient(
                     colors: [
-                      Colors.white.withOpacity(0.2),
+                      Colors.white.withOpacity(0.35),
                       Colors.transparent,
                     ],
                   ),
                 ),
                 child: Center(
                   child: Text(
-                    _nextPrayerName,
+                    _nextPrayerName.isEmpty ? '...' : _nextPrayerName,
                     style: GoogleFonts.tajawal(
                       fontSize: screenWidth * 0.07,
                       fontWeight: FontWeight.bold,
@@ -540,9 +661,10 @@ Widget _buildNextPrayerCard(
                 "${_timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0')} : "
                 "${_timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0')}",
                 style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.065,
+                  fontSize: screenWidth * 0.06,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: 1.2,
                 ),
               ),
 
@@ -751,4 +873,3 @@ Widget _buildNextPrayerCard(
     );
   }
 }
-
