@@ -78,7 +78,7 @@ class _QuranPageState extends State<QuranPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Icon(Icons.arrow_back, color: Colors.black),
+        leading: Icon(Icons.arrow_back_ios_new, color: Colors.black),
         title: Text(
           'القرآن الكريم',
           style: GoogleFonts.amiri(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),

@@ -6,6 +6,7 @@ import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/pages/quranv2/quran_page_screen.dart';
 import 'package:athkary/pages/quranv2/quranv2hc.dart';
 import 'package:athkary/pages/ramadan/ramadan_navs.dart';
+import 'package:athkary/quranv3/quran_v3_page.dart';
 import 'package:athkary/services/prayer_time_service.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -130,17 +131,15 @@ class _HomePageState extends State<HomePage> {
       'page': AlahNames(),
       'type': 'small',
     },
-    {
-      'title': 'Quran Cloud',
+  
+        {
+      'title': 'Quran V3',
       'animationPath':
-          'assets/animations/wired-flat-63-home-hover-3d-roll.json',
-      'page': ChangeNotifierProvider(
-        create: (_) => AppProvider(),
-        child: const Quranv2hc(),
-),
-
+          'assets/animations/wired-lineal-112-book-hover-flutter.json',
+      'page': const QuranV3Page(),
       'type': 'small',
     },
+  
   ];
 
   List<Map<String, dynamic>> _features = [];
@@ -364,8 +363,10 @@ void _updateNextPrayer() async {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final media = MediaQuery.of(context);
+    final screenWidth = media.size.width;
+    final screenHeight = media.size.height;
+    final isLandscape = screenWidth > screenHeight;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -381,7 +382,7 @@ void _updateNextPrayer() async {
               SizedBox(height: screenHeight * 0.02),
               _buildHeroSection(context, screenWidth, screenHeight),
               SizedBox(height: screenHeight * 0.03),
-              _buildFeaturesGrid(context, screenWidth, screenHeight),
+              _buildFeaturesGrid(context, screenWidth, screenHeight, isLandscape),
             ],
           ),
         ),
@@ -423,20 +424,36 @@ void _updateNextPrayer() async {
   }
 
   Widget _buildHeroSection(
-    BuildContext context,
-    double screenWidth,
-    double screenHeight) {
-
+  BuildContext context,
+  double screenWidth,
+  double screenHeight,
+) {
   final cards = [
     _buildImageCard(screenWidth, screenHeight),
     _buildNextPrayerCard(screenWidth, screenHeight),
   ];
 
   return SizedBox(
-    height: screenHeight * 0.5,
+    height: screenHeight * (screenWidth > screenHeight ? 0.75 : 0.48),
     child: CardSwiper(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       cardsCount: cards.length,
-      cardBuilder: (context, index, _, __) => cards[index],
+      numberOfCardsDisplayed: 2,
+      backCardOffset: const Offset(0, 20),
+      cardBuilder: (context, index, _, __) => AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.18),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
+          ],
+        ),
+        child: cards[index],
+      ),
     ),
   );
 }
@@ -453,6 +470,18 @@ Widget _buildNextPrayerCard(
     double screenWidth,
     double screenHeight) {
 
+  final isLandscape =
+      screenWidth > screenHeight;
+
+  final circleSize =
+      isLandscape ? screenHeight * 0.45 : screenWidth * 0.4;
+
+  final titleSize =
+      isLandscape ? screenHeight * 0.07 : screenWidth * 0.055;
+
+  final countdownSize =
+      isLandscape ? screenHeight * 0.08 : screenWidth * 0.065;
+
   return Container(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(25),
@@ -464,105 +493,97 @@ Widget _buildNextPrayerCard(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.25),
-          blurRadius: 15,
-          offset: const Offset(0, 8),
-        ),
-      ],
     ),
-    child: Stack(
-      children: [
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        return Center(
+          child: SingleChildScrollView( // 🔥 Prevent overflow
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
 
-        /// Decorative moon circle
-        Positioned(
-          top: -40,
-          right: -40,
-          child: Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.05),
-            ),
-          ),
-        ),
-
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-
-              Text(
-                "الصلاة القادمة",
-                style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.055,
-                  color: Colors.white70,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// Circular Highlight
-              Container(
-                width: screenWidth * 0.4,
-                height: screenWidth * 0.4,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 3,
-                  ),
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white.withOpacity(0.2),
-                      Colors.transparent,
-                    ],
+                Text(
+                  "الصلاة القادمة",
+                  style: GoogleFonts.tajawal(
+                    fontSize: titleSize,
+                    color: Colors.white70,
                   ),
                 ),
-                child: Center(
+
+                SizedBox(height: isLandscape ? 10 : 20),
+
+                /// Responsive Circle
+                Container(
+                  width: circleSize,
+                  height: circleSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
+                    ),
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: Center(
+                    child: FittedBox( // 🔥 Prevent text overflow
+                      child: Text(
+                        _nextPrayerName,
+                        style: GoogleFonts.tajawal(
+                          fontSize: circleSize * 0.25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: isLandscape ? 12 : 25),
+
+                FittedBox( // 🔥 Prevent overflow
                   child: Text(
-                    _nextPrayerName,
+                    "${_timeLeft.inHours.toString().padLeft(2, '0')} : "
+                    "${_timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0')} : "
+                    "${_timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0')}",
                     style: GoogleFonts.tajawal(
-                      fontSize: screenWidth * 0.07,
+                      fontSize: countdownSize,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 25),
+                SizedBox(height: isLandscape ? 6 : 10),
 
-              Text(
-                "${_timeLeft.inHours.toString().padLeft(2, '0')} : "
-                "${_timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0')} : "
-                "${_timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0')}",
-                style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.065,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Text(
+                  "متبقي على الأذان",
+                  style: GoogleFonts.tajawal(
+                    fontSize: isLandscape
+                        ? screenHeight * 0.05
+                        : screenWidth * 0.04,
+                    color: Colors.white70,
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Text(
-                "متبقي على الأذان",
-                style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.04,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        );
+      },
     ),
   );
 }
-  Widget _buildFeaturesGrid(BuildContext context, double screenWidth, double screenHeight) {
+ Widget _buildFeaturesGrid(
+  BuildContext context,
+  double screenWidth,
+  double screenHeight,
+  bool isLandscape,
+){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -579,8 +600,8 @@ Widget _buildNextPrayerCard(
         // ),
         SizedBox(height: screenHeight * 0.02),
         ReorderableWrap(
-          spacing: screenWidth * 0.05,
-          runSpacing: screenWidth * 0.05,
+          spacing: isLandscape ? 20 : screenWidth * 0.05,
+          runSpacing: isLandscape ? 20 : screenWidth * 0.05,
           padding: EdgeInsets.zero,
           onReorder: _onReorder,
           children: _features.map((feature) {
@@ -607,148 +628,173 @@ Widget _buildNextPrayerCard(
     );
   }
 
-  Widget _buildSmallFeatureCard(
-    BuildContext context,
-    String title,
-    String animationPath,
-    Widget page,
-    double screenWidth,
-    double screenHeight,
-  ) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          transitionDuration: Duration(milliseconds: 300),
-          pageBuilder: (_, __, ___) => page,
-          transitionsBuilder: (_, animation, __, child) => FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
-        ),
-      ),
-      child: Container(
-        width: (screenWidth - screenWidth * 0.15) / 2,
-        height: screenHeight * 0.18,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: screenWidth * 0.15,
-              height: screenWidth * 0.15,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: animationPath.endsWith('.json')
-                    ? Lottie.asset(
-                        animationPath,
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                      )
-                    : Image.asset(
-                        animationPath,
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                      ),
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.01),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.tajawal(
-                fontSize: screenWidth * 0.04,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+ Widget _buildSmallFeatureCard(
+  BuildContext context,
+  String title,
+  String animationPath,
+  Widget page,
+  double screenWidth,
+  double screenHeight,
+) {
+  final isLandscape = screenWidth > screenHeight;
 
-  Widget _buildLargeFeatureCard(
-    BuildContext context,
-    String title,
-    String animationPath,
-    Widget page,
-    double screenWidth,
-    double screenHeight,
-  ) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => page),
+  return GestureDetector(
+    onTap: () => Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
       ),
-      child: Container(
-        width: double.infinity,
-        height: screenHeight * 0.12,
-        margin: EdgeInsets.only(bottom: screenHeight * 0.02),
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            width: 1,
+    ),
+    child: SizedBox(
+      width: isLandscape
+          ? (screenWidth - 60) / 3   // 3 columns in landscape
+          : (screenWidth - 60) / 2,  // 2 columns portrait
+      child: AspectRatio(
+        aspectRatio: isLandscape ? 1.2 : 0.9,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.12),
+                Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.05),
+              ],
+            ),
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.15),
+            ),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final iconSize = constraints.maxWidth * 0.35;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: iconSize,
+                    height: iconSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.08),
+                    ),
+                    child: Center(
+                      child: animationPath.endsWith('.json')
+                          ? Lottie.asset(animationPath,
+                              width: iconSize * 0.7)
+                          : Image.asset(animationPath,
+                              width: iconSize * 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.tajawal(
+                        fontWeight: FontWeight.w600,
+                        color:
+                            Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: screenWidth * 0.15,
-              height: screenWidth * 0.15,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: animationPath.endsWith('.json')
-                    ? Lottie.asset(
-                        animationPath,
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                      )
-                    : Image.asset(
-                        animationPath,
-                        width: screenWidth * 0.1,
-                        height: screenWidth * 0.1,
-                      ),
-              ),
-            ),
-            SizedBox(width: screenWidth * 0.04),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.tajawal(
-                  fontSize: screenWidth * 0.045,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: screenWidth * 0.04,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            ),
-          ],
+      ),
+    ),
+  );
+}
+ Widget _buildLargeFeatureCard(
+  BuildContext context,
+  String title,
+  String animationPath,
+  Widget page,
+  double screenWidth,
+  double screenHeight,
+) {
+  final isLandscape = screenWidth > screenHeight;
+
+  return GestureDetector(
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    ),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context)
+            .colorScheme
+            .primary
+            .withOpacity(0.15),
+        border: Border.all(
+          color: Theme.of(context)
+              .colorScheme
+              .primary
+              .withOpacity(0.1),
         ),
       ),
-    );
-  }
+      child: Row(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final iconSize = isLandscape
+                  ? constraints.maxHeight * 0.6
+                  : 50.0;
+
+              return Container(
+                width: iconSize,
+                height: iconSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+                child: Center(
+                  child: animationPath.endsWith('.json')
+                      ? Lottie.asset(animationPath,
+                          width: iconSize * 0.6)
+                      : Image.asset(animationPath,
+                          width: iconSize * 0.6),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.tajawal(
+                fontSize: isLandscape ? 16 : 18,
+                fontWeight: FontWeight.w600,
+                color:
+                    Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios, size: 18),
+        ],
+      ),
+    ),
+  );
+}
 }
 

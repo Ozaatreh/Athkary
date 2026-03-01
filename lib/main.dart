@@ -1,3 +1,4 @@
+import 'package:athkary/Component/athan_page.dart';
 import 'package:athkary/Component/splash_screen.dart';
 import 'package:athkary/Component/notification.dart';
 import 'package:athkary/pages/quranv2/app_provider.dart';
@@ -14,6 +15,31 @@ import 'package:url_launcher/url_launcher.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+
+@pragma('vm:entry-point')
+Future<void> onNotificationActionReceived(
+  ReceivedAction receivedAction,
+) async {
+  final payload = receivedAction.payload ?? {};
+  final prayerName = payload['prayerName'];
+  final prayerTime = payload['prayerTime'];
+
+  if (prayerName == null || prayerTime == null) return;
+
+  final context = navigatorKey.currentContext;
+  if (context == null) return;
+
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => AthanPopup(
+        prayerName: prayerName,
+        prayerTime: prayerTime,
+        athanSoundPath: 'audios/athan_islam_sobhi.mp3',
+      ),
+    ),
+  );
+}
+
 
 Future<void> main() async {
   // AwesomeNotifications().
@@ -80,6 +106,11 @@ Future<void> main() async {
       ),
     ],
   );
+  
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: onNotificationActionReceived,
+  );
+
   checkForUpdate();
 
   // Load shared preferences BEFORE runApp

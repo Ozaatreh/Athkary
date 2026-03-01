@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:athkary/pages/home_page.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -116,43 +115,72 @@ class _MasbahaElcState extends State<MasbahaElc>
   }
 
   /// ================= VOICE =================
+Future<bool> _requestMicPermission() async {
+  var status = await Permission.microphone.status;
 
-  void _startListening() async {
-    _processedTexts.clear();
-    _secondsRemaining = 600;
-    _lastSpeechTime = DateTime.now();
-    _startCountdown();
-    _startSilenceWatcher();
+  if (!status.isGranted) {
+    status = await Permission.microphone.request();
+  }
 
-    bool available = await _speech.initialize();
-    if (!available) return;
+  return status.isGranted;
+}
+ void _startListening() async {
+  _processedTexts.clear();
+  _secondsRemaining = 600;
+  _lastSpeechTime = DateTime.now();
 
-    setState(() => _isListening = true);
-
-    _listeningTimer?.cancel();
-    _listeningTimer = Timer(_listeningDuration, _stopListening);
-
-    await _speech.listen(
-      localeId: 'ar-SA',
-      listenFor: _listeningDuration,
-      pauseFor: const Duration(seconds: 30),
-      partialResults: true,
-      onResult: (result) {
-        _lastSpeechTime = DateTime.now();
-        _processDhikr(result.recognizedWords);
-      },
+  bool hasPermission = await _requestMicPermission();
+  if (!hasPermission) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Microphone permission denied")),
     );
+    return;
   }
 
-  void _startSilenceWatcher() {
-    _silenceTimer?.cancel();
-    _silenceTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (_lastSpeechTime != null &&
-          DateTime.now().difference(_lastSpeechTime!).inMinutes >= 5) {
-        _stopListening();
+  bool available = await _speech.initialize(
+    onStatus: (status) {
+      if (status == "done" || status == "notListening") {
+        setState(() => _isListening = false);
       }
-    });
-  }
+    },
+    onError: (error) {
+      setState(() => _isListening = false);
+    },
+  );
+
+  if (!available) return;
+
+  setState(() => _isListening = true);
+
+  _startCountdown();
+  _startSilenceWatcher();
+
+  _listeningTimer?.cancel();
+  _listeningTimer = Timer(_listeningDuration, _stopListening);
+
+  await _speech.listen(
+    localeId: 'ar-SA',
+    listenFor: _listeningDuration,
+    pauseFor: const Duration(seconds: 10),
+    partialResults: true,
+    cancelOnError: true,
+    onResult: (result) {
+      _lastSpeechTime = DateTime.now();
+      _processDhikr(result.recognizedWords);
+    },
+  );
+}
+
+void _startSilenceWatcher() {
+  _silenceTimer?.cancel();
+
+  _silenceTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    if (_lastSpeechTime != null &&
+        DateTime.now().difference(_lastSpeechTime!).inMinutes >= 5) {
+      _stopListening();
+    }
+  });
+}
 
   void _stopListening() {
     _speech.stop();
@@ -180,21 +208,29 @@ class _MasbahaElcState extends State<MasbahaElc>
   }
 
   void _processDhikr(String text) {
-    String cleaned = text.trim();
+  String cleaned = text.trim();
 
-    if (_processedTexts.contains(cleaned)) return;
+  if (_processedTexts.contains(cleaned)) return;
 
-    bool canCount = _lastDhikrTime == null ||
-        DateTime.now().difference(_lastDhikrTime!) > _cooldownPeriod;
+  bool canCount = _lastDhikrTime == null ||
+      DateTime.now().difference(_lastDhikrTime!) > _cooldownPeriod;
 
-    bool isDhikr = cleaned.contains(_selectedWerd) && canCount;
+  /// 🔥 More flexible matching
+  bool isDhikr = false;
 
-    if (isDhikr) {
-      _processedTexts.add(cleaned);
-      _lastDhikrTime = DateTime.now();
-      incrementCounter();
+  for (String phrase in _dhikrPhrases) {
+    if (cleaned.contains(phrase)) {
+      isDhikr = true;
+      break;
     }
   }
+
+  if (isDhikr && canCount) {
+    _processedTexts.add(cleaned);
+    _lastDhikrTime = DateTime.now();
+    incrementCounter();
+  }
+}
 
   /// ================= COUNTER =================
 
@@ -298,9 +334,12 @@ class _MasbahaElcState extends State<MasbahaElc>
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _isListening ? _stopListening : _startListening,
-        child: Icon(_isListening ? Icons.mic_off : Icons.mic),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90),
+        child: FloatingActionButton(
+          onPressed: _isListening ? _stopListening : _startListening,
+          child: Icon(_isListening ? Icons.stop : Icons.mic),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -498,7 +537,7 @@ class _MasbahaElcState extends State<MasbahaElc>
                       children: [
                         Icon(
                           Icons.restart_alt_rounded,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.inversePrimary,
                           size: screen.height * 0.02,
                         ),
                         SizedBox(width: screen.width * 0.02),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lottie/lottie.dart';
 
 class ContactUsPage extends StatefulWidget {
   const ContactUsPage({super.key});
@@ -76,9 +77,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Image.asset("assets/icons/insta_icon.png", height: 25 , width: 25,),
+                        Lottie.asset("assets/animations/wired-lineal-2542-logo-instagram-hover-pinch.json", height: 25 , width: 25,repeat: true),
                         const SizedBox(width: 10),
-                        Text('quran', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                        Text('quran0_03', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                       ],
                     ),
                   ],
