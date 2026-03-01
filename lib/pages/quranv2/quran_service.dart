@@ -95,6 +95,30 @@ Future<int> getFirstPageOfSurah(int surahNumber) async {
   return ayahs.first['page'];
 }
 
+
+Future<int> getFirstPageOfSurahInJuz(int juzNumber, int surahNumber) async {
+  final response =
+      await http.get(Uri.parse('$baseUrl/juz/$juzNumber/ar.alafasy'));
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to load juz');
+  }
+
+  final data = json.decode(response.body);
+  final ayahs = data['data']['ayahs'] as List;
+
+  final firstMatch = ayahs.cast<Map<String, dynamic>?>().firstWhere(
+        (ayah) => ayah?['surah']?['number'] == surahNumber,
+        orElse: () => null,
+      );
+
+  if (firstMatch != null) {
+    return firstMatch['page'] as int;
+  }
+
+  return getFirstPageOfSurah(surahNumber);
+}
+
 Future<int> getFirstPageOfJuz(int juzNumber) async {
   final response =
       await http.get(Uri.parse('$baseUrl/juz/$juzNumber/ar.alafasy'));
@@ -127,7 +151,8 @@ Future<int> getFirstPageOfJuz(int juzNumber) async {
         final ayahs = data['data']['ayahs'] as List;
 
         final surahNumbers =
-            ayahs.map<int>((a) => a['surah']['number'] as int).toSet().toList();
+            ayahs.map<int>((a) => a['surah']['number'] as int).toSet().toList()
+              ..sort();
 
         result[i + 1] = surahNumbers;
       }

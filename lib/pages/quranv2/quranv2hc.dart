@@ -1,6 +1,7 @@
 // lib/screens/home_screen.dart
 import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/pages/quranv2/app_theme.dart';
+import 'package:athkary/pages/quranv2/quran_models.dart';
 import 'package:athkary/pages/quranv2/quran_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -208,7 +209,7 @@ class _Quranv2hcState extends State<Quranv2hc> {
     );
   }
 
-  Widget _buildJuzCard(BuildContext context, AppProvider provider, int juzNumber, List surahs, bool isExpanded, bool isDark, Color gold) {
+  Widget _buildJuzCard(BuildContext context, AppProvider provider, int juzNumber, List<Surah> surahs, bool isExpanded, bool isDark, Color gold) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -304,13 +305,14 @@ class _Quranv2hcState extends State<Quranv2hc> {
                   final surah = surahs[i];
                   return ListTile(
                     onTap: () async {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const QuranPagev2()),
-  );
+                      await provider.navigateToSurah(surah.number);
 
-  await provider.navigateToSurah(surah.number);
-},
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const QuranPagev2()),
+                      );
+                    },
                     leading: Container(
                       width: 32,
                       height: 32,

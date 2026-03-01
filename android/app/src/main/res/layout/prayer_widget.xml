@@ -3,150 +3,250 @@
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layoutDirection="rtl"
     android:orientation="vertical"
-    android:background="#145227"
-    android:padding="16dp">
+    android:background="@drawable/prayer_widget_background"
+    android:padding="14dp">
 
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="☪ أوقات الصلاة"
-        android:textColor="#D4AF37"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center"/>
-
-    <TextView
-        android:id="@+id/widgetDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#D2E7D6"
-        android:textSize="12sp"
         android:gravity="center"
-        android:layout_marginTop="4dp"/>
+        android:text="☪ مواقيت الصلاة"
+        android:textColor="@color/widget_gold"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/widgetLocation"
+        android:id="@+id/widgetNextPrayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#D2E7D6"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textColor="@color/widget_highlight"
         android:textSize="12sp"
-        android:gravity="center"/>
+        android:textStyle="bold" />
 
-    <!-- Prayer Rows -->
-
-    <LinearLayout android:orientation="vertical"
+    <TextView
+        android:id="@+id/widgetRemainingTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:textColor="@color/widget_subtext"
+        android:textSize="11sp" />
 
-        <!-- Row 1 -->
-        <LinearLayout android:orientation="horizontal"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widgetDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/widget_subtext"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:text="•"
+            android:textColor="@color/widget_subtext"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/widgetLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/widget_subtext"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/prayerRow1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp">
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
             <TextView
                 android:id="@+id/prayerTime1"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/prayerName1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Repeat same structure for 2 → 6 -->
-
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout
+            android:id="@+id/prayerRow2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
-            <TextView android:id="@+id/prayerTime2"
+            <TextView
+                android:id="@+id/prayerTime2"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
-            <TextView android:id="@+id/prayerName2"
+            <TextView
+                android:id="@+id/prayerName2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout
+            android:id="@+id/prayerRow3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
-            <TextView android:id="@+id/prayerTime3"
+            <TextView
+                android:id="@+id/prayerTime3"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
-            <TextView android:id="@+id/prayerName3"
+            <TextView
+                android:id="@+id/prayerName3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout
+            android:id="@+id/prayerRow4"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
-            <TextView android:id="@+id/prayerTime4"
+            <TextView
+                android:id="@+id/prayerTime4"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
-            <TextView android:id="@+id/prayerName4"
+            <TextView
+                android:id="@+id/prayerName4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout
+            android:id="@+id/prayerRow5"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
-            <TextView android:id="@+id/prayerTime5"
+            <TextView
+                android:id="@+id/prayerTime5"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
-            <TextView android:id="@+id/prayerName5"
+            <TextView
+                android:id="@+id/prayerName5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout android:orientation="horizontal"
+        <LinearLayout
+            android:id="@+id/prayerRow6"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/prayer_row_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
-            <TextView android:id="@+id/prayerTime6"
+            <TextView
+                android:id="@+id/prayerTime6"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textColor="@color/widget_text"
+                android:textSize="13sp" />
 
-            <TextView android:id="@+id/prayerName6"
+            <TextView
+                android:id="@+id/prayerName6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"/>
+                android:textColor="@color/widget_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>

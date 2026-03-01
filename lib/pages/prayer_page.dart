@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart' as loc;
 import 'package:location/location.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Shared Preferences Keys
@@ -17,6 +18,7 @@ const String _athanSoundKey = 'selectedAthanSound';
 const String _soundEnabledKey = 'soundEnabled';
 const String _notificationsEnabledKey = 'notificationsEnabled';
 const String _athanEnabledKey = 'athanEnabled';
+const String _outsidePrayerPopupKey = 'outsidePrayerPopupEnabled';
 
 // Helper functions for SharedPreferences
 Future<void> saveAthanSound(String path) async {
@@ -44,6 +46,11 @@ Future<void> saveAthanEnabled(bool enabled) async {
   await prefs.setBool(_athanEnabledKey, enabled);
 }
 
+Future<void> saveOutsidePrayerPopupEnabled(bool enabled) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_outsidePrayerPopupKey, enabled);
+}
+
 Future<Map<String, dynamic>> loadAllSettings() async {
   final prefs = await SharedPreferences.getInstance();
   return {
@@ -52,6 +59,8 @@ Future<Map<String, dynamic>> loadAllSettings() async {
     'soundEnabled': prefs.getBool(_soundEnabledKey) ?? true,
     'notificationsEnabled': prefs.getBool(_notificationsEnabledKey) ?? false,
     'athanEnabled': prefs.getBool(_athanEnabledKey) ?? true,
+    'outsidePrayerPopupEnabled':
+        prefs.getBool(_outsidePrayerPopupKey) ?? true,
   };
 }
 
@@ -61,6 +70,8 @@ class PrayerDashboard extends StatefulWidget {
 }
 
 class _PrayerDashboardState extends State<PrayerDashboard> {
+  static const MethodChannel _prayerWidgetChannel =
+      MethodChannel('athkary/prayer_widget');
   double latitude = 31.9539;
   double longitude = 35.9106;
   Map<String, String> prayerTimes = {};
@@ -70,6 +81,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   bool notificationsEnabled = false;
   DateTime selectedDate = DateTime.now();
   bool athanEnabled = true;
+  bool outsidePrayerPopupEnabled = true;
   String selectedAthanSound = "audios/athan_om_alqora.mp3";
   String? athanSound;
   bool soundEnabled = true;
@@ -434,6 +446,7 @@ Widget _buildLocationInputField({
       soundEnabled = settings['soundEnabled'];
       notificationsEnabled = settings['notificationsEnabled'];
       athanEnabled = settings['athanEnabled'];
+      outsidePrayerPopupEnabled = settings['outsidePrayerPopupEnabled'];
       athanSound = selectedAthanSound;
     });
 
@@ -532,11 +545,18 @@ Widget _buildLocationInputField({
             channelKey: channelKey,
             title: '🕌 وقت الصلاة',
             body: 'حان الآن موعد ${entry.key}',
+            payload: {
+              'prayerName': entry.key,
+              'prayerTime': DateFormat.jm().format(prayerTime),
+              'outsidePopupEnabled':
+                  outsidePrayerPopupEnabled.toString(),
+            },
             bigPicture: null,
             notificationLayout: NotificationLayout.BigText,
             category: NotificationCategory.Reminder,
-            wakeUpScreen: true,
-            fullScreenIntent: entry.key != "الشروق",
+            wakeUpScreen: outsidePrayerPopupEnabled,
+            fullScreenIntent:
+                entry.key != "الشروق" && outsidePrayerPopupEnabled,
             autoDismissible: false,
             backgroundColor: const Color(0xFF0E5A2F),
           ),
@@ -595,6 +615,18 @@ Widget _buildLocationInputField({
       athanEnabled = value;
     });
     await saveAthanEnabled(value);
+  }
+
+  void toggleOutsidePrayerPopup(bool value) async {
+    setState(() {
+      outsidePrayerPopupEnabled = value;
+    });
+    await saveOutsidePrayerPopupEnabled(value);
+
+    if (notificationsEnabled) {
+      _cancelPrayerNotifications();
+      schedulePrayerNotifications();
+    }
   }
 
   void _showNotificationSettings() {
@@ -712,6 +744,25 @@ Widget _buildLocationInputField({
                         setModalState(() => athanEnabled = value);
                         toggleAthanEnabled(value);
                       },
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    _buildEnhancedSwitch(
+                      context: context,
+                      title: "إظهار نافذة الأذان خارج التطبيق",
+                      subtitle:
+                          "تشغيل/إيقاف نافذة الأذان الكاملة من الإشعار",
+                      value: outsidePrayerPopupEnabled,
+                      icon: Icons.open_in_new_rounded,
+                      isEnabled: notificationsEnabled,
+                      onChanged: notificationsEnabled
+                          ? (value) {
+                              setModalState(
+                                  () => outsidePrayerPopupEnabled = value);
+                              toggleOutsidePrayerPopup(value);
+                            }
+                          : null,
                     ),
 
                     /// Animated Dropdown
@@ -962,7 +1013,7 @@ Widget _buildLocationInputField({
   );
 }
 
-  void calculatePrayerTimes({DateTime? date}) {
+  Future<void> calculatePrayerTimes({DateTime? date}) async {
   final rawTimes = PrayerTimeService.getPrayerTimes(
     latitude: latitude,
     longitude: longitude,
@@ -975,7 +1026,32 @@ Widget _buildLocationInputField({
   setState(() {
     prayerTimes = formatted;
   });
+
+  await _syncPrayerWidget(formatted);
 }
+
+  Future<void> _syncPrayerWidget(Map<String, String> formatted) async {
+    final prefs = await SharedPreferences.getInstance();
+    const prayerKeys = ["الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء"];
+
+    for (final key in prayerKeys) {
+      await prefs.setString(key, formatted[key] ?? '--:--');
+    }
+
+    await prefs.setString('prayer_widget_location', _locationLabel);
+
+    try {
+      await _prayerWidgetChannel.invokeMethod(
+        'refreshPrayerWidget',
+        {
+          'times': formatted,
+          'location': _locationLabel,
+        },
+      );
+    } catch (_) {
+      // Ignore widget refresh errors; prayer screen should continue working.
+    }
+  }
   void _updateNextPrayer() {
     final now = DateTime.now();
     final prayerKeys = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];

@@ -163,6 +163,19 @@ class _QuranPagev2State extends State<QuranPagev2> {
 
   // ================= PAGE CONTENT =================
 
+  void _handleHorizontalSwipe(DragEndDetails details, AppProvider provider) {
+    final velocity = details.primaryVelocity ?? 0;
+
+    // RTL behavior requested:
+    // Swipe right (positive velocity) => next page
+    // Swipe left (negative velocity) => previous page
+    if (velocity > 0) {
+      provider.goToNextPage();
+    } else if (velocity < 0) {
+      provider.goToPreviousPage();
+    }
+  }
+
   Widget _buildPageContent(AppProvider provider, Color gold) {
     if (provider.currentPageAyahs.isEmpty && !provider.isPageLoading) {
       return Center(
@@ -197,24 +210,28 @@ class _QuranPagev2State extends State<QuranPagev2> {
    final allAyahs = provider.currentPageAyahs;
    final ayahs = allAyahs.take(provider.ayahsPerPage).toList();
 
-    return Column(
-      children: [
-        _buildPageOrnament(provider.currentPage, gold),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
-            child: Column(
-              children: [
-                if (ayahs.isNotEmpty &&
-                    ayahs.first.numberInSurah == 1 &&
-                    ayahs.first.surahNumber != 9)
-                  _buildBismillah(),
-                _buildAyahsText(ayahs, provider),
-              ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onHorizontalDragEnd: (details) => _handleHorizontalSwipe(details, provider),
+      child: Column(
+        children: [
+          _buildPageOrnament(provider.currentPage, gold),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+              child: Column(
+                children: [
+                  if (ayahs.isNotEmpty &&
+                      ayahs.first.numberInSurah == 1 &&
+                      ayahs.first.surahNumber != 9)
+                    _buildBismillah(),
+                  _buildAyahsText(ayahs, provider),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

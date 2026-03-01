@@ -31,6 +31,7 @@ class _TasabehState extends State<Tasabeh> {
 
   List<TimeOfDay> customNotifications = [];
   List<bool> isNotificationEnabled = [];
+  List<int> customNotificationThikrIndexes = [];
   int _notificationId = 100;
 
   /// ------------------- DATA -------------------
@@ -134,6 +135,11 @@ final List<int> tasbeehTargetCounts = const [
     await prefs.setStringList(
         'isNotificationEnabled',
         isNotificationEnabled.map((e) => e.toString()).toList());
+
+    await prefs.setStringList(
+      'customNotificationThikrIndexes',
+      customNotificationThikrIndexes.map((e) => e.toString()).toList(),
+    );
   }
 
   Future<void> loadCustomNotifications() async {
@@ -147,6 +153,8 @@ final List<int> tasbeehTargetCounts = const [
         prefs.getStringList('customNotifications');
     List<String>? enabled =
         prefs.getStringList('isNotificationEnabled');
+    List<String>? thikrIndexes =
+        prefs.getStringList('customNotificationThikrIndexes');
 
     if (times != null && enabled != null) {
       customNotifications = times.map((t) {
@@ -158,6 +166,19 @@ final List<int> tasbeehTargetCounts = const [
 
       isNotificationEnabled =
           enabled.map((e) => e == 'true').toList();
+
+      customNotificationThikrIndexes =
+          thikrIndexes?.map(int.parse).toList() ??
+              List<int>.filled(customNotifications.length, 0);
+
+      if (customNotificationThikrIndexes.length < customNotifications.length) {
+        customNotificationThikrIndexes.addAll(
+          List<int>.filled(
+            customNotifications.length - customNotificationThikrIndexes.length,
+            0,
+          ),
+        );
+      }
     }
 
     setState(() {});
@@ -187,8 +208,8 @@ final List<int> tasbeehTargetCounts = const [
     }
   }
 
-  void scheduleCustomNotification(TimeOfDay time, int id) {
-    final i = Random().nextInt(theker1.length);
+  void scheduleCustomNotification(TimeOfDay time, int id, int thikrIndex) {
+    final i = thikrIndex.clamp(0, theker1.length - 1);
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: id,
@@ -291,7 +312,7 @@ void _showCompletionSnackBar() {
   actions: [
     IconButton(
       icon: Icon(
-  (every30Min || every1Hour || every2Hours || 
+  (every30Min || every1Hour || every2Hours ||
    isNotificationEnabled.contains(true))
       ? Icons.notifications_active
       : Icons.notifications_none,
@@ -578,6 +599,13 @@ void _showCompletionSnackBar() {
                           style: const TextStyle(
                               fontWeight: FontWeight.bold),
                         ),
+                        subtitle: Text(
+                          customNotificationThikrIndexes.length > i
+                              ? theker1[customNotificationThikrIndexes[i]]
+                              : theker1[0],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: Switch(
                           activeColor: const Color(0xFF0E5A2F),
                           value: isNotificationEnabled[i],
@@ -589,7 +617,8 @@ void _showCompletionSnackBar() {
                             if (v) {
                               scheduleCustomNotification(
                                   customNotifications[i],
-                                  _notificationId + i);
+                                  _notificationId + i,
+                                  customNotificationThikrIndexes[i]);
                             } else {
                               cancelNotification(
                                   _notificationId + i);
@@ -623,21 +652,25 @@ void _showCompletionSnackBar() {
                           initialTime: TimeOfDay.now(),
                         );
 
-                        if (picked != null) {
-                          setModalState(() {
-                            customNotifications.add(picked);
-                            isNotificationEnabled.add(true);
-                          });
+                        if (picked == null) return;
 
-                          scheduleCustomNotification(
-                            picked,
-                            _notificationId +
-                                customNotifications.length -
-                                1,
-                          );
+                        final selectedIndex = await _pickTasbeehForNotification();
 
-                          saveCustomNotifications();
-                        }
+                        if (selectedIndex == null) return;
+
+                        setModalState(() {
+                          customNotifications.add(picked);
+                          isNotificationEnabled.add(true);
+                          customNotificationThikrIndexes.add(selectedIndex);
+                        });
+
+                        scheduleCustomNotification(
+                          picked,
+                          _notificationId + customNotifications.length - 1,
+                          selectedIndex,
+                        );
+
+                        saveCustomNotifications();
                       },
                       icon: const Icon(Icons.add),
                       label: const Text("إضافة وقت إشعار مخصص"),
@@ -723,5 +756,53 @@ Widget _modernSwitchTile({
     ),
   );
 }
-  
+
+Future<int?> _pickTasbeehForNotification() async {
+  int selected = 0;
+  return showDialog<int>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('اختر التسبيح للتنبيه'),
+        content: StatefulBuilder(
+          builder: (context, setDialogState) {
+            return SizedBox(
+              width: double.maxFinite,
+              child: DropdownButton<int>(
+                value: selected,
+                isExpanded: true,
+                items: List.generate(
+                  theker1.length,
+                  (index) => DropdownMenuItem(
+                    value: index,
+                    child: Text(
+                      theker1[index],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setDialogState(() => selected = value);
+                },
+              ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, selected),
+            child: const Text('حفظ'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
