@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.2+4
 
 environment:
   sdk: ^3.6.0
@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   awesome_notifications: ^0.10.1
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.0
   flutter_launcher_icons: ^0.14.2
   pdf: ^3.11.1
   printing: ^5.13.4
@@ -47,21 +47,21 @@ dependencies:
   path_provider: ^2.1.5
   # shared_preferences: ^2.3.5
   shared_preferences: ^2.4.0
-  rive: ^0.13.20
+  rive: ^0.13.0
   lottie: ^3.3.1
   # flutter_native_splash: ^2.4.4
-  timezone: ^0.10.0
+  timezone: ^0.11.0
   # geolocator: ^9.0.2
   intl: ^0.20.2
   audioplayers: ^6.1.2
   adhan: ^2.0.0+1
   easy_localization: ^3.0.7
   flutter_localization: ^0.3.0
-  firebase_core: ^3.12.0
-  cloud_firestore: ^5.6.4
-  firebase_auth: ^5.5.0
+  firebase_core: ^4.1.1
+  cloud_firestore: ^6.0.2
+  firebase_auth: ^6.1.0
   url_launcher: ^6.3.1
-  package_info_plus: ^8.3.0
+  package_info_plus: ^9.0.0
   # geolocator: ^13.0.4
   # flutter_compass: ^0.8.0
   # vector_math: ^2.1.4
@@ -77,11 +77,17 @@ dependencies:
   speech_to_text: ^7.0.0
   quran: ^1.3.3
   alquran_cloud: ^0.0.1
-  geocoding: ^4.0.0
+  firebase_remote_config: ^6.0.2
+  # share_plus: ^12.0.0
+  provider: ^6.1.1
+  flutter_animate: ^4.3.0
+  cached_network_image: ^3.3.0
+  supabase_flutter: ^2.0.0
+  dio: ^4.0.6
+  geocoding: ^2.1.1
   flutter_card_swiper: ^7.2.0
-  firebase_remote_config: ^5.4.7
-  supabase_flutter: ^2.12.0
   share_plus: ^12.0.1
+  http: ^1.2.2
 
   
 dev_dependencies:
@@ -136,7 +142,7 @@ flutter:
     # - assets/animation_riv/Logo-4-[remix] (2).json
     - assets/audios/
     - assets/audio_athkar/
-    - assets/audios/athan1.mp3
+    # - assets/audios/athan1.mp3
     # - assets/audios/20250210_220909_1 (1).m4a
     - assets/animations/duaa1746555885.json
     # - assets/pdfs/quran_hafs_m.pdf
