@@ -78,7 +78,7 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
       localPath = tempFilePath;
       isReloading = false;
     });
-    _pdfViewController.setPage(currentPage);
+    
   }
 
   void toggleNightMode() async {
@@ -117,7 +117,7 @@ class _BookmarkPdfViewerScreenState extends State<BookmarkPdfViewerScreen> {
 
 Future<void> _saveBookmark() async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('savedBookmarkPage', currentPage);
+  await prefs.setInt('savedBookmarkPage', currentPage + 1);
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -221,9 +221,12 @@ Future<void> _saveBookmark() async {
                   isReady = true;
                 }),
                 onViewCreated: (controller) {
-                  _pdfViewController = controller;
-                  // _pdfViewController.setPage(currentPage);
-                },
+                 _pdfViewController = controller;
+               
+                 Future.delayed(const Duration(milliseconds: 150), () {
+                   _pdfViewController.setPage(currentPage);
+                 });
+               },
                 onPageChanged: (page, total) async {
                 setState(() {
                   currentPage = page!;

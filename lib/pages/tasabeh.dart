@@ -208,26 +208,33 @@ Future<void> _saveTasbeehCounts() async {
   /// ================= NOTIFICATION LOGIC =================
 
   void _toggleRecurringNotification(
-      String tag, bool enable, int interval) {
-    if (enable) {
-      AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: tag.hashCode,
-          channelKey:
-              soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
-          title: theker1[Random().nextInt(theker1.length)],
-          body: thekinfo1[Random().nextInt(thekinfo1.length)],
-        ),
-        schedule: NotificationInterval(
-          interval: Duration(minutes: interval),
-          repeats: true,
-          timeZone: 'Asia/Amman',
-        ),
-      );
-    } else {
-      AwesomeNotifications().cancel(tag.hashCode);
-    }
+    String tag, bool enable, int interval) {
+
+  final notificationId = tag.hashCode;
+
+  if (enable) {
+
+    final randomIndex = Random().nextInt(theker1.length);
+
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: notificationId,
+        channelKey:
+            soundEnabled ? 'tasabeh_with_sound' : 'tasabeh_silent',
+        title: theker1[randomIndex],
+        body: thekinfo1[randomIndex],
+      ),
+      schedule: NotificationInterval(
+        interval: Duration(minutes: interval),
+        repeats: true,
+        timeZone: 'Asia/Amman',
+      ),
+    );
+
+  } else {
+    AwesomeNotifications().cancel(notificationId);
   }
+}
 
   void scheduleCustomNotification(TimeOfDay time, int id, int thikrIndex) {
     final i = thikrIndex.clamp(0, theker1.length - 1);
@@ -483,7 +490,7 @@ void _showCompletionSnackBar() {
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.tertiary,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(30)),
               boxShadow: const [

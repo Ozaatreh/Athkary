@@ -62,7 +62,7 @@ class TajweedText extends StatelessWidget {
   }
 
   List<_TajweedPiece> _parse(String source) {
-    final regex = RegExp(r'\[(\w)(?::\d+)?\[(.*?)\]\]');
+    final regex = RegExp(r'\[(\w)(?::\d+)?\[(.*?)\]');
     final matches = regex.allMatches(source);
     if (matches.isEmpty) {
       return [_TajweedPiece(content: source, key: null)];

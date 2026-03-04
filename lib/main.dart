@@ -1,7 +1,6 @@
 import 'package:athkary/Component/athan_page.dart';
 import 'package:athkary/Component/splash_screen.dart';
 import 'package:athkary/Component/notification.dart';
-import 'package:athkary/pages/quranv2/app_provider.dart';
 import 'package:athkary/theme/dark_mode.dart';
 import 'package:athkary/theme/light_mode.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -119,11 +118,7 @@ Future<void> main() async {
   themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AppProvider()),
-      ],
-      child: ValueListenableBuilder<ThemeMode>(
+     ValueListenableBuilder<ThemeMode>(
         valueListenable: themeNotifier,
         builder: (context, themeMode, _) {
           return MaterialApp(
@@ -136,7 +131,7 @@ Future<void> main() async {
           );
         },
       ),
-    ),
+    
   );
 }
 

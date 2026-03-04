@@ -19,7 +19,6 @@ const String _soundEnabledKey = 'soundEnabled';
 const String _notificationsEnabledKey = 'notificationsEnabled';
 const String _athanEnabledKey = 'athanEnabled';
 const String _outsidePrayerPopupKey = 'outsidePrayerPopupEnabled';
-
 // Helper functions for SharedPreferences
 Future<void> saveAthanSound(String path) async {
   final prefs = await SharedPreferences.getInstance();
@@ -92,7 +91,7 @@ class _PrayerDashboardState extends State<PrayerDashboard> {
   final TextEditingController _longitudeController = TextEditingController();
   String? _lastAthanKey;
   final Set<int> _prayerNotificationIds = <int>{};
-
+  
   @override
   void initState() {
     super.initState();
@@ -639,6 +638,9 @@ Widget _buildLocationInputField({
   }
 
   void _showNotificationSettings() {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final surface = theme.colorScheme.surface;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -653,7 +655,7 @@ Widget _buildLocationInputField({
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.tertiary,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(30),
                 ),
@@ -694,7 +696,7 @@ Widget _buildLocationInputField({
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color:
-                                Theme.of(context).colorScheme.primary,
+                                surface,
                           ),
                         ),
                       ],
@@ -870,7 +872,7 @@ Widget _buildLocationInputField({
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color:
-                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.surface,
                   ),
                 ),
                 const SizedBox(height: 4),

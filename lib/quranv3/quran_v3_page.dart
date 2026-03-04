@@ -44,7 +44,8 @@ class _QuranV3PageState extends State<QuranV3Page> {
     try {
       final surahs = await _service.getSurahs();
       final prefs = await SharedPreferences.getInstance();
-      final savedFavorites = prefs.getStringList('quranv3_favorite_pages') ?? [];
+      final savedFavorites =
+          prefs.getStringList('quranv3_favorite_pages') ?? [];
       if (!mounted) return;
       setState(() {
         _allSurahs = surahs;
@@ -67,10 +68,10 @@ class _QuranV3PageState extends State<QuranV3Page> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final background = isDark
         ? const [Color(0xFF061B1A), Color(0xFF0A2E28), Color(0xFF102E2A)]
-        : const [Color(0xFFEFF5E8), Color(0xFFDDEBD1), Color(0xFFD0E0BF)];
+        : const [Color.fromARGB(255, 23, 63, 24), Color.fromARGB(255, 99, 137, 105), Color.fromARGB(255, 24, 162, 51)];
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: TextDirection.ltr,
       child: Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -97,7 +98,7 @@ class _QuranV3PageState extends State<QuranV3Page> {
   }
 
   Widget _buildHeader(bool isDark) {
-    final textColor = isDark ? Colors.white : const Color(0xFF14332A);
+    final textColor = isDark ? Colors.white : const Color.fromARGB(255, 229, 233, 232);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
       child: Column(
@@ -106,7 +107,8 @@ class _QuranV3PageState extends State<QuranV3Page> {
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.arrow_back_rounded, color: textColor, size: 30),
+                icon:
+                    Icon(Icons.arrow_back_ios_new, color: textColor, size: 30),
               ),
               const Spacer(),
               IconButton(
@@ -184,9 +186,11 @@ class _QuranV3PageState extends State<QuranV3Page> {
           return Card(
             color: isDark ? Colors.white10 : Colors.white,
             margin: const EdgeInsets.symmetric(vertical: 5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             child: ListTile(
-              title: Text('سورة ${surah.name}', style: GoogleFonts.amiri(fontSize: 30)),
+              title: Text('سورة ${surah.name}',
+                  style: GoogleFonts.amiri(fontSize: 30)),
               subtitle: Text(
                 '${surah.englishName} • ${surah.numberOfAyahs} آية',
                 style: GoogleFonts.cormorantGaramond(fontSize: 22),
@@ -209,9 +213,12 @@ class _QuranV3PageState extends State<QuranV3Page> {
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.84),
+            color: isDark
+                ? Colors.white.withOpacity(0.08)
+                : Colors.white.withOpacity(0.84),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: isDark ? Colors.white30 : const Color(0xFF92A89B)),
+            border: Border.all(
+                color: isDark ? Colors.white30 : const Color(0xFF92A89B)),
           ),
           child: Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -227,7 +234,8 @@ class _QuranV3PageState extends State<QuranV3Page> {
               ),
               title: Text(
                 'الجزء $juz',
-                style: GoogleFonts.amiri(fontSize: 32, fontWeight: FontWeight.bold),
+                style: GoogleFonts.amiri(
+                    fontSize: 32, fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
                 'Juz $juz • ${surahs.length} سور',
@@ -274,7 +282,8 @@ class _QuranV3PageState extends State<QuranV3Page> {
   Future<void> _openBookmarksSheet() async {
     final sorted = _favoritePages.toList()..sort();
     if (sorted.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا توجد صفحات محفوظة بعد')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('لا توجد صفحات محفوظة بعد')));
       return;
     }
 
@@ -334,15 +343,15 @@ class _QuranV3PageState extends State<QuranV3Page> {
       final map = <int, SurahLite>{};
       final Map<int, int> surahFirstPageInJuz = {};
 
-for (final ayah in ayahs) {
-  final surahNumber = ayah.surah.number;
+      for (final ayah in ayahs) {
+        final surahNumber = ayah.surah.number;
 
-  if (!surahFirstPageInJuz.containsKey(surahNumber)) {
-    surahFirstPageInJuz[surahNumber] = ayah.page;
-  }
+        if (!surahFirstPageInJuz.containsKey(surahNumber)) {
+          surahFirstPageInJuz[surahNumber] = ayah.page;
+        }
 
-  map[surahNumber] = ayah.surah;
-}
+        map[surahNumber] = ayah.surah;
+      }
       if (!mounted) return;
       setState(() => _juzSurahs[juz] = map.values.toList());
     } catch (_) {
@@ -354,7 +363,8 @@ for (final ayah in ayahs) {
     }
   }
 
-  Future<void> _openReader(int surah, String surahName, {int? initialPage}) async {
+  Future<void> _openReader(int surah, String surahName,
+      {int? initialPage}) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -368,7 +378,11 @@ for (final ayah in ayahs) {
     await _boot();
   }
 }
-
+enum LoopModeType {
+  none,
+  selected,
+  page,
+}
 class QuranV3ReaderPage extends StatefulWidget {
   const QuranV3ReaderPage({
     super.key,
@@ -389,11 +403,11 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
   final QuranV3Service _service = QuranV3Service();
   final AudioPlayer _player = AudioPlayer();
   final ScrollController _scrollController = ScrollController();
-  StreamSubscription<PlayerState>? _playerSub;
+  StreamSubscription<Duration>? _positionSub;
 
   final Map<String, String> _qareeMap = {
     'العفاسي': 'ar.alafasy',
-    'السديس': 'ar.abdurrahmaansudais',
+    'عبدالباسط عبدالصمد': 'ar.abdulbasitmurattal',
     'ماهر المعيقلي': 'ar.mahermuaiqly',
     'هاني الرفاعي': 'ar.hanirifai',
   };
@@ -433,14 +447,19 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
   String _palette = 'classic';
   String _status = '';
   String _selectedQareeLabel = 'العفاسي';
-
+  LoopModeType _loopMode = LoopModeType.none;
+  bool _continuousNextPage = false;
+ bool _transitioning = false;
   @override
   void initState() {
     super.initState();
     _currentSurah = widget.initialSurah;
     _currentSurahName = widget.initialSurahName;
-    _playerSub = _player.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
+    _positionSub = _player.positionStream.listen((position) {
+      final duration = _player.duration;
+      if (duration == null) return;
+
+      if (position >= duration - const Duration(milliseconds: 120)) {
         _playNext();
       }
     });
@@ -450,7 +469,7 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
 
   @override
   void dispose() {
-    _playerSub?.cancel();
+    _positionSub?.cancel();
     _player.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -458,13 +477,31 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+
     final savedFavorites = prefs.getStringList('quranv3_favorite_pages') ?? [];
     final qaree = prefs.getString('quranv3_qaree_label') ?? 'العفاسي';
+
     if (!mounted) return;
+
     setState(() {
       _favoritePages = savedFavorites.toSet();
       _selectedQareeLabel = _qareeMap.containsKey(qaree) ? qaree : 'العفاسي';
+
+      // ✅ Page settings
+      _showTajweed = prefs.getBool('quranv3_show_tajweed') ?? true;
+      _fontSize = prefs.getDouble('quranv3_font_size') ?? 34;
+      _fontFamily = prefs.getString('quranv3_font_family') ?? 'Amiri';
+      _palette = prefs.getString('quranv3_palette') ?? 'classic';
     });
+  }
+
+  Future<void> _saveReaderSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('quranv3_show_tajweed', _showTajweed);
+    await prefs.setDouble('quranv3_font_size', _fontSize);
+    await prefs.setString('quranv3_font_family', _fontFamily);
+    await prefs.setString('quranv3_palette', _palette);
   }
 
   Future<void> _saveQaree(String label) async {
@@ -482,7 +519,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
         _favoritePages.add(key);
       }
     });
-    await prefs.setStringList('quranv3_favorite_pages', _favoritePages.toList());
+    await prefs.setStringList(
+        'quranv3_favorite_pages', _favoritePages.toList());
   }
 
   Future<void> _loadInitialData() async {
@@ -497,7 +535,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
     try {
       int page = widget.initialPage ?? 1;
       if (widget.initialPage == null) {
-        final surahAyahs = await _service.getSurahAyahs(_currentSurah, edition: 'quran-tajweed');
+        final surahAyahs = await _service.getSurahAyahs(_currentSurah,
+            edition: 'quran-tajweed');
         if (surahAyahs.isNotEmpty) {
           page = surahAyahs.first.page;
           _currentSurahName = surahAyahs.first.surah.name;
@@ -530,7 +569,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
       setState(() {
         _currentPage = page;
         _pageAyahs = ayahs;
-        _currentSurah = ayahs.isNotEmpty ? ayahs.first.surah.number : _currentSurah;
+        _currentSurah =
+            ayahs.isNotEmpty ? ayahs.first.surah.number : _currentSurah;
         if (ayahs.isNotEmpty && ayahs.first.surah.name.trim().isNotEmpty) {
           _currentSurahName = ayahs.first.surah.name;
         }
@@ -540,10 +580,10 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
         _currentlyPlayingAyahNumber = null;
       });
       WidgetsBinding.instance.addPostFrameCallback((_) {
-  if (_scrollController.hasClients) {
-    _scrollController.jumpTo(0);
-  }
-});
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0);
+        }
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -613,7 +653,9 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
               IconButton(
                 onPressed: _toggleFavoritePage,
                 icon: Icon(
-                  isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  isFav
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
                   color: isFav ? Colors.amber : Colors.white,
                 ),
               ),
@@ -625,7 +667,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
                 ),
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white),
+                  icon: const Icon(Icons.arrow_forward_ios_rounded,
+                      color: Colors.white),
                 ),
               ),
             ],
@@ -644,7 +687,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
             style: GoogleFonts.amiri(color: Colors.white70, fontSize: 22),
           ),
           if (_status.isNotEmpty)
-            Text(_status, style: GoogleFonts.tajawal(color: Colors.red.shade200)),
+            Text(_status,
+                style: GoogleFonts.tajawal(color: Colors.red.shade200)),
         ],
       ),
     );
@@ -668,7 +712,9 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
             margin: const EdgeInsets.symmetric(vertical: 6),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: selected ? Colors.green.withOpacity(0.18) : Colors.transparent,
+              color: selected
+                  ? Colors.green.withOpacity(0.18)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
               border: isReading
                   ? Border.all(color: Colors.amberAccent, width: 1.6)
@@ -731,7 +777,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
         children: [
           IconButton(
             onPressed: _playPrevious,
-            icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 40),
+            icon: const Icon(Icons.skip_previous_rounded,
+                color: Colors.white, size: 40),
           ),
           InkWell(
             onTap: _togglePlayPause,
@@ -743,7 +790,7 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                _player.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                _player.playing ? Icons.stop_rounded : Icons.play_arrow_rounded,
                 color: Colors.white,
                 size: 54,
               ),
@@ -751,7 +798,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
           ),
           IconButton(
             onPressed: _playNext,
-            icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 40),
+            icon: const Icon(Icons.skip_next_rounded,
+                color: Colors.white, size: 40),
           ),
         ],
       ),
@@ -783,10 +831,18 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
 
   Future<void> _togglePlayPause() async {
     if (_player.playing) {
-      await _player.pause();
+      await _player.stop();
+      if (!mounted) return;
+
+      setState(() {
+        _currentlyPlayingAyahNumber = null;
+      });
+
       return;
     }
-    await _playIndex(_currentPlayIndex < _pageAyahs.length ? _currentPlayIndex : 0);
+
+    await _playIndex(
+        _currentPlayIndex < _pageAyahs.length ? _currentPlayIndex : 0);
   }
 
   Future<void> _playIndex(int index) async {
@@ -801,7 +857,8 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
     _currentPlayIndex = index;
     final ayah = _pageAyahs[index];
     final qareeId = _qareeMap[_selectedQareeLabel] ?? 'ar.alafasy';
-    final url = 'https://cdn.islamic.network/quran/audio/128/$qareeId/${ayah.number}.mp3';
+    final url =
+        'https://cdn.islamic.network/quran/audio/128/$qareeId/${ayah.number}.mp3';
 
     await _player.setUrl(url);
     await _player.play();
@@ -812,22 +869,45 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
   }
 
   Future<void> _playNext() async {
-    final queue = _queueIndexes();
-    if (queue.isEmpty) return;
-    final currentPosition = queue.indexOf(_currentPlayIndex);
-    if (currentPosition == -1) {
-      await _playIndex(queue.first);
-      return;
-    }
-    final next = currentPosition + 1;
-    if (next >= queue.length) {
-      await _player.stop();
-      if (!mounted) return;
-      setState(() => _currentlyPlayingAyahNumber = null);
-      return;
-    }
-    await _playIndex(queue[next]);
+  final queue = _queueIndexes();
+  if (queue.isEmpty) return;
+
+  final currentPosition = queue.indexOf(_currentPlayIndex);
+
+  if (currentPosition == -1) {
+    await _playIndex(queue.first);
+    return;
   }
+
+  final next = currentPosition + 1;
+
+  if (next < queue.length) {
+    await _playIndex(queue[next]);
+    return;
+  }
+
+  // ===== Reached end =====
+
+  if (_loopMode == LoopModeType.selected ||
+      _loopMode == LoopModeType.page) {
+    await _playIndex(queue.first);
+    return;
+  }
+
+  if (_continuousNextPage) {
+    await _loadPage(_currentPage + 1);
+    if (_pageAyahs.isNotEmpty) {
+      await _playIndex(0);
+    }
+    return;
+  }
+
+  await _player.stop();
+  if (!mounted) return;
+  setState(() {
+    _currentlyPlayingAyahNumber = null;
+  });
+}
 
   Future<void> _playPrevious() async {
     final queue = _queueIndexes();
@@ -842,74 +922,154 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
 
   Future<void> _copyAyah(AyahItem ayah) async {
     await Clipboard.setData(
-      ClipboardData(text: '${_stripTajweed(ayah.text)}\n(${ayah.surah.name}:${ayah.numberInSurah})'),
+      ClipboardData(
+          text:
+              '${_stripTajweed(ayah.text)}\n(${ayah.surah.name}:${ayah.numberInSurah})'),
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ الآية')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('تم نسخ الآية')));
   }
 
   String _stripTajweed(String value) {
-    return value.replaceAllMapped(RegExp(r'\[(\w)(?::\d+)?\[(.*?)\]'), (m) => m.group(2) ?? '');
+    return value.replaceAllMapped(
+        RegExp(r'\[(\w)(?::\d+)?\[(.*?)\]'), (m) => m.group(2) ?? '');
   }
 
   void _openSettings() {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final surface = theme.colorScheme.tertiary;
+
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      backgroundColor: surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (_) {
         return StatefulBuilder(
           builder: (_, setSheetState) {
             return Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('إعدادات القراءة', style: GoogleFonts.amiri(fontSize: 28, fontWeight: FontWeight.bold)),
-                    SwitchListTile(
-                      title: const Text('تفعيل ألوان التجويد'),
-                      value: _showTajweed,
-                      onChanged: (v) {
-                        setSheetState(() => _showTajweed = v);
-                        setState(() {});
-                      },
-                    ),
-                    ListTile(
-                      title: const Text('حجم الخط'),
-                      subtitle: Slider(
-                        value: _fontSize,
-                        min: 24,
-                        max: 50,
-                        onChanged: (v) {
-                          setSheetState(() => _fontSize = v);
-                          setState(() {});
-                        },
+                    /// ===== TITLE =====
+                    Text(
+                      'إعدادات القراءة',
+                      style: GoogleFonts.amiri(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: primary,
                       ),
                     ),
-                    ListTile(
-                      title: const Text('نوع الخط'),
-                      trailing: DropdownButton<String>(
+
+                    const SizedBox(height: 24),
+
+                    /// ===== TAJWEED TOGGLE =====
+                    _sectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              'تفعيل ألوان التجويد',
+                              style: GoogleFonts.tajawal(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            value: _showTajweed,
+                            activeColor: primary,
+                            onChanged: (v) {
+                              setSheetState(() => _showTajweed = v);
+                              setState(() {});
+                              _saveReaderSettings();
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'إذا واجهت مشكلة في عرض القرآن (مثلاً ظهور أحرف إنجليزية داخل النص)، قم بإلغاء تفعيل الألوان.',
+                            style: GoogleFonts.tajawal(
+                              fontSize: 13,
+                              color: theme.textTheme.bodySmall?.color
+                                  ?.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    /// ===== FONT SIZE =====
+                    _sectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'حجم الخط',
+                            style: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: primary,
+                              thumbColor: primary,
+                              overlayColor: primary.withOpacity(0.15),
+                            ),
+                            child: Slider(
+                              value: _fontSize,
+                              min: 24,
+                              max: 50,
+                              divisions: 13,
+                              label: _fontSize.toInt().toString(),
+                              onChanged: (v) {
+                                setSheetState(() => _fontSize = v);
+                                setState(() {});
+                                _saveReaderSettings();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    /// ===== FONT TYPE =====
+                    _sectionCard(
+                      child: _dropdownRow(
+                        title: 'نوع الخط',
                         value: _fontFamily,
                         items: const [
-                          DropdownMenuItem(value: 'Amiri', child: Text('Amiri')),
-                          DropdownMenuItem(value: 'Tajawal', child: Text('Tajawal')),
-                          DropdownMenuItem(value: 'Cairo', child: Text('Cairo')),
-                          DropdownMenuItem(value: 'Scheherazade New', child: Text('Scheherazade')),
+                          'Amiri',
+                          'Tajawal',
+                          'Cairo',
+                          'Scheherazade New',
                         ],
                         onChanged: (value) {
                           if (value == null) return;
                           setSheetState(() => _fontFamily = value);
                           setState(() {});
+                          _saveReaderSettings();
                         },
                       ),
                     ),
-                    ListTile(
-                      title: const Text('القارئ'),
-                      trailing: DropdownButton<String>(
+
+                    const SizedBox(height: 16),
+
+                    /// ===== QAREE =====
+                    _sectionCard(
+                      child: _dropdownRow(
+                        title: 'القارئ',
                         value: _selectedQareeLabel,
-                        items: _qareeMap.keys
-                            .map((name) => DropdownMenuItem(value: name, child: Text(name)))
-                            .toList(),
+                        items: _qareeMap.keys.toList(),
                         onChanged: (value) {
                           if (value == null) return;
                           setSheetState(() => _selectedQareeLabel = value);
@@ -918,35 +1078,147 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
                         },
                       ),
                     ),
-                    ListTile(
-                      title: const Text('ألوان التجويد'),
-                      subtitle: Wrap(
-                        spacing: 8,
+                    const SizedBox(height: 16),
+
+_sectionCard(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+
+      Text(
+        'وضع التكرار',
+        style: GoogleFonts.tajawal(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      const SizedBox(height: 10),
+
+      RadioListTile<LoopModeType>(
+        title: const Text('بدون تكرار'),
+        value: LoopModeType.none,
+        groupValue: _loopMode,
+        onChanged: (v) {
+          setSheetState(() => _loopMode = v!);
+          setState(() {});
+        },
+      ),
+
+      RadioListTile<LoopModeType>(
+        title: const Text('تكرار المحدد فقط'),
+        value: LoopModeType.selected,
+        groupValue: _loopMode,
+        onChanged: (v) {
+          setSheetState(() => _loopMode = v!);
+          setState(() {});
+        },
+      ),
+
+      RadioListTile<LoopModeType>(
+        title: const Text('تكرار الصفحة كاملة'),
+        value: LoopModeType.page,
+        groupValue: _loopMode,
+        onChanged: (v) {
+          setSheetState(() => _loopMode = v!);
+          setState(() {});
+        },
+      ),
+
+      const Divider(),
+
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: const Text('تشغيل مستمر للصفحة التالية'),
+        subtitle: const Text(
+          'عند انتهاء الصفحة ينتقل للصفحة التالية تلقائياً',
+        ),
+        value: _continuousNextPage,
+        onChanged: (v) {
+          setSheetState(() => _continuousNextPage = v);
+          setState(() {});
+        },
+      ),
+    ],
+  ),
+),
+                    const SizedBox(height: 16),
+                    
+                    /// ===== TAJWEED PALETTES =====
+                    _sectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (final key in _palettes.keys)
-                            ChoiceChip(
-                              label: Text(key),
-                              selected: _palette == key,
-                              onSelected: (_) {
-                                setSheetState(() => _palette = key);
-                                setState(() {});
-                              },
+                          Text(
+                            'ألوان التجويد',
+                            style: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _palettes.keys.map((key) {
+                              final selected = _palette == key;
+
+                              return ChoiceChip(
+                                label: Text(key),
+                                selected: selected,
+                                selectedColor: primary.withOpacity(0.15),
+                                labelStyle: TextStyle(
+                                  color: selected
+                                      ? primary
+                                      : theme.textTheme.bodyMedium?.color,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
+                                side: BorderSide(
+                                  color: selected
+                                      ? primary
+                                      : primary.withOpacity(0.2),
+                                ),
+                                onSelected: (_) {
+                                  setSheetState(() => _palette = key);
+                                  setState(() {});
+                                  _saveReaderSettings();
+                                },
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ),
                     ),
-                    ListTile(
-                      title: const Text('اختصارات التحديد'),
-                      subtitle: Wrap(
-                        spacing: 8,
+
+                    const SizedBox(height: 16),
+
+                    /// ===== ACTIONS =====
+                    _sectionCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ActionChip(label: const Text('نسخ المحدد'), onPressed: _copySelected),
-                          ActionChip(
-                            label: const Text('مسح التحديد'),
-                            onPressed: () {
-                              setSheetState(() => _selectedAyahs.clear());
-                              setState(() {});
-                            },
+                          Text(
+                            'اختصارات التحديد',
+                            style: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 10,
+                            children: [
+                              OutlinedButton(
+                                onPressed: _copySelected,
+                                child: const Text('نسخ المحدد'),
+                              ),
+                              OutlinedButton(
+                                onPressed: () {
+                                  setSheetState(() => _selectedAyahs.clear());
+                                  setState(() {});
+                                },
+                                child: const Text('مسح التحديد'),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -961,17 +1233,65 @@ class _QuranV3ReaderPageState extends State<QuranV3ReaderPage> {
     );
   }
 
+  Widget _sectionCard({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _dropdownRow({
+    required String title,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.tajawal(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        DropdownButton<String>(
+          value: value,
+          underline: const SizedBox(),
+          items: items
+              .map((e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
   Future<void> _copySelected() async {
-    final selected = _pageAyahs.where((a) => _selectedAyahs.contains(a.number)).toList();
+    final selected =
+        _pageAyahs.where((a) => _selectedAyahs.contains(a.number)).toList();
     if (selected.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يوجد تحديد')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('لا يوجد تحديد')));
       return;
     }
     final text = selected
-        .map((a) => '${_stripTajweed(a.text)}\n(${a.surah.name}:${a.numberInSurah})')
+        .map((a) =>
+            '${_stripTajweed(a.text)}\n(${a.surah.name}:${a.numberInSurah})')
         .join('\n\n');
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ الآيات المحددة')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('تم نسخ الآيات المحددة')));
   }
 }

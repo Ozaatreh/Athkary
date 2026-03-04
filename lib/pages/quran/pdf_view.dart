@@ -38,6 +38,7 @@ class _QuranViewerScreenState extends State<QuranViewerScreen> {
     _pageController.text = widget.startPage.toString();
     _loadSettings();
     _startFabTimer();
+    
   }
 
   void _startFabTimer() {
@@ -201,7 +202,7 @@ class _QuranViewerScreenState extends State<QuranViewerScreen> {
           });
 
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('lastPage', page!);
+          await prefs.setInt('lastPage', page! + 1);
 
           _startFabTimer();
         },

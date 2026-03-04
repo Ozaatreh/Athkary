@@ -2,9 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:athkary/pages/quranv2/app_provider.dart';
-import 'package:athkary/pages/quranv2/quran_page_screen.dart';
-import 'package:athkary/pages/quranv2/quranv2hc.dart';
 import 'package:athkary/pages/ramadan/ramadan_navs.dart';
 import 'package:athkary/quranv3/quran_v3_page.dart';
 import 'package:athkary/services/prayer_time_service.dart';
@@ -132,12 +129,12 @@ class _HomePageState extends State<HomePage> {
       'type': 'small',
     },
   
-        {
-      'title': 'Quran V3',
-      'animationPath':
-          'assets/animations/wired-lineal-112-book-hover-flutter.json',
-      'page': const QuranV3Page(),
-      'type': 'small',
+    {
+       'title': 'Quran Cloud',
+       'animationPath':
+           'assets/animations/wired-lineal-112-book-hover-flutter.json',
+       'page': QuranV3Page(),
+       'type': 'small',
     },
   
   ];

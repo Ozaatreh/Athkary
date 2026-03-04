@@ -10,6 +10,7 @@ colorScheme: ColorScheme.light(
   inversePrimary:  const Color.fromARGB(255, 0, 0, 0),
   inverseSurface:  const Color.fromARGB(255, 23, 116, 32),
   onPrimary: const Color.fromARGB(255, 2, 66, 9),
+  tertiary: const Color.fromARGB(255, 186, 236, 202),
   ),
 
   textTheme:ThemeData.light().textTheme.apply(
